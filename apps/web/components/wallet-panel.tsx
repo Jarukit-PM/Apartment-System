@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { ActionForm } from "@/components/action-form";
+import { WalletTopUpClient } from "@/components/wallet-top-up-client";
 import { apiGetJsonAuthed } from "@/lib/server-api";
-import { walletTopUp, walletTransfer } from "@/lib/wallet-actions";
+import { walletTransfer } from "@/lib/wallet-actions";
 import type { SingleWrapper, WalletBundle } from "@/lib/types";
 
 function formatThb(satang: number, locale: string): string {
@@ -69,24 +70,7 @@ export async function WalletPanel({ locale }: { locale: string }) {
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">{t("walletTopUpTitle")}</h2>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{t("walletTopUpHint")}</p>
-          <div className="mt-4">
-            <ActionForm action={walletTopUp} locale={locale} submitLabel={t("walletTopUpSubmit")}>
-              <div>
-                <label htmlFor="wallet-top-amount" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  {t("walletAmountLabel")}
-                </label>
-                <input
-                  id="wallet-top-amount"
-                  name="amountBaht"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="100.00"
-                  required
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
-                />
-              </div>
-            </ActionForm>
-          </div>
+          <WalletTopUpClient locale={locale} />
         </section>
 
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">

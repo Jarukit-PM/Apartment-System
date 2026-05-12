@@ -45,6 +45,10 @@ applySelectedKeysFromRootEnv();
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   output: "standalone",
+  /** Ensure next-intl JSON and i18n config ship in Docker `standalone` output (avoids runtime / locale 404s). */
+  outputFileTracingIncludes: {
+    "/**": ["./messages/**/*.json", "./i18n/**/*.ts"],
+  },
   webpack: (config, { dev }) => {
     // PackFileCacheStrategy / FileSystemInfo “import(t)” lines come from webpack’s
     // infrastructure logger, not compilation warnings — ignoreWarnings does not apply.
