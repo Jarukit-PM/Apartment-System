@@ -8,6 +8,7 @@ import (
 
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // UnitPartner reads and updates unit occupancy for lease rules.
@@ -16,21 +17,23 @@ type UnitPartner interface {
 	SetStatus(ctx context.Context, id primitive.ObjectID, status string) error
 }
 
-// ResidentCounter validates resident references.
-type ResidentCounter interface {
+// ResidentPartner validates residents and updates primary unit after self-lease.
+type ResidentPartner interface {
 	CountByIDs(ctx context.Context, ids []primitive.ObjectID) (int64, error)
+	SetPrimaryUnitID(ctx context.Context, residentID, unitID primitive.ObjectID) error
 }
 
 // Service applies lease rules (one active lease per unit).
 type Service struct {
 	repo      *Repo
 	units     UnitPartner
-	residents ResidentCounter
+	residents ResidentPartner
+	db        func() *mongo.Database
 }
 
 // NewService constructs the lease service.
-func NewService(repo *Repo, units UnitPartner, residents ResidentCounter) *Service {
-	return &Service{repo: repo, units: units, residents: residents}
+func NewService(repo *Repo, units UnitPartner, residents ResidentPartner, db func() *mongo.Database) *Service {
+	return &Service{repo: repo, units: units, residents: residents, db: db}
 }
 
 func normalizeStatus(s string) string {
@@ -63,6 +66,15 @@ var ErrUnitMissing = errors.New("unit not found")
 
 // ErrDeleteActive blocks deleting an active lease.
 var ErrDeleteActive = errors.New("cannot delete an active lease; end it first")
+
+// ErrResidentAlreadyLeasing when the resident already holds an active lease.
+var ErrResidentAlreadyLeasing = errors.New("resident already has an active lease")
+
+// ErrSelfServiceUnitUnavailable when the unit cannot be self-booked (not vacant, no listing rent, or self-service disabled).
+var ErrSelfServiceUnitUnavailable = errors.New("unit is not available for self-service leasing")
+
+// ErrSelfServiceInvalidDates when end is not strictly after start.
+var ErrSelfServiceInvalidDates = errors.New("endDate must be after startDate")
 
 // List leases.
 func (s *Service) List(ctx context.Context, unitID *primitive.ObjectID) ([]Doc, error) {
@@ -244,4 +256,116 @@ func (s *Service) Delete(ctx context.Context, id primitive.ObjectID) error {
 		return ErrDeleteActive
 	}
 	return s.repo.Delete(ctx, id)
+}
+
+// SelfServiceLeaseInput is resident self-booking (instant active lease).
+type SelfServiceLeaseInput struct {
+	UnitID    primitive.ObjectID
+	StartDate time.Time
+	EndDate   *time.Time
+}
+
+func (s *Service) residentHasActiveLease(ctx context.Context, residentID primitive.ObjectID) (bool, error) {
+	list, err := s.repo.ListByResident(ctx, residentID)
+	if err != nil {
+		return false, err
+	}
+	for i := range list {
+		if list[i].Status == StatusActive {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func unitBookableForSelfService(u *unit.Doc) bool {
+	if u.Status != unit.StatusVacant {
+		return false
+	}
+	if u.ListingRent == nil || u.ListingRent.Amount <= 0 {
+		return false
+	}
+	if u.SelfServiceEnabled != nil && !*u.SelfServiceEnabled {
+		return false
+	}
+	return true
+}
+
+// CreateSelfService creates an active lease for the authenticated resident in one transaction.
+func (s *Service) CreateSelfService(ctx context.Context, residentID primitive.ObjectID, in SelfServiceLeaseInput) (*Doc, error) {
+	if s.db == nil {
+		return nil, errors.New("database not configured")
+	}
+	if in.EndDate != nil && !in.EndDate.After(in.StartDate) {
+		return nil, ErrSelfServiceInvalidDates
+	}
+	if ok, err := s.residentHasActiveLease(ctx, residentID); err != nil {
+		return nil, err
+	} else if ok {
+		return nil, ErrResidentAlreadyLeasing
+	}
+
+	db := s.db()
+	sess, err := db.Client().StartSession()
+	if err != nil {
+		return nil, err
+	}
+	defer sess.EndSession(ctx)
+
+	var created *Doc
+	_, err = sess.WithTransaction(ctx, func(sc mongo.SessionContext) (interface{}, error) {
+		if ok, err := s.residentHasActiveLease(sc, residentID); err != nil {
+			return nil, err
+		} else if ok {
+			return nil, ErrResidentAlreadyLeasing
+		}
+		u, err := s.units.Get(sc, in.UnitID)
+		if err != nil {
+			if errors.Is(err, unit.ErrNotFound) {
+				return nil, ErrUnitMissing
+			}
+			return nil, err
+		}
+		if !unitBookableForSelfService(u) {
+			return nil, ErrSelfServiceUnitUnavailable
+		}
+		other, err := s.repo.CountActiveOtherThan(sc, in.UnitID, primitive.NilObjectID)
+		if err != nil {
+			return nil, err
+		}
+		if other > 0 {
+			return nil, ErrConflict
+		}
+		rent := normalizeRent(Rent{
+			Amount:   u.ListingRent.Amount,
+			Currency: u.ListingRent.Currency,
+		})
+		now := time.Now().UTC()
+		d := &Doc{
+			ID:          primitive.NewObjectID(),
+			UnitID:      in.UnitID,
+			ResidentIDs: []primitive.ObjectID{residentID},
+			StartDate:   in.StartDate.UTC(),
+			EndDate:     cloneTimePtr(in.EndDate),
+			Status:      StatusActive,
+			Rent:        rent,
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		}
+		if err := s.repo.Insert(sc, d); err != nil {
+			return nil, err
+		}
+		if err := s.units.SetStatus(sc, in.UnitID, unit.StatusOccupied); err != nil {
+			return nil, err
+		}
+		if err := s.residents.SetPrimaryUnitID(sc, residentID, in.UnitID); err != nil {
+			return nil, err
+		}
+		created = d
+		return d, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return created, nil
 }

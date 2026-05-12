@@ -1,18 +1,11 @@
 import createMiddleware from "next-intl/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { verifyAccessToken } from "@/lib/access-token";
+import { ADMIN_REST_PREFIXES } from "@/lib/admin-paths";
 import { routing } from "./i18n/routing";
 
 const handleI18n = createMiddleware(routing);
-
-const adminPrefixes = [
-  "/dashboard",
-  "/properties",
-  "/units",
-  "/residents",
-  "/leases",
-  "/maintenance",
-];
 
 export default function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -37,12 +30,29 @@ export default function proxy(request: NextRequest) {
     return handleI18n(request);
   }
 
-  for (const p of adminPrefixes) {
+  for (const p of ADMIN_REST_PREFIXES) {
     if (rest === p || rest.startsWith(`${p}/`)) {
-      if (!request.cookies.get("as_access")) {
+      const raw = request.cookies.get("as_access")?.value;
+      if (!raw) {
         const url = request.nextUrl.clone();
         url.pathname = `/${locale}/login`;
         url.searchParams.set("next", pathname);
+        return NextResponse.redirect(url);
+      }
+      const secret = process.env.JWT_SECRET?.trim() ?? "";
+      const v = verifyAccessToken(raw, secret);
+      if (!v.ok) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${locale}/login`;
+        url.searchParams.set("next", pathname);
+        const res = NextResponse.redirect(url);
+        res.cookies.delete("as_access");
+        res.cookies.delete("as_refresh");
+        return res;
+      }
+      if (!v.roles.includes("admin")) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${locale}/my`;
         return NextResponse.redirect(url);
       }
       return handleI18n(request);

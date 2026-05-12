@@ -80,6 +80,8 @@ func (s *Server) Mount(r chi.Router) {
 		r.Route("/me", func(r chi.Router) {
 			r.Use(s.mustRole(user.RoleResident))
 			r.Get("/summary", s.meSummary)
+			r.Get("/available-units", s.meAvailableUnits)
+			r.Post("/leases", s.meCreateLease)
 			r.Get("/invoices", s.meInvoices)
 			r.Get("/maintenance-requests", s.meMaintenanceList)
 			r.Post("/maintenance-requests", s.meMaintenanceCreate)
@@ -169,8 +171,12 @@ func classifyError(err error) (status int, code string, message string) {
 		errors.Is(err, lease.ErrDeleteActive):
 		return http.StatusConflict, "CONFLICT", err.Error()
 	case errors.Is(err, lease.ErrInvalidResidents),
-		errors.Is(err, lease.ErrUnitMissing):
+		errors.Is(err, lease.ErrUnitMissing),
+		errors.Is(err, lease.ErrSelfServiceInvalidDates):
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
+	case errors.Is(err, lease.ErrResidentAlreadyLeasing),
+		errors.Is(err, lease.ErrSelfServiceUnitUnavailable):
+		return http.StatusConflict, "CONFLICT", err.Error()
 	default:
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
 	}

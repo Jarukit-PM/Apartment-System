@@ -40,6 +40,11 @@ func (s *Service) List(ctx context.Context, propertyID *primitive.ObjectID) ([]D
 	return s.repo.List(ctx, propertyID)
 }
 
+// ListAvailableForSelfService lists bookable vacant units for the resident catalog.
+func (s *Service) ListAvailableForSelfService(ctx context.Context, propertyID *primitive.ObjectID) ([]Doc, error) {
+	return s.repo.ListAvailableForSelfService(ctx, propertyID)
+}
+
 // Get one unit.
 func (s *Service) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	return s.repo.Get(ctx, id)
@@ -59,6 +64,7 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 		return nil, errors.New("property not found")
 	}
 	in.Status = normalizeStatus(in.Status)
+	in.ListingRent = normalizeListingRentPtr(in.ListingRent)
 	return s.repo.Insert(ctx, in)
 }
 
@@ -74,7 +80,25 @@ func (s *Service) Update(ctx context.Context, id primitive.ObjectID, in UpdateIn
 		st := normalizeStatus(*in.Status)
 		in.Status = &st
 	}
+	if in.ListingRent != nil {
+		nr := normalizeListingRentPtr(in.ListingRent)
+		in.ListingRent = nr
+	}
 	return s.repo.Update(ctx, id, in)
+}
+
+func normalizeListingRentPtr(lr *ListingRent) *ListingRent {
+	if lr == nil {
+		return nil
+	}
+	out := *lr
+	if strings.TrimSpace(out.Currency) == "" {
+		out.Currency = "THB"
+	}
+	if out.Amount < 0 {
+		out.Amount = 0
+	}
+	return &out
 }
 
 // ErrActiveLease blocks delete when an active lease exists.

@@ -10,19 +10,28 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type unitRentBody struct {
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
+}
+
 type unitCreateBody struct {
-	PropertyID string `json:"propertyId"`
-	Label      string `json:"label"`
-	Floor      *int   `json:"floor"`
-	Bedrooms   *int   `json:"bedrooms"`
-	Status     string `json:"status"`
+	PropertyID         string         `json:"propertyId"`
+	Label              string         `json:"label"`
+	Floor              *int           `json:"floor"`
+	Bedrooms           *int           `json:"bedrooms"`
+	Status             string         `json:"status"`
+	ListingRent        *unitRentBody  `json:"listingRent"`
+	SelfServiceEnabled *bool          `json:"selfServiceEnabled"`
 }
 
 type unitPatchBody struct {
-	Label    *string `json:"label"`
-	Floor    *int    `json:"floor"`
-	Bedrooms *int    `json:"bedrooms"`
-	Status   *string `json:"status"`
+	Label              *string        `json:"label"`
+	Floor              *int           `json:"floor"`
+	Bedrooms           *int           `json:"bedrooms"`
+	Status             *string        `json:"status"`
+	ListingRent        *unitRentBody  `json:"listingRent"`
+	SelfServiceEnabled *bool          `json:"selfServiceEnabled"`
 }
 
 func (s *Server) listUnits(w http.ResponseWriter, r *http.Request) {
@@ -70,11 +79,13 @@ func (s *Server) createUnit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	u, err := s.Units.Create(r.Context(), unit.CreateInput{
-		PropertyID: pid,
-		Label:      body.Label,
-		Floor:      body.Floor,
-		Bedrooms:   body.Bedrooms,
-		Status:     body.Status,
+		PropertyID:         pid,
+		Label:              body.Label,
+		Floor:              body.Floor,
+		Bedrooms:           body.Bedrooms,
+		Status:             body.Status,
+		ListingRent:        unitRentBodyToListing(body.ListingRent),
+		SelfServiceEnabled: body.SelfServiceEnabled,
 	})
 	if err != nil {
 		handleServiceError(w, r, err)
@@ -106,10 +117,12 @@ func (s *Server) patchUnit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u, err := s.Units.Update(r.Context(), id, unit.UpdateInput{
-		Label:    body.Label,
-		Floor:    body.Floor,
-		Bedrooms: body.Bedrooms,
-		Status:   body.Status,
+		Label:              body.Label,
+		Floor:              body.Floor,
+		Bedrooms:           body.Bedrooms,
+		Status:             body.Status,
+		ListingRent:        unitRentBodyToListing(body.ListingRent),
+		SelfServiceEnabled: body.SelfServiceEnabled,
 	})
 	if err != nil {
 		handleServiceError(w, r, err)
@@ -145,5 +158,21 @@ func unitJSON(u *unit.Doc) map[string]any {
 	if u.Bedrooms != nil {
 		m["bedrooms"] = *u.Bedrooms
 	}
+	if u.ListingRent != nil {
+		m["listingRent"] = map[string]any{
+			"amount":   u.ListingRent.Amount,
+			"currency": u.ListingRent.Currency,
+		}
+	}
+	if u.SelfServiceEnabled != nil {
+		m["selfServiceEnabled"] = *u.SelfServiceEnabled
+	}
 	return m
+}
+
+func unitRentBodyToListing(b *unitRentBody) *unit.ListingRent {
+	if b == nil {
+		return nil
+	}
+	return &unit.ListingRent{Amount: b.Amount, Currency: b.Currency}
 }

@@ -53,6 +53,15 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   const body: Record<string, unknown> = { propertyId, label, status };
   if (floor !== undefined && !Number.isNaN(floor)) body.floor = floor;
   if (bedrooms !== undefined && !Number.isNaN(bedrooms)) body.bedrooms = bedrooms;
+  const listAmtRaw = String(formData.get("listingAmount") ?? "").trim();
+  if (listAmtRaw) {
+    const amt = Number(listAmtRaw);
+    if (!Number.isNaN(amt) && amt > 0) {
+      const cur = String(formData.get("listingCurrency") ?? "THB").trim() || "THB";
+      body.listingRent = { amount: amt, currency: cur };
+      body.selfServiceEnabled = formData.get("selfService") === "on";
+    }
+  }
   const res = await apiFetchJsonAuthed(`/v1/units`, {
     method: "POST",
     body: JSON.stringify(body),
@@ -63,6 +72,41 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   revalidatePath(`/${locale}/units`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
+  return ok();
+}
+
+export async function patchUnit(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const locale = String(formData.get("locale") ?? "en");
+  const unitId = String(formData.get("unitId") ?? "").trim();
+  const propertyId = String(formData.get("propertyId") ?? "").trim();
+  if (!unitId) return fail("Unit is required");
+  const body: Record<string, unknown> = {};
+  const listAmtRaw = String(formData.get("listingAmount") ?? "").trim();
+  if (listAmtRaw) {
+    const amt = Number(listAmtRaw);
+    if (!Number.isNaN(amt) && amt > 0) {
+      const cur = String(formData.get("listingCurrency") ?? "THB").trim() || "THB";
+      body.listingRent = { amount: amt, currency: cur };
+    }
+  }
+  if (formData.get("selfServiceUpdate") === "1") {
+    body.selfServiceEnabled = formData.get("selfService") === "on";
+  }
+  if (Object.keys(body).length === 0) {
+    return fail("Nothing to update");
+  }
+  const res = await apiFetchJsonAuthed(`/v1/units/${unitId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) return fail(res.error?.message ?? "Could not update unit");
+  revalidatePath(`/${locale}/properties`, "page");
+  revalidatePath(`/${locale}/units`, "page");
+  revalidatePath(`/${locale}/dashboard`, "page");
+  if (propertyId) {
+    revalidatePath(`/${locale}/properties/${propertyId}`, "page");
+  }
   return ok();
 }
 

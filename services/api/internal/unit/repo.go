@@ -42,6 +42,31 @@ func (r *Repo) List(ctx context.Context, propertyID *primitive.ObjectID) ([]Doc,
 	return out, nil
 }
 
+// ListAvailableForSelfService returns vacant units with listing rent and self-service allowed.
+func (r *Repo) ListAvailableForSelfService(ctx context.Context, propertyID *primitive.ObjectID) ([]Doc, error) {
+	filter := bson.M{
+		"status": StatusVacant,
+		"listingRent.amount": bson.M{"$gt": 0},
+		"$or": []bson.M{
+			{"selfServiceEnabled": true},
+			{"selfServiceEnabled": bson.M{"$exists": false}},
+		},
+	}
+	if propertyID != nil {
+		filter["propertyId"] = *propertyID
+	}
+	cur, err := r.coll.Find(ctx, filter, options.Find().SetSort(bson.D{{Key: "label", Value: 1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Doc
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Get returns one unit.
 func (r *Repo) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	var d Doc
@@ -63,14 +88,16 @@ func (r *Repo) Insert(ctx context.Context, in CreateInput) (*Doc, error) {
 		st = StatusVacant
 	}
 	d := Doc{
-		ID:         primitive.NewObjectID(),
-		PropertyID: in.PropertyID,
-		Label:      in.Label,
-		Floor:      in.Floor,
-		Bedrooms:   in.Bedrooms,
-		Status:     st,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		ID:                   primitive.NewObjectID(),
+		PropertyID:           in.PropertyID,
+		Label:                in.Label,
+		Floor:                in.Floor,
+		Bedrooms:             in.Bedrooms,
+		Status:               st,
+		ListingRent:          in.ListingRent,
+		SelfServiceEnabled:   in.SelfServiceEnabled,
+		CreatedAt:            now,
+		UpdatedAt:            now,
 	}
 	if _, err := r.coll.InsertOne(ctx, d); err != nil {
 		return nil, err
@@ -92,6 +119,12 @@ func (r *Repo) Update(ctx context.Context, id primitive.ObjectID, in UpdateInput
 	}
 	if in.Status != nil {
 		set["status"] = *in.Status
+	}
+	if in.ListingRent != nil {
+		set["listingRent"] = in.ListingRent
+	}
+	if in.SelfServiceEnabled != nil {
+		set["selfServiceEnabled"] = *in.SelfServiceEnabled
 	}
 	res, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
 	if err != nil {

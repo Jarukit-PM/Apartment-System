@@ -38,8 +38,22 @@ export type Unit = {
   floor?: number;
   bedrooms?: number;
   status: string;
+  listingRent?: { amount: number; currency: string };
+  selfServiceEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
+};
+
+export type AvailableUnit = {
+  id: string;
+  propertyId: string;
+  propertyName?: string;
+  label: string;
+  floor?: number;
+  bedrooms?: number;
+  status: string;
+  listingRent: { amount: number; currency: string };
+  selfServiceEnabled: boolean;
 };
 
 export type Resident = {

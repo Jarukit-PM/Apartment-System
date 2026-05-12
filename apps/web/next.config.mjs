@@ -16,7 +16,12 @@ function applySelectedKeysFromRootEnv() {
   } catch {
     return;
   }
-  const allow = new Set(["API_URL", "NEXT_PUBLIC_API_URL"]);
+  const allow = new Set([
+    "API_URL",
+    "NEXT_PUBLIC_API_URL",
+    /** Same signing key as Go API — used by `proxy.ts` to enforce admin-only UI routes. */
+    "JWT_SECRET",
+  ]);
   for (const line of raw.split("\n")) {
     const t = line.trim();
     if (!t || t.startsWith("#")) continue;

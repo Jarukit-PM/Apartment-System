@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { apiBaseUrl } from "@/lib/api";
+import { isAdminPortalPath } from "@/lib/admin-paths";
 
 const cookieBase = {
   httpOnly: true,
@@ -35,7 +36,11 @@ function postAuthPath(locale: string, next: string, roles: string[]): string {
   const n = next.trim();
   if (n.startsWith(`/${locale}/`) || n === `/${locale}`) {
     const rest = n.slice(`/${locale}`.length);
-    return rest.startsWith("/") ? rest : `/${rest}`;
+    const path = rest.startsWith("/") ? rest : `/${rest}`;
+    if (isAdminPortalPath(path) && !roles.includes("admin")) {
+      return "/my";
+    }
+    return path;
   }
   if (n.startsWith(`/${locale}?`)) {
     return "/";

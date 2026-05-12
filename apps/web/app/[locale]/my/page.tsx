@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { MeSummaryData, SingleWrapper } from "@/lib/types";
 
@@ -73,7 +74,14 @@ export default async function MySummaryPage({ params }: PageProps) {
             {t("leaseStatus", { status: me.activeLease.status })}
           </p>
         ) : (
-          <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">{t("noActiveLease")}</p>
+          <div className="mt-2 space-y-2">
+            <p className="text-sm text-amber-800 dark:text-amber-200">{t("noActiveLease")}</p>
+            <p className="text-sm">
+              <Link href="/my/rent" className="font-medium text-zinc-900 underline dark:text-zinc-100">
+                {t("summaryRentLink")}
+              </Link>
+            </p>
+          </div>
         )}
       </section>
     </div>

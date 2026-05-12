@@ -47,6 +47,8 @@ A leasable unit within a property (apartment, room, parking space, etc.).
 | `floor` | int | Optional. |
 | `bedrooms` | int | Optional. |
 | `status` | string | e.g. `vacant`, `occupied`, `maintenance`. |
+| `listingRent` | object | Optional. Admin-set **asking rent** for display and resident self-booking: `{ amount: number, currency: string }`. Required for a unit to appear in the resident self-service catalog (with `amount > 0`). |
+| `selfServiceEnabled` | bool | Optional. When explicitly `false`, the unit is hidden from resident self-service even if vacant with `listingRent`. Absent or `true` allows self-service when other rules pass. |
 | `createdAt` | date | |
 | `updatedAt` | date | |
 
@@ -137,4 +139,5 @@ If the product targets **one** physical building, you may omit `properties` and 
 ## Consistency notes
 
 - When creating a lease, validate that `unitId` exists and that `status` transitions follow allowed rules (e.g. only one `active` lease per unit).
+- **Resident self-service**: instant **active** leases use the unit’s `listingRent` for the lease `rent`; require the unit to be **vacant** with `listingRent.amount > 0` and not opted out via `selfServiceEnabled: false`. Apply lease insert, unit status `occupied`, and resident `primaryUnitId` inside a **multi-document transaction** to avoid double booking.
 - Use multi-document transactions when updating `units.status` and inserting a `leases` document in one logical operation, if required by business rules.

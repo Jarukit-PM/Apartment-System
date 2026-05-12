@@ -127,7 +127,7 @@ func main() {
 		propSvc := property.NewService(propRepo, dbGetter)
 		unitSvc := unit.NewService(unitRepo, dbGetter, propRepo)
 		resSvc := resident.NewService(resRepo, dbGetter, unitRepo)
-		leaseSvc := lease.NewService(leaseRepo, unitSvc, resRepo)
+		leaseSvc := lease.NewService(leaseRepo, unitSvc, resSvc, dbGetter)
 		maintSvc := maintenance.NewService(maintRepo, unitRepo, resRepo)
 		invSvc := invoice.NewService(invRepo)
 

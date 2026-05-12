@@ -48,6 +48,17 @@ Issue an opaque session ID in an httpOnly cookie; store session metadata in Mong
 - Use **role-based access control** (e.g. `admin`, `resident`, `staff`) as claims in the JWT or as fields on the session document.
 - Enforce authorization at the **handler or service layer** in Go, not only in the UI.
 
+### Resident self-service (current implementation)
+
+Authenticated **residents** (`role: resident`, JWT with resident id) may call:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/v1/me/available-units` | Lists **vacant** units with `listingRent.amount > 0` and self-service allowed, scoped to the default property when configured. Returns `data[]` with `listingRent`, `propertyName`, etc. |
+| `POST` | `/v1/me/leases` | Body: `{ "unitId", "startDate" (RFC3339), "endDate?" }`. Creates an **active** lease for the caller only, rent from `listingRent`, sets unit **occupied**, sets resident **primaryUnitId**. `409 CONFLICT` if the resident already has an active lease, the unit is not bookable, or the unit already has an active lease. `400` if `endDate` is not strictly after `startDate`. |
+
+Admin-only `POST /v1/leases` remains for staff workflows (arbitrary residents, draft/active, custom rent).
+
 ---
 
 ## Errors

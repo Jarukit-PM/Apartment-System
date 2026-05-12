@@ -28,6 +28,24 @@ func NewService(repo *Repo, db func() *mongo.Database, unit UnitChecker) *Servic
 	return &Service{repo: repo, db: db, unit: unit}
 }
 
+// CountByIDs delegates to the repository (lease validation, etc.).
+func (s *Service) CountByIDs(ctx context.Context, ids []primitive.ObjectID) (int64, error) {
+	return s.repo.CountByIDs(ctx, ids)
+}
+
+// SetPrimaryUnitID sets the resident's primary unit (e.g. after self-service lease).
+func (s *Service) SetPrimaryUnitID(ctx context.Context, residentID, unitID primitive.ObjectID) error {
+	ok, err := s.unit.Exists(ctx, unitID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("unit not found")
+	}
+	_, err = s.repo.Update(ctx, residentID, bson.M{"primaryUnitId": unitID})
+	return err
+}
+
 // List residents.
 func (s *Service) List(ctx context.Context) ([]Doc, error) {
 	return s.repo.List(ctx)

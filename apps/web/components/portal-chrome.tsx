@@ -16,8 +16,7 @@ export async function PortalChrome({
 }: {
   children: React.ReactNode;
 }) {
-  const t = await getTranslations("Portal");
-  const locale = await getLocale();
+  const [t, locale] = await Promise.all([getTranslations("Portal"), getLocale()]);
 
   return (
     <div className="flex min-h-full flex-col md:flex-row">

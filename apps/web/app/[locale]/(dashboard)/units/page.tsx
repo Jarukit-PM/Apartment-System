@@ -41,6 +41,7 @@ export default async function UnitsPage({ params }: PageProps) {
                 <th className="px-4 py-3">{t("col.label")}</th>
                 <th className="px-4 py-3">{t("col.property")}</th>
                 <th className="px-4 py-3">{t("col.status")}</th>
+                <th className="px-4 py-3">{t("col.listing")}</th>
                 <th className="px-4 py-3 font-mono">{t("col.id")}</th>
               </tr>
             </thead>
@@ -52,6 +53,11 @@ export default async function UnitsPage({ params }: PageProps) {
                     {propMap.get(u.propertyId) ?? u.propertyId}
                   </td>
                   <td className="px-4 py-3">{u.status}</td>
+                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                    {u.listingRent
+                      ? `${u.listingRent.amount} ${u.listingRent.currency}`
+                      : "—"}
+                  </td>
                   <td className="px-4 py-3 font-mono text-xs text-zinc-500">{u.id}</td>
                 </tr>
               ))}

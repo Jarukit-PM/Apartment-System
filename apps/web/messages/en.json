@@ -76,6 +76,13 @@
     "unitsTitle": "Units at this property",
     "unitsError": "Could not load units.",
     "unitsEmpty": "No units yet.",
+    "listingAmount": "Listing rent (optional)",
+    "listingAmountPh": "e.g. 12000",
+    "listingCurrency": "Currency",
+    "selfService": "Allow residents to book this unit online (when vacant and rent is set)",
+    "listingLine": "Listed at {amount} {currency}/mo for self-service",
+    "editListing": "Listing & self-service",
+    "saveListing": "Save",
     "fetchErrorTitle": "Could not load this property",
     "fetchErrorBody": "The API returned an error. If you were signed out, sign in again."
   },
@@ -88,6 +95,7 @@
       "label": "Label",
       "property": "Property",
       "status": "Status",
+      "listing": "Listing rent",
       "id": "Id"
     }
   },
@@ -173,6 +181,7 @@
     "navLabel": "Resident navigation",
     "nav": {
       "summary": "Summary",
+      "rentBook": "Rent a unit",
       "invoices": "Invoices",
       "maintenance": "Maintenance"
     },
@@ -184,9 +193,10 @@
     "phone": "Phone",
     "homeSection": "Building & unit",
     "homeLine": "{building} · unit {unit}",
-    "homeUnknown": "No primary unit on file yet. Ask the office to link your unit.",
+    "homeUnknown": "No primary unit on file yet. You can rent an available unit online, or ask the office to link your unit.",
     "leaseStatus": "Lease status: {status}",
     "noActiveLease": "No active lease on file. Billing and maintenance requests need an active lease.",
+    "summaryRentLink": "Browse available units to lease online",
     "forbiddenHint": "This area is for residents. If you are staff, open the admin console instead.",
     "loadError": "Could not load data. Check that you are signed in and the API is running.",
     "invoicesTitle": "Invoices",
@@ -206,6 +216,23 @@
     "description": "Description",
     "ticketListTitle": "Your requests",
     "ticketsEmpty": "No requests yet.",
-    "ticketMeta": "{status} · ref …{id}"
+    "ticketMeta": "{status} · ref …{id}",
+    "rentBook": {
+      "title": "Rent a unit",
+      "subtitle": "Vacant units with a listed rent can be booked instantly. Your lease becomes active as soon as you confirm.",
+      "empty": "No units are available for self-service right now. Ask the office when new units open up.",
+      "loadError": "Could not load available units. Check that you are signed in and the API is running.",
+      "loadErrorStatus": "HTTP status {status}.",
+      "loadError404Hint": "If you recently updated the app, rebuild and restart the Go API so it serves GET /v1/me/available-units (for example: docker compose up -d --build api).",
+      "loadError403Hint": "You may be signed in as an account without resident access, or your session is missing a linked resident profile.",
+      "unitLabel": "Unit {label}",
+      "rentLine": "{amount} {currency} / month",
+      "floor": "Floor {n}",
+      "bedrooms": "{n} bed",
+      "startLabel": "Lease start",
+      "endLabel": "Lease end (optional)",
+      "endHint": "Leave blank for an open-ended lease. If set, end must be after start.",
+      "bookSubmit": "Book this unit"
+    }
   }
 }

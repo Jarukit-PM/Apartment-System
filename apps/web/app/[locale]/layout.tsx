@@ -5,8 +5,6 @@ import { getMessages, getTranslations, setRequestLocale } from "next-intl/server
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 
-export const dynamic = "force-dynamic";
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
