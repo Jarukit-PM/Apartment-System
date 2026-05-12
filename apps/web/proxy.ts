@@ -9,12 +9,24 @@ const handleI18n = createMiddleware(routing);
 
 export default function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const m = pathname.match(/^\/(en|th)(\/.*)?$/);
+  const m = pathname.match(/^\/(en|th)(\/.*)?$/i);
   if (!m) {
     return handleI18n(request);
   }
-  const locale = m[1];
+  const locale = m[1].toLowerCase();
   const rest = m[2] ?? "";
+
+  // Canonical locale segment (avoids /EN vs /en mismatches with the App Router).
+  if (m[1] !== locale) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}${rest}`;
+    return NextResponse.redirect(url);
+  }
+
+  // Localized home: /{locale} or /{locale}/ — public, no admin gate.
+  if (rest === "" || rest === "/") {
+    return handleI18n(request);
+  }
 
   if (rest.startsWith("/login") || rest.startsWith("/register")) {
     return handleI18n(request);

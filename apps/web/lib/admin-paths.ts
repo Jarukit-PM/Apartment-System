@@ -6,6 +6,7 @@ export const ADMIN_REST_PREFIXES = [
   "/residents",
   "/leases",
   "/maintenance",
+  "/wallet",
 ] as const;
 
 export function isAdminPortalPath(rest: string): boolean {
