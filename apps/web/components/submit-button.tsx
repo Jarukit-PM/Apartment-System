@@ -23,7 +23,14 @@ const variants: Record<NonNullable<Props["variant"]>, string> = {
 export function SubmitButton({ label, pendingLabel, variant = "primary" }: Props) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className={`${base} ${variants[variant]}`}>
+    <button
+      type="submit"
+      disabled={pending}
+      aria-busy={pending}
+      className={`${base} ${variants[variant]} ${
+        pending ? "cursor-wait opacity-90 motion-safe:animate-pulse" : ""
+      }`}
+    >
       {pending ? (pendingLabel ?? label) : label}
     </button>
   );

@@ -48,9 +48,6 @@ export async function PortalChrome({
           </Link>
           <LogoutForm locale={locale} />
         </div>
-        <div className="mt-8 hidden text-xs text-zinc-500 dark:text-zinc-400 md:block">
-          {t("hint")}
-        </div>
       </aside>
       <div className="flex min-h-0 flex-1 flex-col">
         <main className="flex-1 px-4 py-8 md:px-10">{children}</main>

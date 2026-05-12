@@ -1,7 +1,7 @@
 {
   "LocaleLayout": {
     "title": "Apartment System",
-    "description": "Apartment management — admin console, Go API, MongoDB"
+    "description": "Apartment management for building teams and residents."
   },
   "NotFoundPage": {
     "code": "404",
@@ -13,7 +13,7 @@
   "HomePage": {
     "brand": "Apartment System",
     "heading": "Property management MVP",
-    "intro": "Open the admin console to manage properties, units, residents, leases, and maintenance. The UI talks to the Go API from the server using API_URL.",
+    "intro": "Open the admin console to manage properties, units, residents, leases, and maintenance.",
     "language": "Language",
     "openConsole": "Open admin console",
     "myPortal": "Resident portal",
@@ -23,7 +23,6 @@
     "brand": "Apartment System",
     "console": "Admin console",
     "navLabel": "Main navigation",
-    "hint": "Signed-in requests send a Bearer token from an httpOnly cookie; business rules are enforced in the Go API.",
     "myPortal": "Resident portal",
     "nav": {
       "dashboard": "Dashboard",
@@ -37,7 +36,7 @@
   },
   "DashboardPage": {
     "title": "Dashboard",
-    "subtitle": "At-a-glance counts from your portfolio. Connect the API and MongoDB to see live numbers.",
+    "subtitle": "At-a-glance counts from your portfolio.",
     "statsHeading": "Statistics",
     "stats": {
       "properties": "Properties",
@@ -45,8 +44,8 @@
       "residents": "Residents",
       "leases": "Leases",
       "maintenance": "Maintenance",
-      "api": "API / Mongo",
-      "apiDown": "unreachable"
+      "api": "Services",
+      "apiDown": "Unavailable"
     },
     "quick": {
       "title": "Quick actions",
@@ -62,7 +61,7 @@
     "addSubmit": "Create property",
     "nameLabel": "Name",
     "listTitle": "All properties",
-    "listError": "Could not load properties. Is the API running?",
+    "listError": "Could not load properties. Please try again.",
     "empty": "No properties yet.",
     "delete": "Delete"
   },
@@ -78,7 +77,7 @@
     "unitsError": "Could not load units.",
     "unitsEmpty": "No units yet.",
     "fetchErrorTitle": "Could not load this property",
-    "fetchErrorBody": "The API returned an error. If you were signed out, sign in again."
+    "fetchErrorBody": "Something went wrong. If you were signed out, sign in again."
   },
   "UnitsPage": {
     "title": "Units",
@@ -192,7 +191,7 @@
     "noActiveLease": "No active lease on file. Billing and maintenance requests need an active lease.",
     "summaryRentLink": "Browse vacant units to rent online",
     "forbiddenHint": "This area is for residents. If you are staff, open the admin console instead.",
-    "loadError": "Could not load data. Check that you are signed in and the API is running.",
+    "loadError": "Could not load data. Check that you are signed in, then try again.",
     "invoicesTitle": "Invoices",
     "invoicesSubtitle": "Charges linked to your leases.",
     "invoicesEmpty": "No invoices yet.",
@@ -215,9 +214,9 @@
       "title": "Rent a unit",
       "subtitle": "Vacant units with published rent can be booked online; your lease becomes active when you confirm.",
       "empty": "No units are available for online rent right now. Contact the office when a room opens up.",
-      "loadError": "Could not load available units. Check that you are signed in and the API is running.",
+      "loadError": "Could not load available units. Check that you are signed in, then try again.",
       "loadErrorStatus": "HTTP status {status}",
-      "loadError404Hint": "If you just updated the app, rebuild and restart the Go API so GET /v1/me/available-units exists (e.g. docker compose up -d --build api).",
+      "loadError404Hint": "This page is not available right now. Please try again later or contact your building office.",
       "loadError403Hint": "You may be signed in with a non-resident account, or your session has no resident profile.",
       "unitLabel": "Unit {label}",
       "rentLine": "{amount} {currency} / month",
