@@ -1,16 +1,138 @@
 {
   "LocaleLayout": {
     "title": "ระบบอพาร์ตเมนต์",
-    "description": "จัดการอพาร์ตเมนต์ — Next.js และ Go API"
+    "description": "จัดการอพาร์ตเมนต์ — คอนโซลแอดมิน, Go API, MongoDB"
   },
   "HomePage": {
     "brand": "ระบบอพาร์ตเมนต์",
-    "heading": "สถานะสแต็ก",
-    "intro": "หน้านี้ดึงข้อมูลจาก Go API ผ่าน API_URL (ฝั่งเซิร์ฟเวอร์) กำหนด API_URL และ NEXT_PUBLIC_API_URL ตาม .env.example",
-    "apiBase": "ฐาน URL ของ API",
-    "apiStatus": "สถานะ API",
-    "mongo": "MongoDB",
-    "unreachable": "เชื่อมไม่ได้",
-    "language": "ภาษา"
+    "heading": "MVP จัดการอสังหา",
+    "intro": "เปิดคอนโซลแอดมินเพื่อจัดการทรัพย์สิน ยูนิต ผู้พักอาศัย สัญญาเช่า และแจ้งซ่อม UI เรียก Go API ฝั่งเซิร์ฟเวอร์ผ่าน API_URL",
+    "language": "ภาษา",
+    "openConsole": "เปิดคอนโซลแอดมิน"
+  },
+  "Portal": {
+    "brand": "ระบบอพาร์ตเมนต์",
+    "console": "คอนโซลแอดมิน",
+    "navLabel": "เมนูหลัก",
+    "hint": "ข้อมูลตรวจสอบโดย Go API ยังไม่เปิดใช้งานการล็อกอินใน MVP นี้",
+    "nav": {
+      "dashboard": "แดชบอร์ด",
+      "properties": "ทรัพย์สิน",
+      "units": "ยูนิต",
+      "residents": "ผู้พักอาศัย",
+      "leases": "สัญญาเช่า",
+      "maintenance": "แจ้งซ่อม"
+    }
+  },
+  "DashboardPage": {
+    "title": "แดชบอร์ด",
+    "subtitle": "สรุปจำนวนจากพอร์ต เชื่อม API และ MongoDB เพื่อดูตัวเลขจริง",
+    "statsHeading": "สถิติ",
+    "stats": {
+      "properties": "ทรัพย์สิน",
+      "units": "ยูนิต",
+      "residents": "ผู้พักอาศัย",
+      "leases": "สัญญาเช่า",
+      "maintenance": "แจ้งซ่อม",
+      "api": "API / Mongo",
+      "apiDown": "เชื่อมไม่ได้"
+    },
+    "quick": {
+      "title": "ทางลัด",
+      "properties": "จัดการทรัพย์สิน",
+      "leases": "สัญญาเช่า",
+      "maintenance": "แจ้งซ่อม"
+    }
+  },
+  "PropertiesPage": {
+    "title": "ทรัพย์สิน",
+    "subtitle": "อาคารหรือโครงการที่ดูแล ป้ายยูนิตต้องไม่ซ้ำภายในทรัพย์เดียวกัน",
+    "addTitle": "เพิ่มทรัพย์สิน",
+    "addSubmit": "สร้างทรัพย์สิน",
+    "nameLabel": "ชื่อ",
+    "listTitle": "ทรัพย์สินทั้งหมด",
+    "listError": "โหลดทรัพย์สินไม่ได้ ตรวจสอบว่า API ทำงานอยู่หรือไม่",
+    "empty": "ยังไม่มีทรัพย์สิน",
+    "delete": "ลบ"
+  },
+  "PropertyDetailPage": {
+    "back": "ทรัพย์สินทั้งหมด",
+    "addUnit": "เพิ่มยูนิต",
+    "addUnitSubmit": "สร้างยูนิต",
+    "label": "ป้ายยูนิต",
+    "floor": "ชั้น (ไม่บังคับ)",
+    "bedrooms": "ห้องนอน (ไม่บังคับ)",
+    "status": "สถานะ",
+    "unitsTitle": "ยูนิตในทรัพย์นี้",
+    "unitsError": "โหลดยูนิตไม่ได้",
+    "unitsEmpty": "ยังไม่มียูนิต"
+  },
+  "UnitsPage": {
+    "title": "ยูนิต",
+    "subtitle": "พื้นที่เช่าที่เชื่อมกับทรัพย์สิน สร้างยูนิตจากหน้ารายละเอียดทรัพย์สิน",
+    "listError": "โหลดยูนิตไม่ได้",
+    "empty": "ยังไม่มียูนิต",
+    "col": {
+      "label": "ป้าย",
+      "property": "ทรัพย์สิน",
+      "status": "สถานะ",
+      "id": "รหัส"
+    }
+  },
+  "ResidentsPage": {
+    "title": "ผู้พักอาศัย",
+    "subtitle": "ข้อมูลบุคคล อีเมลต้องไม่ซ้ำใน MVP นี้",
+    "addTitle": "เพิ่มผู้พักอาศัย",
+    "addSubmit": "สร้างผู้พักอาศัย",
+    "fullName": "ชื่อเต็ม",
+    "email": "อีเมล",
+    "phone": "โทรศัพท์ (ไม่บังคับ)",
+    "primaryUnit": "รหัสยูนิตหลัก (ไม่บังคับ)",
+    "primaryUnitPh": "ObjectId 24 ตัว",
+    "listTitle": "ผู้พักอาศัยทั้งหมด",
+    "listError": "โหลดผู้พักอาศัยไม่ได้",
+    "empty": "ยังไม่มีผู้พักอาศัย"
+  },
+  "LeasesPage": {
+    "title": "สัญญาเช่า",
+    "subtitle": "สัญญาต่อยูนิต อนุญาตเพียงหนึ่งสัญญา active ต่อยูนิต เมื่อ active ระบบตั้งยูนิตเป็น occupied",
+    "addTitle": "สัญญาใหม่",
+    "addHint": "ใช้ ObjectId ของผู้พักอาศัยจากรายการด้านล่าง คั่นด้วยจุลภาคหากมีหลายคน",
+    "addSubmit": "สร้างสัญญา",
+    "unit": "ยูนิต",
+    "pickUnit": "เลือกยูนิต…",
+    "residents": "รหัสผู้พักอาศัย",
+    "residentsPh": "id1, id2",
+    "residentsHelp": "รหัส hex ความยาว 24 ตัว คั่นด้วยจุลภาค",
+    "start": "เริ่ม (เวลาในเครื่อง)",
+    "end": "สิ้นสุด (ไม่บังคับ)",
+    "status": "สถานะ",
+    "rentAmount": "ค่าเช่า",
+    "currency": "สกุลเงิน",
+    "listTitle": "สัญญาทั้งหมด",
+    "listError": "โหลดสัญญาไม่ได้",
+    "empty": "ยังไม่มีสัญญา",
+    "leaseLine": "สัญญา · {status}",
+    "unitId": "ยูนิต",
+    "rent": "ค่าเช่า",
+    "saveStatus": "อัปเดตสถานะ",
+    "residentRef": "รหัสผู้พักอาศัยสำหรับฟอร์ม"
+  },
+  "MaintenancePage": {
+    "title": "แจ้งซ่อม",
+    "subtitle": "งานที่ผูกกับยูนิต (ช่วง MVP จากรายการฟีเจอร์)",
+    "addTitle": "คำขอใหม่",
+    "addSubmit": "ส่งคำขอ",
+    "unit": "ยูนิต",
+    "pickUnit": "เลือกยูนิต…",
+    "ticketTitle": "หัวข้อ",
+    "description": "รายละเอียด",
+    "requestedBy": "ผู้แจ้ง (ผู้พักอาศัย)",
+    "optional": "ไม่บังคับ",
+    "status": "สถานะเริ่มต้น",
+    "listTitle": "คิวงาน",
+    "listError": "โหลดคำขอไม่ได้",
+    "empty": "ยังไม่มีคำขอ",
+    "saveStatus": "อัปเดตสถานะ"
   }
 }

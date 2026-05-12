@@ -1,16 +1,138 @@
 {
   "LocaleLayout": {
     "title": "Apartment System",
-    "description": "Apartment management — Next.js UI and Go API"
+    "description": "Apartment management — admin console, Go API, MongoDB"
   },
   "HomePage": {
     "brand": "Apartment System",
-    "heading": "Stack health",
-    "intro": "This page loads data from the Go API using API_URL (server-side). Configure API_URL and NEXT_PUBLIC_API_URL per .env.example.",
-    "apiBase": "API base",
-    "apiStatus": "API status",
-    "mongo": "MongoDB",
-    "unreachable": "unreachable",
-    "language": "Language"
+    "heading": "Property management MVP",
+    "intro": "Open the admin console to manage properties, units, residents, leases, and maintenance. The UI talks to the Go API from the server using API_URL.",
+    "language": "Language",
+    "openConsole": "Open admin console"
+  },
+  "Portal": {
+    "brand": "Apartment System",
+    "console": "Admin console",
+    "navLabel": "Main navigation",
+    "hint": "Data is validated by the Go API. Auth is not enabled in this MVP slice.",
+    "nav": {
+      "dashboard": "Dashboard",
+      "properties": "Properties",
+      "units": "Units",
+      "residents": "Residents",
+      "leases": "Leases",
+      "maintenance": "Maintenance"
+    }
+  },
+  "DashboardPage": {
+    "title": "Dashboard",
+    "subtitle": "At-a-glance counts from your portfolio. Connect the API and MongoDB to see live numbers.",
+    "statsHeading": "Statistics",
+    "stats": {
+      "properties": "Properties",
+      "units": "Units",
+      "residents": "Residents",
+      "leases": "Leases",
+      "maintenance": "Maintenance",
+      "api": "API / Mongo",
+      "apiDown": "unreachable"
+    },
+    "quick": {
+      "title": "Quick actions",
+      "properties": "Manage properties",
+      "leases": "Leases",
+      "maintenance": "Maintenance"
+    }
+  },
+  "PropertiesPage": {
+    "title": "Properties",
+    "subtitle": "Buildings or sites you manage. Labels for units must be unique within each property.",
+    "addTitle": "Add property",
+    "addSubmit": "Create property",
+    "nameLabel": "Name",
+    "listTitle": "All properties",
+    "listError": "Could not load properties. Is the API running?",
+    "empty": "No properties yet.",
+    "delete": "Delete"
+  },
+  "PropertyDetailPage": {
+    "back": "All properties",
+    "addUnit": "Add unit",
+    "addUnitSubmit": "Create unit",
+    "label": "Unit label",
+    "floor": "Floor (optional)",
+    "bedrooms": "Bedrooms (optional)",
+    "status": "Status",
+    "unitsTitle": "Units at this property",
+    "unitsError": "Could not load units.",
+    "unitsEmpty": "No units yet."
+  },
+  "UnitsPage": {
+    "title": "Units",
+    "subtitle": "Leasable spaces linked to a property. Create units from a property’s page.",
+    "listError": "Could not load units.",
+    "empty": "No units yet.",
+    "col": {
+      "label": "Label",
+      "property": "Property",
+      "status": "Status",
+      "id": "Id"
+    }
+  },
+  "ResidentsPage": {
+    "title": "Residents",
+    "subtitle": "People records; email must be unique in this MVP.",
+    "addTitle": "Add resident",
+    "addSubmit": "Create resident",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "primaryUnit": "Primary unit id (optional)",
+    "primaryUnitPh": "24-hex ObjectId",
+    "listTitle": "All residents",
+    "listError": "Could not load residents.",
+    "empty": "No residents yet."
+  },
+  "LeasesPage": {
+    "title": "Leases",
+    "subtitle": "Contracts for a unit. Only one active lease per unit is allowed; activating sets the unit to occupied.",
+    "addTitle": "New lease",
+    "addHint": "Use resident ObjectIds from the list below, comma-separated for co-tenants.",
+    "addSubmit": "Create lease",
+    "unit": "Unit",
+    "pickUnit": "Select unit…",
+    "residents": "Resident ids",
+    "residentsPh": "id1, id2",
+    "residentsHelp": "Comma-separated 24-character hex ids.",
+    "start": "Start (local)",
+    "end": "End (optional, local)",
+    "status": "Status",
+    "rentAmount": "Rent amount",
+    "currency": "Currency",
+    "listTitle": "All leases",
+    "listError": "Could not load leases.",
+    "empty": "No leases yet.",
+    "leaseLine": "Lease · {status}",
+    "unitId": "Unit",
+    "rent": "Rent",
+    "saveStatus": "Update status",
+    "residentRef": "Resident ids for forms"
+  },
+  "MaintenancePage": {
+    "title": "Maintenance",
+    "subtitle": "Unit-linked requests (MVP slice from the product feature list).",
+    "addTitle": "New request",
+    "addSubmit": "Submit request",
+    "unit": "Unit",
+    "pickUnit": "Select unit…",
+    "ticketTitle": "Title",
+    "description": "Description",
+    "requestedBy": "Requested by (resident)",
+    "optional": "Optional",
+    "status": "Initial status",
+    "listTitle": "Queue",
+    "listError": "Could not load requests.",
+    "empty": "No requests yet.",
+    "saveStatus": "Update status"
   }
 }

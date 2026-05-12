@@ -8,23 +8,24 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
+	"github.com/jarukit/apartment-system/services/api/internal/config"
+	"github.com/jarukit/apartment-system/services/api/internal/db"
+	"github.com/jarukit/apartment-system/services/api/internal/httpserver"
+	"github.com/jarukit/apartment-system/services/api/internal/indexes"
+	"github.com/jarukit/apartment-system/services/api/internal/lease"
+	"github.com/jarukit/apartment-system/services/api/internal/maintenance"
+	"github.com/jarukit/apartment-system/services/api/internal/property"
+	"github.com/jarukit/apartment-system/services/api/internal/resident"
+	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-type config struct {
-	Port         string
-	MongoURI     string
-	CORSOrigins  []string
-}
 
 type healthResponse struct {
 	Status string `json:"status"`
@@ -32,8 +33,6 @@ type healthResponse struct {
 }
 
 // loadEnvFromAncestors loads `.env` files from cwd up to the filesystem root.
-// Deeper files override shallower ones (Overload), matching a monorepo layout
-// where `services/api/.env` can override the repository root `.env`.
 func loadEnvFromAncestors() {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -52,36 +51,8 @@ func loadEnvFromAncestors() {
 		}
 		dir = parent
 	}
-	// Deeper directories first so their `.env` wins; use Load (not Overload) so
-	// variables already set in the environment—e.g. Dev Container `remoteEnv`—are not replaced by a root `.env` meant for the host.
 	for _, p := range paths {
 		_ = godotenv.Load(p)
-	}
-}
-
-func loadConfig() config {
-	origins := os.Getenv("CORS_ORIGINS")
-	var list []string
-	for _, o := range strings.Split(origins, ",") {
-		if t := strings.TrimSpace(o); t != "" {
-			list = append(list, t)
-		}
-	}
-	if len(list) == 0 {
-		list = []string{"http://localhost:3000"}
-	}
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	mongoURI := os.Getenv("MONGODB_URI")
-	if mongoURI == "" {
-		mongoURI = "mongodb://localhost:27017"
-	}
-	return config{
-		Port:        port,
-		MongoURI:    mongoURI,
-		CORSOrigins: list,
 	}
 }
 
@@ -91,12 +62,12 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	cfg := loadConfig()
+	cfg := config.Load()
 	ctx := context.Background()
 
 	var mongoClient *mongo.Client
 	var mongoStatus string
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.MongoURI))
+	client, err := db.Connect(ctx, cfg.MongoURI)
 	if err != nil {
 		slog.Error("mongo connect failed", "error", err)
 		mongoStatus = "error"
@@ -114,6 +85,35 @@ func main() {
 			mongoStatus = "connected"
 			slog.Info("mongodb reachable")
 		}
+	}
+
+	var database *mongo.Database
+	if mongoClient != nil {
+		database = mongoClient.Database("apartment_system")
+		if mongoStatus == "connected" {
+			idxCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			indexes.Ensure(idxCtx, database)
+			cancel()
+		}
+	}
+
+	dbGetter := func() *mongo.Database { return database }
+
+	var api *httpserver.Server
+	if database != nil {
+		propRepo := property.NewRepo(database)
+		unitRepo := unit.NewRepo(database)
+		resRepo := resident.NewRepo(database)
+		leaseRepo := lease.NewRepo(database)
+		maintRepo := maintenance.NewRepo(database)
+
+		propSvc := property.NewService(propRepo, dbGetter)
+		unitSvc := unit.NewService(unitRepo, dbGetter, propRepo)
+		resSvc := resident.NewService(resRepo, dbGetter, unitRepo)
+		leaseSvc := lease.NewService(leaseRepo, unitSvc, resRepo)
+		maintSvc := maintenance.NewService(maintRepo, unitRepo, resRepo)
+
+		api = httpserver.NewServer(propSvc, unitSvc, resSvc, leaseSvc, maintSvc)
 	}
 
 	r := chi.NewRouter()
@@ -146,6 +146,10 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(healthResponse{Status: status, Mongo: mongoField})
 	})
+
+	if api != nil {
+		api.Mount(r)
+	}
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
