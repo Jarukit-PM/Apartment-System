@@ -1,0 +1,20 @@
+---
+description: Apartment System monorepo standards — design-first, SOLID layering, docs. Applies to every chat in this project.
+alwaysApply: true
+---
+
+# Apartment System — always apply
+
+Follow the full project skill **`.cursor/skills/apartment-system/SKILL.md`** for design, implementation, and review in this repository. Read it at the start of substantive work (new features, refactors, API or schema changes).
+
+**Stack**: `apps/web` (Next.js App Router, TypeScript) · `services/api` (Go, chi, MongoDB driver) · MongoDB · Docker Compose / Dev Container.
+
+**Design-first**: Use `docs/architecture.md`, `docs/api-overview.md`, `docs/data-model.md`, and `docs/roadmap.md` as the source of truth before changing behavior or contracts.
+
+**Go API shape**: Thin HTTP handlers → domain **services** (rules) → **repositories** (MongoDB). Versioned routes under `/v1`; keep `GET /health` unversioned.
+
+**Next.js**: Prefer server-side data access via `API_URL`; avoid embedding business rules that belong only in Go. Do not put secrets in `NEXT_PUBLIC_*`. Use **next-intl** (`app/[locale]/`, `i18n/navigation.ts`) for locale-aware links and copy.
+
+**SOLID (short)**: One responsibility per package; depend on small interfaces inside services; extend via new types/middleware rather than growing god files; wire implementations in composition root (`cmd/server`).
+
+If the skill and these bullets conflict, **prefer the skill file** then update the skill to match agreed team changes.
