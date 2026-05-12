@@ -11,6 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/jarukit/apartment-system/services/api/internal/authservice"
 	"github.com/jarukit/apartment-system/services/api/internal/config"
 	"github.com/jarukit/apartment-system/services/api/internal/db"
@@ -25,9 +28,6 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/siteboot"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"github.com/jarukit/apartment-system/services/api/internal/user"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -106,11 +106,6 @@ func main() {
 
 	var api *httpserver.Server
 	if database != nil {
-		if len(cfg.JWTSecret) < 16 {
-			slog.Error("JWT_SECRET must be at least 16 characters when MongoDB is enabled")
-			os.Exit(1)
-		}
-
 		sbCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
 		propID, err := siteboot.EnsureDefaultProperty(sbCtx, database, cfg.SiteDisplayName)
 		cancel()
@@ -137,10 +132,10 @@ func main() {
 		invSvc := invoice.NewService(invRepo)
 
 		authCfg := authservice.AuthConfig{
-			JWTSecret:    []byte(cfg.JWTSecret),
-			AccessTTL:    cfg.AccessTokenTTL,
-			RefreshTTL:   cfg.RefreshTokenTTL,
-			GoogleAud:    cfg.GoogleClientID,
+			JWTSecret:  []byte(cfg.JWTSecret),
+			AccessTTL:  cfg.AccessTokenTTL,
+			RefreshTTL: cfg.RefreshTokenTTL,
+			GoogleAud:  cfg.GoogleClientID,
 		}
 		authSvc := authservice.NewService(authCfg, userRepo, rtRepo, resSvc)
 		bootCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
