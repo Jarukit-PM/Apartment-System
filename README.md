@@ -47,7 +47,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-- **Web**: [http://localhost:3000](http://localhost:3000) — home page fetches `GET /health` from the API using server-side `API_URL`.
+- **Web**: [http://localhost:3000](http://localhost:3000) — redirects to a locale prefix (e.g. `/en`); home page fetches `GET /health` from the API using server-side `API_URL`.
 - **API**: [http://localhost:8080/health](http://localhost:8080/health) — JSON status and MongoDB connectivity.
 - **MongoDB**: `localhost:27017` (published for local tools; in Compose the API uses `mongodb://mongo:27017`).
 

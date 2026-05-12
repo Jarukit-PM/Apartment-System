@@ -1,0 +1,16 @@
+{
+  "LocaleLayout": {
+    "title": "Apartment System",
+    "description": "Apartment management — Next.js UI and Go API"
+  },
+  "HomePage": {
+    "brand": "Apartment System",
+    "heading": "Stack health",
+    "intro": "This page loads data from the Go API using API_URL (server-side). Configure API_URL and NEXT_PUBLIC_API_URL per .env.example.",
+    "apiBase": "API base",
+    "apiStatus": "API status",
+    "mongo": "MongoDB",
+    "unreachable": "unreachable",
+    "language": "Language"
+  }
+}

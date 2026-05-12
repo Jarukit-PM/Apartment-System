@@ -1,8 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /** Merge selected keys from repo-root `.env`. Skip `PORT` so Next keeps 3000 while the API uses 8080. */
 function applySelectedKeysFromRootEnv() {
@@ -58,4 +61,4 @@ const nextConfig = {
   ],
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

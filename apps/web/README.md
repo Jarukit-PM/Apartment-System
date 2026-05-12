@@ -14,9 +14,17 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — you are redirected to a locale such as `/en` or `/th`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Internationalization (i18n)
+
+This app uses [next-intl](https://next-intl.dev) with locale-prefixed routes (`/en`, `/th`).
+
+- **Locales**: edit `i18n/routing.ts` (`locales`, `defaultLocale`).
+- **Strings**: add keys under `messages/<locale>.json` (keep keys in sync across locales).
+- **Navigation**: use `Link`, `useRouter`, and `usePathname` from `i18n/navigation.ts` so links stay locale-aware.
+
+Edit `app/[locale]/page.tsx` (and other routes under `app/[locale]/`) — the dev server hot-reloads on save.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

@@ -1,0 +1,16 @@
+{
+  "LocaleLayout": {
+    "title": "ระบบอพาร์ตเมนต์",
+    "description": "จัดการอพาร์ตเมนต์ — Next.js และ Go API"
+  },
+  "HomePage": {
+    "brand": "ระบบอพาร์ตเมนต์",
+    "heading": "สถานะสแต็ก",
+    "intro": "หน้านี้ดึงข้อมูลจาก Go API ผ่าน API_URL (ฝั่งเซิร์ฟเวอร์) กำหนด API_URL และ NEXT_PUBLIC_API_URL ตาม .env.example",
+    "apiBase": "ฐาน URL ของ API",
+    "apiStatus": "สถานะ API",
+    "mongo": "MongoDB",
+    "unreachable": "เชื่อมไม่ได้",
+    "language": "ภาษา"
+  }
+}
