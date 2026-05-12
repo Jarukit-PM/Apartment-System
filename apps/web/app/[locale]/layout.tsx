@@ -5,6 +5,8 @@ import { getMessages, getTranslations, setRequestLocale } from "next-intl/server
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -14,10 +16,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
 
 type LayoutProps = {
   children: React.ReactNode;

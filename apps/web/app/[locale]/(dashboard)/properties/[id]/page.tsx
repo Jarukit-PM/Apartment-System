@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ActionForm } from "@/components/action-form";
 import { createUnit } from "@/lib/portal-actions";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { ListWrapper, Property, SingleWrapper, Unit } from "@/lib/types";
 
 type PageProps = { params: Promise<{ locale: string; id: string }> };
@@ -14,12 +14,35 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const t = await getTranslations("PropertyDetailPage");
 
   const [propRes, unitsRes] = await Promise.all([
-    apiGetJson<SingleWrapper<Property>>(`/v1/properties/${id}`),
-    apiGetJson<ListWrapper<Unit>>(`/v1/units?propertyId=${encodeURIComponent(id)}`),
+    apiGetJsonAuthed<SingleWrapper<Property>>(`/v1/properties/${id}`),
+    apiGetJsonAuthed<ListWrapper<Unit>>(`/v1/units?propertyId=${encodeURIComponent(id)}`),
   ]);
 
   if (!propRes.ok) {
-    notFound();
+    if (propRes.status === 404) {
+      notFound();
+    }
+    const tAuth = await getTranslations("Auth");
+    const nextPath = `/${locale}/properties/${id}`;
+    const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
+    return (
+      <div className="mx-auto max-w-lg space-y-4 py-8">
+        <Link href="/properties" className="text-sm text-zinc-600 hover:underline dark:text-zinc-400">
+          ← {t("back")}
+        </Link>
+        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{t("fetchErrorTitle")}</h1>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          {propRes.error?.message ?? t("fetchErrorBody")}
+        </p>
+        {propRes.status === 401 || propRes.status === 403 ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <Link href={loginHref} className="font-medium text-zinc-900 underline dark:text-zinc-100">
+              {tAuth("signIn")}
+            </Link>
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   const property = propRes.data.data;

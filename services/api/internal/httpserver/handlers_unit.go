@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/jarukit/apartment-system/services/api/internal/httpx"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
@@ -52,10 +53,21 @@ func (s *Server) createUnit(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &body) {
 		return
 	}
-	pid, err := primitive.ObjectIDFromHex(body.PropertyID)
-	if err != nil {
-		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid propertyId", nil)
-		return
+	pidStr := strings.TrimSpace(body.PropertyID)
+	var pid primitive.ObjectID
+	var err error
+	if pidStr == "" {
+		if s.DefaultPropertyID.IsZero() {
+			httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "propertyId is required", nil)
+			return
+		}
+		pid = s.DefaultPropertyID
+	} else {
+		pid, err = primitive.ObjectIDFromHex(pidStr)
+		if err != nil {
+			httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid propertyId", nil)
+			return
+		}
 	}
 	u, err := s.Units.Create(r.Context(), unit.CreateInput{
 		PropertyID: pid,

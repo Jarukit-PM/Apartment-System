@@ -2,6 +2,11 @@
 services:
   devcontainer:
     image: mcr.microsoft.com/devcontainers/base:jammy
+    environment:
+      # Picked up by every shell/process in this container (not only VS Code remoteEnv).
+      # Local dev only — replace in real deployments. Must be >= 16 chars for the Go API.
+      JWT_SECRET: devcontainer-compose-local-not-for-production
+      MONGODB_URI: mongodb://mongo:27017/apartment_system
     volumes:
       - ..:/workspaces/Apartment-System:cached
     command: sleep infinity

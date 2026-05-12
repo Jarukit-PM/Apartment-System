@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { apiFetchJson } from "@/lib/server-api";
+import { apiFetchJsonAuthed } from "@/lib/server-api";
 
 export type ActionState = { ok: boolean; message: string };
 
@@ -18,7 +18,7 @@ export async function createProperty(
   const locale = String(formData.get("locale") ?? "en");
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return fail("Name is required");
-  const res = await apiFetchJson(`/v1/properties`, {
+  const res = await apiFetchJsonAuthed(`/v1/properties`, {
     method: "POST",
     body: JSON.stringify({ name }),
     headers: { "Content-Type": "application/json" },
@@ -33,7 +33,7 @@ export async function deleteProperty(formData: FormData): Promise<void> {
   const locale = String(formData.get("locale") ?? "en");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  await apiFetchJson(`/v1/properties/${id}`, { method: "DELETE" });
+  await apiFetchJsonAuthed(`/v1/properties/${id}`, { method: "DELETE" });
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
 }
@@ -53,7 +53,7 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   const body: Record<string, unknown> = { propertyId, label, status };
   if (floor !== undefined && !Number.isNaN(floor)) body.floor = floor;
   if (bedrooms !== undefined && !Number.isNaN(bedrooms)) body.bedrooms = bedrooms;
-  const res = await apiFetchJson(`/v1/units`, {
+  const res = await apiFetchJsonAuthed(`/v1/units`, {
     method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
@@ -78,7 +78,7 @@ export async function createResident(
   if (!fullName || !email) return fail("Name and email are required");
   const body: Record<string, unknown> = { fullName, email, phone };
   if (primary) body.primaryUnitId = primary;
-  const res = await apiFetchJson(`/v1/residents`, {
+  const res = await apiFetchJsonAuthed(`/v1/residents`, {
     method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
@@ -117,7 +117,7 @@ export async function createLease(_prev: ActionState, formData: FormData): Promi
     const isoEnd = toIso(endDate);
     if (isoEnd) body.endDate = isoEnd;
   }
-  const res = await apiFetchJson(`/v1/leases`, {
+  const res = await apiFetchJsonAuthed(`/v1/leases`, {
     method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
@@ -134,7 +134,7 @@ export async function updateLeaseStatus(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !status) return;
-  await apiFetchJson(`/v1/leases/${id}`, {
+  await apiFetchJsonAuthed(`/v1/leases/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
     headers: { "Content-Type": "application/json" },
@@ -157,7 +157,7 @@ export async function createMaintenance(
   if (!unitId || !title) return fail("Unit and title are required");
   const body: Record<string, unknown> = { unitId, title, description, status };
   if (by) body.requestedByResidentId = by;
-  const res = await apiFetchJson(`/v1/maintenance-requests`, {
+  const res = await apiFetchJsonAuthed(`/v1/maintenance-requests`, {
     method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
@@ -173,7 +173,7 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !status) return;
-  await apiFetchJson(`/v1/maintenance-requests/${id}`, {
+  await apiFetchJsonAuthed(`/v1/maintenance-requests/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
     headers: { "Content-Type": "application/json" },

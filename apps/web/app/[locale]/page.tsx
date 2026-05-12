@@ -23,12 +23,24 @@ export default async function HomePage({ params }: PageProps) {
         </div>
         <h1 className="mt-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("heading")}</h1>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("intro")}</p>
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col gap-3">
           <Link
             href="/dashboard"
             className="inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
           >
             {t("openConsole")}
+          </Link>
+          <Link
+            href="/my"
+            className="inline-flex w-full items-center justify-center rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+          >
+            {t("myPortal")}
+          </Link>
+          <Link
+            href="/login"
+            className="text-center text-sm font-medium text-zinc-700 underline dark:text-zinc-300"
+          >
+            {t("signIn")}
           </Link>
         </div>
       </main>

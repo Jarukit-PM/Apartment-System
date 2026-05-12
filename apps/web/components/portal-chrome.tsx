@@ -1,5 +1,6 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { LogoutForm } from "@/components/logout-form";
 
 const links = [
   { href: "/dashboard", key: "dashboard" as const },
@@ -16,6 +17,7 @@ export async function PortalChrome({
   children: React.ReactNode;
 }) {
   const t = await getTranslations("Portal");
+  const locale = await getLocale();
 
   return (
     <div className="flex min-h-full flex-col md:flex-row">
@@ -37,6 +39,15 @@ export async function PortalChrome({
             </Link>
           ))}
         </nav>
+        <div className="mt-6 space-y-3 border-t border-zinc-200 pt-6 dark:border-zinc-700">
+          <Link
+            href="/my"
+            className="block rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          >
+            {t("myPortal")}
+          </Link>
+          <LogoutForm locale={locale} />
+        </div>
         <div className="mt-8 hidden text-xs text-zinc-500 dark:text-zinc-400 md:block">
           {t("hint")}
         </div>

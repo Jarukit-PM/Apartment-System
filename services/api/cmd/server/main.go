@@ -11,15 +11,20 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jarukit/apartment-system/services/api/internal/authservice"
 	"github.com/jarukit/apartment-system/services/api/internal/config"
 	"github.com/jarukit/apartment-system/services/api/internal/db"
 	"github.com/jarukit/apartment-system/services/api/internal/httpserver"
 	"github.com/jarukit/apartment-system/services/api/internal/indexes"
+	"github.com/jarukit/apartment-system/services/api/internal/invoice"
 	"github.com/jarukit/apartment-system/services/api/internal/lease"
 	"github.com/jarukit/apartment-system/services/api/internal/maintenance"
 	"github.com/jarukit/apartment-system/services/api/internal/property"
+	"github.com/jarukit/apartment-system/services/api/internal/refreshtoken"
 	"github.com/jarukit/apartment-system/services/api/internal/resident"
+	"github.com/jarukit/apartment-system/services/api/internal/siteboot"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
+	"github.com/jarukit/apartment-system/services/api/internal/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -101,19 +106,54 @@ func main() {
 
 	var api *httpserver.Server
 	if database != nil {
+		if len(cfg.JWTSecret) < 16 {
+			slog.Error("JWT_SECRET must be at least 16 characters when MongoDB is enabled")
+			os.Exit(1)
+		}
+
+		sbCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
+		propID, err := siteboot.EnsureDefaultProperty(sbCtx, database, cfg.SiteDisplayName)
+		cancel()
+		if err != nil {
+			slog.Error("default property bootstrap failed", "error", err)
+			os.Exit(1)
+		}
+		slog.Info("single-building property ready", "propertyId", propID.Hex())
+
 		propRepo := property.NewRepo(database)
 		unitRepo := unit.NewRepo(database)
 		resRepo := resident.NewRepo(database)
 		leaseRepo := lease.NewRepo(database)
 		maintRepo := maintenance.NewRepo(database)
+		userRepo := user.NewRepo(database)
+		rtRepo := refreshtoken.NewRepo(database)
+		invRepo := invoice.NewRepo(database)
 
 		propSvc := property.NewService(propRepo, dbGetter)
 		unitSvc := unit.NewService(unitRepo, dbGetter, propRepo)
 		resSvc := resident.NewService(resRepo, dbGetter, unitRepo)
 		leaseSvc := lease.NewService(leaseRepo, unitSvc, resRepo)
 		maintSvc := maintenance.NewService(maintRepo, unitRepo, resRepo)
+		invSvc := invoice.NewService(invRepo)
 
-		api = httpserver.NewServer(propSvc, unitSvc, resSvc, leaseSvc, maintSvc)
+		authCfg := authservice.AuthConfig{
+			JWTSecret:    []byte(cfg.JWTSecret),
+			AccessTTL:    cfg.AccessTokenTTL,
+			RefreshTTL:   cfg.RefreshTokenTTL,
+			GoogleAud:    cfg.GoogleClientID,
+		}
+		authSvc := authservice.NewService(authCfg, userRepo, rtRepo, resSvc)
+		bootCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		if err := authSvc.EnsureBootstrapAdmin(bootCtx, cfg.BootstrapAdminEmail, cfg.BootstrapAdminPass); err != nil {
+			slog.Error("bootstrap admin failed", "error", err)
+			os.Exit(1)
+		}
+		cancel()
+
+		api = httpserver.NewServer(
+			propSvc, unitSvc, resSvc, leaseSvc, maintSvc,
+			authSvc, []byte(cfg.JWTSecret), propID, cfg.SiteDisplayName, invSvc,
+		)
 	}
 
 	r := chi.NewRouter()
@@ -129,6 +169,20 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+
+	// Browsers often open / and /favicon.ico; the API is JSON-only under /v1.
+	r.Get("/", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"service": "apartment-system-api",
+			"health":  "/health",
+			"site":    "/v1/site",
+			"hint":    "This is the Go REST API. Use GET /health. The Next.js UI is usually at http://localhost:3000 (not this port).",
+		})
+	})
+	r.Get("/favicon.ico", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
 
 	r.Get("/health", func(w http.ResponseWriter, req *http.Request) {
 		status := "ok"

@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
 import { createLease, updateLeaseStatus } from "@/lib/portal-actions";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { Lease, ListWrapper, Resident, Unit } from "@/lib/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -13,9 +13,9 @@ export default async function LeasesPage({ params }: PageProps) {
   const t = await getTranslations("LeasesPage");
 
   const [leasesRes, unitsRes, resRes] = await Promise.all([
-    apiGetJson<ListWrapper<Lease>>("/v1/leases"),
-    apiGetJson<ListWrapper<Unit>>("/v1/units"),
-    apiGetJson<ListWrapper<Resident>>("/v1/residents"),
+    apiGetJsonAuthed<ListWrapper<Lease>>("/v1/leases"),
+    apiGetJsonAuthed<ListWrapper<Unit>>("/v1/units"),
+    apiGetJsonAuthed<ListWrapper<Resident>>("/v1/residents"),
   ]);
 
   const leases = leasesRes.ok ? leasesRes.data.data : [];

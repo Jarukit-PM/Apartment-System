@@ -42,6 +42,20 @@ func (r *Repo) List(ctx context.Context, unitID *primitive.ObjectID) ([]Doc, err
 	return out, nil
 }
 
+// ListByResident returns leases where the resident appears in residentIds.
+func (r *Repo) ListByResident(ctx context.Context, residentID primitive.ObjectID) ([]Doc, error) {
+	cur, err := r.coll.Find(ctx, bson.M{"residentIds": residentID}, options.Find().SetSort(bson.D{{Key: "startDate", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Doc
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Get returns one lease.
 func (r *Repo) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	var d Doc

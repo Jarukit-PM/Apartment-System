@@ -51,6 +51,19 @@ func (r *Repo) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	return &d, nil
 }
 
+// GetByEmail finds a resident by normalized email.
+func (r *Repo) GetByEmail(ctx context.Context, email string) (*Doc, error) {
+	var d Doc
+	err := r.coll.FindOne(ctx, bson.M{"email": email}).Decode(&d)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
 // Insert creates resident.
 func (r *Repo) Insert(ctx context.Context, in Doc) (*Doc, error) {
 	if _, err := r.coll.InsertOne(ctx, in); err != nil {

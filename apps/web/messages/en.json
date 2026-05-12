@@ -3,18 +3,28 @@
     "title": "Apartment System",
     "description": "Apartment management — admin console, Go API, MongoDB"
   },
+  "NotFoundPage": {
+    "code": "404",
+    "title": "Page not found",
+    "body": "The link may be wrong or the page was removed.",
+    "home": "Home",
+    "dashboard": "Admin dashboard"
+  },
   "HomePage": {
     "brand": "Apartment System",
     "heading": "Property management MVP",
     "intro": "Open the admin console to manage properties, units, residents, leases, and maintenance. The UI talks to the Go API from the server using API_URL.",
     "language": "Language",
-    "openConsole": "Open admin console"
+    "openConsole": "Open admin console",
+    "myPortal": "Resident portal",
+    "signIn": "Sign in"
   },
   "Portal": {
     "brand": "Apartment System",
     "console": "Admin console",
     "navLabel": "Main navigation",
-    "hint": "Data is validated by the Go API. Auth is not enabled in this MVP slice.",
+    "hint": "Signed-in requests send a Bearer token from an httpOnly cookie; business rules are enforced in the Go API.",
+    "myPortal": "Resident portal",
     "nav": {
       "dashboard": "Dashboard",
       "properties": "Properties",
@@ -65,7 +75,9 @@
     "status": "Status",
     "unitsTitle": "Units at this property",
     "unitsError": "Could not load units.",
-    "unitsEmpty": "No units yet."
+    "unitsEmpty": "No units yet.",
+    "fetchErrorTitle": "Could not load this property",
+    "fetchErrorBody": "The API returned an error. If you were signed out, sign in again."
   },
   "UnitsPage": {
     "title": "Units",
@@ -134,5 +146,66 @@
     "listError": "Could not load requests.",
     "empty": "No requests yet.",
     "saveStatus": "Update status"
+  },
+  "Auth": {
+    "loginTitle": "Sign in",
+    "loginSubtitle": "Staff and residents use the same login. Choose email and password or Google.",
+    "registerTitle": "Create resident account",
+    "registerSubtitle": "Use the email you share with the building. If it is already linked, sign in instead.",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "phoneOptional": "Phone (optional)",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "createAccount": "Create account",
+    "divider": "Or",
+    "googleCaption": "Continue with Google",
+    "googleError": "Google sign-in failed. Try again or use email and password.",
+    "needAccount": "Need an account?",
+    "registerLink": "Register as a resident",
+    "haveAccount": "Already have an account?",
+    "signInLink": "Sign in"
+  },
+  "MyPortal": {
+    "brand": "Apartment System",
+    "title": "Resident portal",
+    "navLabel": "Resident navigation",
+    "nav": {
+      "summary": "Summary",
+      "invoices": "Invoices",
+      "maintenance": "Maintenance"
+    },
+    "adminConsole": "Admin console",
+    "summaryTitle": "Your home",
+    "greeting": "Hello, {name}.",
+    "profileSection": "Profile",
+    "email": "Email",
+    "phone": "Phone",
+    "homeSection": "Building & unit",
+    "homeLine": "{building} · unit {unit}",
+    "homeUnknown": "No primary unit on file yet. Ask the office to link your unit.",
+    "leaseStatus": "Lease status: {status}",
+    "noActiveLease": "No active lease on file. Billing and maintenance requests need an active lease.",
+    "forbiddenHint": "This area is for residents. If you are staff, open the admin console instead.",
+    "loadError": "Could not load data. Check that you are signed in and the API is running.",
+    "invoicesTitle": "Invoices",
+    "invoicesSubtitle": "Charges linked to your leases.",
+    "invoicesEmpty": "No invoices yet.",
+    "colDescription": "Description",
+    "colAmount": "Amount",
+    "colDue": "Due",
+    "colStatus": "Status",
+    "maintenanceTitle": "Maintenance",
+    "maintenanceSubtitle": "Submit requests for units on your active lease.",
+    "newRequestTitle": "New request",
+    "newRequestSubmit": "Submit request",
+    "maintenanceNoUnit": "You need an active lease with a unit before you can submit maintenance requests.",
+    "unit": "Unit",
+    "ticketTitle": "Title",
+    "description": "Description",
+    "ticketListTitle": "Your requests",
+    "ticketsEmpty": "No requests yet.",
+    "ticketMeta": "{status} · ref …{id}"
   }
 }

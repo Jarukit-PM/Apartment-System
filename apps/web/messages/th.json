@@ -3,18 +3,28 @@
     "title": "ระบบอพาร์ตเมนต์",
     "description": "จัดการอพาร์ตเมนต์ — คอนโซลแอดมิน, Go API, MongoDB"
   },
+  "NotFoundPage": {
+    "code": "404",
+    "title": "ไม่พบหน้า",
+    "body": "ลิงก์อาจผิดหรือหน้าถูกลบแล้ว",
+    "home": "หน้าแรก",
+    "dashboard": "แดชบอร์ดแอดมิน"
+  },
   "HomePage": {
     "brand": "ระบบอพาร์ตเมนต์",
     "heading": "MVP จัดการอสังหา",
     "intro": "เปิดคอนโซลแอดมินเพื่อจัดการทรัพย์สิน ยูนิต ผู้พักอาศัย สัญญาเช่า และแจ้งซ่อม UI เรียก Go API ฝั่งเซิร์ฟเวอร์ผ่าน API_URL",
     "language": "ภาษา",
-    "openConsole": "เปิดคอนโซลแอดมิน"
+    "openConsole": "เปิดคอนโซลแอดมิน",
+    "myPortal": "พอร์ทัลผู้พักอาศัย",
+    "signIn": "เข้าสู่ระบบ"
   },
   "Portal": {
     "brand": "ระบบอพาร์ตเมนต์",
     "console": "คอนโซลแอดมิน",
     "navLabel": "เมนูหลัก",
-    "hint": "ข้อมูลตรวจสอบโดย Go API ยังไม่เปิดใช้งานการล็อกอินใน MVP นี้",
+    "hint": "เมื่อล็อกอินแล้ว ระบบส่ง Bearer จากคุกกี้ httpOnly กฎธุรกิจอยู่ที่ Go API",
+    "myPortal": "พอร์ทัลผู้พักอาศัย",
     "nav": {
       "dashboard": "แดชบอร์ด",
       "properties": "ทรัพย์สิน",
@@ -65,7 +75,9 @@
     "status": "สถานะ",
     "unitsTitle": "ยูนิตในทรัพย์นี้",
     "unitsError": "โหลดยูนิตไม่ได้",
-    "unitsEmpty": "ยังไม่มียูนิต"
+    "unitsEmpty": "ยังไม่มียูนิต",
+    "fetchErrorTitle": "โหลดทรัพย์สินนี้ไม่ได้",
+    "fetchErrorBody": "API ส่งข้อผิดพลาด หากถูกล็อกเอาต์ ให้เข้าสู่ระบบอีกครั้ง"
   },
   "UnitsPage": {
     "title": "ยูนิต",
@@ -134,5 +146,66 @@
     "listError": "โหลดคำขอไม่ได้",
     "empty": "ยังไม่มีคำขอ",
     "saveStatus": "อัปเดตสถานะ"
+  },
+  "Auth": {
+    "loginTitle": "เข้าสู่ระบบ",
+    "loginSubtitle": "เจ้าหน้าที่และผู้พักอาศัยใช้หน้าเดียวกัน เลือกอีเมล/รหัสผ่าน หรือ Google",
+    "registerTitle": "สร้างบัญชีผู้พักอาศัย",
+    "registerSubtitle": "ใช้อีเมลที่ให้กับอาคาร หากมีในระบบแล้วให้เข้าสู่ระบบแทน",
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "fullName": "ชื่อ-นามสกุล",
+    "phoneOptional": "โทรศัพท์ (ไม่บังคับ)",
+    "signIn": "เข้าสู่ระบบ",
+    "signOut": "ออกจากระบบ",
+    "createAccount": "สร้างบัญชี",
+    "divider": "หรือ",
+    "googleCaption": "ดำเนินการต่อด้วย Google",
+    "googleError": "ล็อกอิน Google ไม่สำเร็จ ลองใหม่หรือใช้อีเมลและรหัสผ่าน",
+    "needAccount": "ยังไม่มีบัญชี?",
+    "registerLink": "ลงทะเบียนเป็นผู้พักอาศัย",
+    "haveAccount": "มีบัญชีแล้ว?",
+    "signInLink": "เข้าสู่ระบบ"
+  },
+  "MyPortal": {
+    "brand": "ระบบอพาร์ตเมนต์",
+    "title": "พอร์ทัลผู้พักอาศัย",
+    "navLabel": "เมนูผู้พักอาศัย",
+    "nav": {
+      "summary": "สรุป",
+      "invoices": "ใบแจ้งหนี้",
+      "maintenance": "แจ้งซ่อม"
+    },
+    "adminConsole": "คอนโซลแอดมิน",
+    "summaryTitle": "บ้านของคุณ",
+    "greeting": "สวัสดี {name}",
+    "profileSection": "โปรไฟล์",
+    "email": "อีเมล",
+    "phone": "โทรศัพท์",
+    "homeSection": "อาคารและยูนิต",
+    "homeLine": "{building} · ยูนิต {unit}",
+    "homeUnknown": "ยังไม่มียูนิตหลักในระบบ ติดต่อสำนักงานเพื่อผูกยูนิต",
+    "leaseStatus": "สถานะสัญญา: {status}",
+    "noActiveLease": "ไม่มีสัญญาเช่าที่ใช้งาน การเรียกเก็บและแจ้งซ่อมต้องมีสัญญาที่ active",
+    "forbiddenHint": "ส่วนนี้สำหรับผู้พักอาศัย หากเป็นเจ้าหน้าที่ให้เปิดคอนโซลแอดมิน",
+    "loadError": "โหลดข้อมูลไม่ได้ ตรวจสอบการล็อกอินและว่า API ทำงานอยู่",
+    "invoicesTitle": "ใบแจ้งหนี้",
+    "invoicesSubtitle": "รายการเรียกเก็บที่เชื่อมกับสัญญาของคุณ",
+    "invoicesEmpty": "ยังไม่มีใบแจ้งหนี้",
+    "colDescription": "รายการ",
+    "colAmount": "จำนวนเงิน",
+    "colDue": "ครบกำหนด",
+    "colStatus": "สถานะ",
+    "maintenanceTitle": "แจ้งซ่อม",
+    "maintenanceSubtitle": "ส่งคำขอสำหรับยูนิตในสัญญาที่ active ของคุณ",
+    "newRequestTitle": "คำขอใหม่",
+    "newRequestSubmit": "ส่งคำขอ",
+    "maintenanceNoUnit": "ต้องมีสัญญา active พร้อมยูนิตก่อนจึงจะแจ้งซ่อมได้",
+    "unit": "ยูนิต",
+    "ticketTitle": "หัวข้อ",
+    "description": "รายละเอียด",
+    "ticketListTitle": "คำขอของคุณ",
+    "ticketsEmpty": "ยังไม่มีคำขอ",
+    "ticketMeta": "{status} · อ้างอิง …{id}"
   }
 }

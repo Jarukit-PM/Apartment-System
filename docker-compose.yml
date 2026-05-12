@@ -21,6 +21,7 @@ services:
     environment:
       PORT: "8080"
       MONGODB_URI: mongodb://mongo:27017/apartment_system
+      JWT_SECRET: ${JWT_SECRET:-local-docker-compose-only-change-me}
       CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
     depends_on:
       mongo:

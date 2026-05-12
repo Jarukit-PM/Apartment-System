@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ActionForm } from "@/components/action-form";
 import { createResident } from "@/lib/portal-actions";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { ListWrapper, Resident } from "@/lib/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -11,7 +11,7 @@ export default async function ResidentsPage({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("ResidentsPage");
 
-  const res = await apiGetJson<ListWrapper<Resident>>("/v1/residents");
+  const res = await apiGetJsonAuthed<ListWrapper<Resident>>("/v1/residents");
   const list = res.ok ? res.data.data : [];
 
   return (

@@ -69,6 +69,31 @@ func (s *Service) List(ctx context.Context, unitID *primitive.ObjectID) ([]Doc, 
 	return s.repo.List(ctx, unitID)
 }
 
+// ListForResident lists leases involving a resident.
+func (s *Service) ListForResident(ctx context.Context, residentID primitive.ObjectID) ([]Doc, error) {
+	return s.repo.ListByResident(ctx, residentID)
+}
+
+// ActiveUnitIDsForResident returns unit ids from active leases for this resident.
+func (s *Service) ActiveUnitIDsForResident(ctx context.Context, residentID primitive.ObjectID) ([]primitive.ObjectID, error) {
+	list, err := s.repo.ListByResident(ctx, residentID)
+	if err != nil {
+		return nil, err
+	}
+	var ids []primitive.ObjectID
+	seen := map[primitive.ObjectID]struct{}{}
+	for _, l := range list {
+		if l.Status != StatusActive {
+			continue
+		}
+		if _, ok := seen[l.UnitID]; !ok {
+			seen[l.UnitID] = struct{}{}
+			ids = append(ids, l.UnitID)
+		}
+	}
+	return ids, nil
+}
+
 // Get returns one lease.
 func (s *Service) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	return s.repo.Get(ctx, id)

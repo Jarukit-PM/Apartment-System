@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
 import { createProperty, deleteProperty } from "@/lib/portal-actions";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { ListWrapper, Property } from "@/lib/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -13,7 +13,7 @@ export default async function PropertiesPage({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("PropertiesPage");
 
-  const res = await apiGetJson<ListWrapper<Property>>("/v1/properties");
+  const res = await apiGetJsonAuthed<ListWrapper<Property>>("/v1/properties");
   const list = res.ok ? res.data.data : [];
 
   return (

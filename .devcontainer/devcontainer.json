@@ -11,9 +11,6 @@
       "version": "22"
     }
   },
-  "remoteEnv": {
-    "MONGODB_URI": "mongodb://mongo:27017"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -26,5 +23,5 @@
     }
   },
   "remoteUser": "vscode",
-  "postCreateCommand": "npm ci --prefix apps/web && echo 'Web deps installed for this container OS/CPU. MONGODB_URI=mongodb://mongo:27017 in remoteEnv; host Mongo: localhost:27017 — see README.'"
+  "postCreateCommand": "npm ci --prefix apps/web && echo 'Web deps installed. JWT_SECRET and MONGODB_URI are set on the devcontainer service in docker-compose.yml — Rebuild Container after changing them.'"
 }

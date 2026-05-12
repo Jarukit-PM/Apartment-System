@@ -18,14 +18,14 @@ This is the usual setup when you **Reopen in Container**: Compose starts **Mongo
 
 1. Open the repository in VS Code or Cursor.
 2. Run **“Dev Containers: Reopen in Container”** (VS Code needs the extension linked above).
-3. After changing [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json), run **“Dev Containers: Rebuild Container”** so Go/Node features apply.
+3. After changing [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json) or [`.devcontainer/docker-compose.yml`](.devcontainer/docker-compose.yml), run **“Dev Containers: Rebuild Container”** so Compose env, Go/Node features, and tooling stay in sync.
 4. Wait until Compose reports **mongo** healthy. **postCreate** runs `npm ci` under `apps/web` so Tailwind’s **lightningcss** native binaries match the container’s OS/CPU (Linux `arm64` vs `amd64`, glibc vs musl, etc.).
 
 **Running the Go API and Next.js**
 
 The integrated terminal runs **inside** the dev container, which includes **Go** and **Node**. Use the same commands as in [Local development (API and web on the host)](#local-development-api-and-web-on-the-host): from `services/api` run `go run ./cmd/server`, and from `apps/web` run `npm run dev`. Dependencies are installed by **postCreate**; run `npm ci` again in `apps/web` if you copied `node_modules` from another machine or see errors like `Cannot find module '...lightningcss...node'`.
 
-`MONGODB_URI` is preset to `mongodb://mongo:27017` for remote shells via `remoteEnv` in `devcontainer.json`, so it overrides the `localhost` value in a root `.env` when you run the API **inside** the container. If you run the API on the **host** instead, use `mongodb://localhost:27017` (root `.env` or export).
+`MONGODB_URI` and `JWT_SECRET` (for the Go API) are set on the **`devcontainer`** service in [`.devcontainer/docker-compose.yml`](.devcontainer/docker-compose.yml), so every process in the container sees them after a **Rebuild**. For a long-lived container started before those lines existed, run **Rebuild Container** once, or set `JWT_SECRET` (16+ characters) in a root `.env` / your shell. If you run the API on the **host** instead, use `mongodb://localhost:27017` in root `.env` (and set `JWT_SECRET` there too).
 
 The editor and the host share the same workspace files on disk.
 
@@ -34,7 +34,7 @@ The editor and the host share the same workspace files on disk.
 | Where the client runs | URI |
 |----------------------|-----|
 | Go / Next on the **host** | `mongodb://localhost:27017` |
-| Shell, scripts, or `mongosh` **inside** the dev container | `mongodb://mongo:27017` |
+| Shell, scripts, or `mongosh` **inside** the dev container | `mongodb://mongo:27017` or `mongodb://mongo:27017/apartment_system` (matches Compose `MONGODB_URI`) |
 
 **Port conflict:** Do not run the root `docker compose up` stack at the same time as the Dev Container if both publish MongoDB on **27017**. Stop one stack, or change the host port mapping for `mongo` in [`.devcontainer/docker-compose.yml`](.devcontainer/docker-compose.yml). Dev Container data uses the **`mongo_dev_data`** volume; root Compose uses **`mongo_data`** (separate).
 
@@ -62,6 +62,7 @@ For **local** API + web (host or host processes with a Dev Container editor), yo
 | Variable | Purpose |
 |----------|---------|
 | `MONGODB_URI` | MongoDB connection string (API). |
+| `JWT_SECRET` | Signing key for access/refresh tokens (**≥ 16 characters**). Required when the API connects to MongoDB. |
 | `CORS_ORIGINS` | Comma-separated browser origins allowed to call the API. |
 | `API_URL` | Base URL for **server-side** Next.js → Go calls (`http://api:8080` inside Compose). |
 | `NEXT_PUBLIC_API_URL` | Base URL reachable from the **browser** (typically `http://localhost:8080` on your machine). |
@@ -76,7 +77,7 @@ Terminal 1 — MongoDB (skip if you use Dev Container Compose or already have Mo
 docker run -d --name apartment-mongo -p 27017:27017 mongo:7
 ```
 
-Terminal 2 — API (uses `PORT`, `MONGODB_URI`, and `CORS_ORIGINS` from the root `.env` if present):
+Terminal 2 — API (uses `PORT`, `MONGODB_URI`, `JWT_SECRET`, and `CORS_ORIGINS` from the root `.env` if present):
 
 ```bash
 cd services/api

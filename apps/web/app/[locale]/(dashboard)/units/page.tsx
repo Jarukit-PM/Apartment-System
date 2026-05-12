@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { ListWrapper, Property, Unit } from "@/lib/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -10,8 +10,8 @@ export default async function UnitsPage({ params }: PageProps) {
   const t = await getTranslations("UnitsPage");
 
   const [unitsRes, propsRes] = await Promise.all([
-    apiGetJson<ListWrapper<Unit>>("/v1/units"),
-    apiGetJson<ListWrapper<Property>>("/v1/properties"),
+    apiGetJsonAuthed<ListWrapper<Unit>>("/v1/units"),
+    apiGetJsonAuthed<ListWrapper<Property>>("/v1/properties"),
   ]);
 
   const units = unitsRes.ok ? unitsRes.data.data : [];

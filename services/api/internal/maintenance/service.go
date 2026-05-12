@@ -129,3 +129,25 @@ func (s *Service) Update(ctx context.Context, id primitive.ObjectID, in UpdateIn
 func (s *Service) Delete(ctx context.Context, id primitive.ObjectID) error {
 	return s.repo.Delete(ctx, id)
 }
+
+// ListByResident returns maintenance visible to a resident.
+func (s *Service) ListByResident(ctx context.Context, unitIDs []primitive.ObjectID, residentID primitive.ObjectID) ([]Doc, error) {
+	return s.repo.ListForResident(ctx, unitIDs, residentID)
+}
+
+// CreateForResident submits a ticket for a unit the resident holds under an active lease.
+func (s *Service) CreateForResident(ctx context.Context, residentID primitive.ObjectID, allowedUnitIDs []primitive.ObjectID, in CreateInput) (*Doc, error) {
+	ok := false
+	for _, u := range allowedUnitIDs {
+		if u == in.UnitID {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return nil, errors.New("unit is not linked to an active lease for this resident")
+	}
+	rid := residentID
+	in.RequestedByResidentID = &rid
+	return s.Create(ctx, in)
+}

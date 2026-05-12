@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { routing } from "@/i18n/routing";
 
+/** Used when no `[locale]` layout applies (e.g. invalid URL shape). Prefer `app/[locale]/not-found.tsx` for normal misses. */
 export default function GlobalNotFound() {
   return (
     <html lang="en">
@@ -7,12 +9,17 @@ export default function GlobalNotFound() {
         <div className="text-center">
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">404</p>
           <p className="mt-2 text-zinc-800 dark:text-zinc-200">This page could not be found.</p>
-          <Link
-            href="/en"
-            className="mt-6 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
-          >
-            Go to home (English)
-          </Link>
+          <p className="mt-4 flex flex-wrap justify-center gap-4 text-sm font-medium">
+            {routing.locales.map((loc) => (
+              <Link
+                key={loc}
+                href={`/${loc}`}
+                className="text-zinc-900 underline dark:text-zinc-100"
+              >
+                {loc === "en" ? "Home (English)" : "หน้าแรก (ไทย)"}
+              </Link>
+            ))}
+          </p>
         </div>
       </body>
     </html>

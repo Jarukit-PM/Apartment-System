@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { apiBaseUrl } from "@/lib/api";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type {
   HealthResponse,
   Lease,
@@ -32,11 +32,11 @@ export default async function DashboardPage({ params }: PageProps) {
 
   const [health, props, units, residents, leases, maint] = await Promise.all([
     fetchHealth(),
-    apiGetJson<ListWrapper<Property>>("/v1/properties"),
-    apiGetJson<ListWrapper<Unit>>("/v1/units"),
-    apiGetJson<ListWrapper<Resident>>("/v1/residents"),
-    apiGetJson<ListWrapper<Lease>>("/v1/leases"),
-    apiGetJson<ListWrapper<MaintenanceRequest>>("/v1/maintenance-requests"),
+    apiGetJsonAuthed<ListWrapper<Property>>("/v1/properties"),
+    apiGetJsonAuthed<ListWrapper<Unit>>("/v1/units"),
+    apiGetJsonAuthed<ListWrapper<Resident>>("/v1/residents"),
+    apiGetJsonAuthed<ListWrapper<Lease>>("/v1/leases"),
+    apiGetJsonAuthed<ListWrapper<MaintenanceRequest>>("/v1/maintenance-requests"),
   ]);
 
   const stat = (label: string, n: number, ok: boolean) => (

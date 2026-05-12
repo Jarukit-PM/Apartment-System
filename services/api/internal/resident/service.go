@@ -38,6 +38,11 @@ func (s *Service) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) 
 	return s.repo.Get(ctx, id)
 }
 
+// GetByEmail returns a resident by normalized email.
+func (s *Service) GetByEmail(ctx context.Context, email string) (*Doc, error) {
+	return s.repo.GetByEmail(ctx, strings.TrimSpace(strings.ToLower(email)))
+}
+
 // Create validates and inserts.
 func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 	in.FullName = strings.TrimSpace(in.FullName)

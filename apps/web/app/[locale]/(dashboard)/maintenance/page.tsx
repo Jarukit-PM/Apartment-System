@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
 import { createMaintenance, updateMaintenanceStatus } from "@/lib/portal-actions";
-import { apiGetJson } from "@/lib/server-api";
+import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { ListWrapper, MaintenanceRequest, Resident, Unit } from "@/lib/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -13,9 +13,9 @@ export default async function MaintenancePage({ params }: PageProps) {
   const t = await getTranslations("MaintenancePage");
 
   const [listRes, unitsRes, resRes] = await Promise.all([
-    apiGetJson<ListWrapper<MaintenanceRequest>>("/v1/maintenance-requests"),
-    apiGetJson<ListWrapper<Unit>>("/v1/units"),
-    apiGetJson<ListWrapper<Resident>>("/v1/residents"),
+    apiGetJsonAuthed<ListWrapper<MaintenanceRequest>>("/v1/maintenance-requests"),
+    apiGetJsonAuthed<ListWrapper<Unit>>("/v1/units"),
+    apiGetJsonAuthed<ListWrapper<Resident>>("/v1/residents"),
   ]);
 
   const items = listRes.ok ? listRes.data.data : [];

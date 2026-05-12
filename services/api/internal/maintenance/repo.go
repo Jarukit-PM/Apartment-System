@@ -42,6 +42,24 @@ func (r *Repo) List(ctx context.Context, unitID *primitive.ObjectID) ([]Doc, err
 	return out, nil
 }
 
+// ListForResident returns tickets filed by the resident or tied to their units.
+func (r *Repo) ListForResident(ctx context.Context, unitIDs []primitive.ObjectID, residentID primitive.ObjectID) ([]Doc, error) {
+	or := []bson.M{{"requestedByResidentId": residentID}}
+	if len(unitIDs) > 0 {
+		or = append(or, bson.M{"unitId": bson.M{"$in": unitIDs}})
+	}
+	cur, err := r.coll.Find(ctx, bson.M{"$or": or}, options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Doc
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Get one.
 func (r *Repo) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	var d Doc

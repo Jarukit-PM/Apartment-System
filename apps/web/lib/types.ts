@@ -79,3 +79,25 @@ export type HealthResponse = {
   status: string;
   mongo: string;
 };
+
+/** GET /v1/me/summary */
+export type MeSummaryData = {
+  resident: Resident;
+  leases: Lease[];
+  primaryUnit?: Unit;
+  property?: Property;
+  activeLease?: Lease;
+};
+
+export type Invoice = {
+  id: string;
+  leaseId: string;
+  residentId: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: string;
+  dueDate: string;
+  createdAt: string;
+  updatedAt: string;
+};
