@@ -9,8 +9,9 @@
     "@parcel/watcher-linux-arm64-glibc": "^2.5.6"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:webpack": "next dev --webpack",
+    "dev": "node ./scripts/dev-with-root-env.mjs dev --webpack",
+    "dev:turbopack": "node ./scripts/dev-with-root-env.mjs dev --turbopack",
+    "dev:webpack": "node ./scripts/dev-with-root-env.mjs dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
