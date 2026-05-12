@@ -16,6 +16,7 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/resident"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"github.com/jarukit/apartment-system/services/api/internal/user"
+	"github.com/jarukit/apartment-system/services/api/internal/wallet"
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,6 +34,7 @@ type Server struct {
 	DefaultPropertyID primitive.ObjectID
 	SiteName          string
 	Invoice           *invoice.Service
+	Wallet            *wallet.Service
 }
 
 // NewServer constructs a Server with domain and auth dependencies.
@@ -47,6 +49,7 @@ func NewServer(
 	defaultPropertyID primitive.ObjectID,
 	siteName string,
 	inv *invoice.Service,
+	w *wallet.Service,
 ) *Server {
 	return &Server{
 		Props:             p,
@@ -59,6 +62,7 @@ func NewServer(
 		DefaultPropertyID: defaultPropertyID,
 		SiteName:          siteName,
 		Invoice:           inv,
+		Wallet:            w,
 	}
 }
 
@@ -76,6 +80,10 @@ func (s *Server) Mount(r chi.Router) {
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Use(s.bearerAuth)
+
+		r.Get("/wallet", s.walletGet)
+		r.Post("/wallet/top-ups", s.walletTopUp)
+		r.Post("/wallet/transfers", s.walletTransfer)
 
 		r.Route("/me", func(r chi.Router) {
 			r.Use(s.mustRole(user.RoleResident))
@@ -174,9 +182,19 @@ func classifyError(err error) (status int, code string, message string) {
 		errors.Is(err, lease.ErrUnitMissing),
 		errors.Is(err, lease.ErrSelfServiceInvalidDates):
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
+<<<<<<< Updated upstream
 	case errors.Is(err, lease.ErrResidentAlreadyLeasing),
 		errors.Is(err, lease.ErrSelfServiceUnitUnavailable):
 		return http.StatusConflict, "CONFLICT", err.Error()
+=======
+	case errors.Is(err, wallet.ErrInsufficientFunds):
+		return http.StatusConflict, "CONFLICT", err.Error()
+	case errors.Is(err, wallet.ErrRecipientNotFound):
+		return http.StatusNotFound, "NOT_FOUND", err.Error()
+	case errors.Is(err, wallet.ErrSelfTransfer),
+		errors.Is(err, wallet.ErrInvalidAmount):
+		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
+>>>>>>> Stashed changes
 	default:
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
 	}

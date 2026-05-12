@@ -115,3 +115,25 @@ export type Invoice = {
   createdAt: string;
   updatedAt: string;
 };
+
+/** GET /v1/wallet */
+export type WalletDocWire = {
+  userId: string;
+  balanceSatang: number;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WalletLedgerEntry = {
+  id: string;
+  kind: string;
+  amountSatang: number;
+  createdAt: string;
+  peerUserId?: string | null;
+};
+
+export type WalletBundle = {
+  wallet: WalletDocWire;
+  ledger: WalletLedgerEntry[];
+};

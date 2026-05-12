@@ -181,7 +181,11 @@
     "navLabel": "Resident navigation",
     "nav": {
       "summary": "Summary",
+<<<<<<< Updated upstream
       "rentBook": "Rent a unit",
+=======
+      "wallet": "Wallet",
+>>>>>>> Stashed changes
       "invoices": "Invoices",
       "maintenance": "Maintenance"
     },
@@ -217,6 +221,7 @@
     "ticketListTitle": "Your requests",
     "ticketsEmpty": "No requests yet.",
     "ticketMeta": "{status} · ref …{id}",
+<<<<<<< Updated upstream
     "rentBook": {
       "title": "Rent a unit",
       "subtitle": "Vacant units with a listed rent can be booked instantly. Your lease becomes active as soon as you confirm.",
@@ -234,5 +239,28 @@
       "endHint": "Leave blank for an open-ended lease. If set, end must be after start.",
       "bookSubmit": "Book this unit"
     }
+=======
+    "walletTitle": "Wallet",
+    "walletSubtitle": "Your balance in THB (satang). Top-ups are simulated credits for this MVP.",
+    "walletSignInHint": "Sign in to view your wallet.",
+    "walletBalanceSection": "Balance",
+    "walletUserId": "Your user id",
+    "walletCurrency": "Currency",
+    "walletMinorHint": "Amounts are stored in satang (1 THB = 100 satang). Transfers require the recipient’s user ObjectId from their profile.",
+    "walletTopUpTitle": "Top up",
+    "walletTopUpHint": "Adds demo credit to your wallet (no real payment).",
+    "walletTopUpSubmit": "Add funds",
+    "walletTransferTitle": "Transfer",
+    "walletTransferHint": "Send THB to another registered user. They must give you their user id (same as yours on this page).",
+    "walletTransferSubmit": "Send transfer",
+    "walletAmountLabel": "Amount (THB)",
+    "walletToUserLabel": "Recipient user id",
+    "walletLedgerTitle": "Recent activity",
+    "walletLedgerEmpty": "No movements yet.",
+    "ledgerTopUp": "Top up",
+    "ledgerTransferOut": "Transfer sent",
+    "ledgerTransferIn": "Transfer received",
+    "walletPeer": "Counterparty"
+>>>>>>> Stashed changes
   }
 }

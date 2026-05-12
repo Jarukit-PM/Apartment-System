@@ -181,7 +181,11 @@
     "navLabel": "เมนูผู้พักอาศัย",
     "nav": {
       "summary": "สรุป",
+<<<<<<< Updated upstream
       "rentBook": "เช่ายูนิต",
+=======
+      "wallet": "กระเป๋าเงิน",
+>>>>>>> Stashed changes
       "invoices": "ใบแจ้งหนี้",
       "maintenance": "แจ้งซ่อม"
     },
@@ -217,6 +221,7 @@
     "ticketListTitle": "คำขอของคุณ",
     "ticketsEmpty": "ยังไม่มีคำขอ",
     "ticketMeta": "{status} · อ้างอิง …{id}",
+<<<<<<< Updated upstream
     "rentBook": {
       "title": "เช่ายูนิต",
       "subtitle": "ยูนิตว่างที่กำหนดค่าเช่าแล้วจองได้ทันที สัญญาจะ active เมื่อคุณยืนยัน",
@@ -234,5 +239,28 @@
       "endHint": "เว้นว่างหากไม่กำหนดวันสิ้นสุด หากระบุ วันสิ้นสุดต้องหลังวันเริ่ม",
       "bookSubmit": "จองยูนิตนี้"
     }
+=======
+    "walletTitle": "กระเป๋าเงิน",
+    "walletSubtitle": "ยอดเงินเป็นบาท (เก็บในหน่วยสตางค์) การเติมเงินเป็นเครดิตจำลองสำหรับ MVP",
+    "walletSignInHint": "ล็อกอินเพื่อดูกระเป๋าเงิน",
+    "walletBalanceSection": "ยอดคงเหลือ",
+    "walletUserId": "รหัสผู้ใช้ของคุณ",
+    "walletCurrency": "สกุลเงิน",
+    "walletMinorHint": "ระบบเก็บเป็นสตางค์ (1 บาท = 100 สตางค์) การโอนต้องใช้ ObjectId ของผู้รับจากหน้าโปรไฟล์กระเป๋า",
+    "walletTopUpTitle": "เติมเงิน",
+    "walletTopUpHint": "เพิ่มเครดิตจำลองในกระเป๋า (ไม่มีการชำระเงินจริง)",
+    "walletTopUpSubmit": "เติมเงิน",
+    "walletTransferTitle": "โอนเงิน",
+    "walletTransferHint": "โอนบาทให้ผู้ใช้ที่ลงทะเบียนแล้ว ผู้รับต้องแจ้ง user id ให้คุณ (เหมือนที่แสดงในหน้านี้)",
+    "walletTransferSubmit": "โอน",
+    "walletAmountLabel": "จำนวนเงิน (บาท)",
+    "walletToUserLabel": "รหัสผู้ใช้ผู้รับ",
+    "walletLedgerTitle": "รายการล่าสุด",
+    "walletLedgerEmpty": "ยังไม่มีรายการ",
+    "ledgerTopUp": "เติมเงิน",
+    "ledgerTransferOut": "โอนออก",
+    "ledgerTransferIn": "โอนเข้า",
+    "walletPeer": "คู่รายการ"
+>>>>>>> Stashed changes
   }
 }

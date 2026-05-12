@@ -35,6 +35,8 @@ func Ensure(ctx context.Context, db *mongo.Database) {
 		{"refresh_tokens", bson.D{{Key: "tokenHash", Value: 1}}, "refresh_tokens_hash", true, false},
 		{"invoices", bson.D{{Key: "leaseId", Value: 1}, {Key: "dueDate", Value: 1}}, "invoices_lease_due", false, false},
 		{"invoices", bson.D{{Key: "residentId", Value: 1}, {Key: "status", Value: 1}}, "invoices_resident_status", false, false},
+		{"wallets", bson.D{{Key: "userId", Value: 1}}, "wallets_user", true, false},
+		{"wallet_ledger", bson.D{{Key: "userId", Value: 1}, {Key: "createdAt", Value: -1}}, "wallet_ledger_user_created", false, false},
 	}
 	for _, s := range specs {
 		opts := options.Index().SetName(s.name)

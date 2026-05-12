@@ -124,6 +124,25 @@ Contract linking residents to units for a period.
 
 ---
 
+### `wallets` / `wallet_ledger`
+
+Per **user account** (`users._id`): one wallet document holds `balanceSatang` (THB minor units / satang). The `wallet_ledger` collection stores append-only movements from the perspective of `userId`: `top_up`, `transfer_out`, and `transfer_in` (with optional `peerUserId`).
+
+| Field (wallet) | Type | Description |
+|----------------|------|-------------|
+| `_id` | ObjectId | Primary key. |
+| `userId` | ObjectId | References `users._id` (unique). |
+| `balanceSatang` | int64 | Current balance in satang. |
+| `currency` | string | e.g. `THB`. |
+| `createdAt` / `updatedAt` | date | |
+
+**Indexes**
+
+- **Unique** `{ userId: 1 }` on `wallets`.
+- `{ userId: 1, createdAt: -1 }` on `wallet_ledger` for recent activity.
+
+---
+
 ### `invoices` / `payments` (later slice)
 
 Keep **invoices** as billing documents and **payments** as settlement records; link both to `leases` or `residents` with explicit statuses. Add indexes on `leaseId`, `dueDate`, and `status` when implemented.

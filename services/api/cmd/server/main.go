@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,6 +30,13 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/siteboot"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"github.com/jarukit/apartment-system/services/api/internal/user"
+<<<<<<< Updated upstream
+=======
+	"github.com/jarukit/apartment-system/services/api/internal/wallet"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+>>>>>>> Stashed changes
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -61,11 +70,59 @@ func loadEnvFromAncestors() {
 	}
 }
 
+// insecureLocalDevJWT is only applied by ensureLocalDevJWTSecret when Mongo is clearly local and APP_ENV is not production.
+const insecureLocalDevJWT = "apartment-system-local-dev-only-jwt-not-for-production-minimum-length-48"
+
+func inProductionEnv() bool {
+	for _, k := range []string{"APP_ENV", "ENVIRONMENT"} {
+		if strings.EqualFold(strings.TrimSpace(os.Getenv(k)), "production") {
+			return true
+		}
+	}
+	return false
+}
+
+func mongoURILooksLocalDev(uri string) bool {
+	uri = strings.TrimSpace(uri)
+	if uri == "" {
+		return true
+	}
+	u, err := url.Parse(uri)
+	if err != nil {
+		return strings.Contains(uri, "localhost") ||
+			strings.Contains(uri, "127.0.0.1") ||
+			strings.Contains(uri, "mongo:")
+	}
+	host := strings.ToLower(u.Hostname())
+	return host == "localhost" || host == "127.0.0.1" || host == "mongo"
+}
+
+// ensureLocalDevJWTSecret sets a dev-only JWT when the secret is missing but Mongo is local.
+// Cursor/VS Code sometimes do not inject devcontainer remoteEnv into every terminal, which leaves JWT_SECRET empty.
+func ensureLocalDevJWTSecret() {
+	if len(strings.TrimSpace(os.Getenv("JWT_SECRET"))) >= 16 {
+		return
+	}
+	if inProductionEnv() {
+		return
+	}
+	uri := strings.TrimSpace(os.Getenv("MONGODB_URI"))
+	if uri == "" {
+		uri = "mongodb://localhost:27017/apartment_system"
+	}
+	if !mongoURILooksLocalDev(uri) {
+		return
+	}
+	_ = os.Setenv("JWT_SECRET", insecureLocalDevJWT)
+	slog.Warn("JWT_SECRET was unset or too short; using a fixed local-development default. Set JWT_SECRET in the repo root .env for shared hosts or production.")
+}
+
 func main() {
 	loadEnvFromAncestors()
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
+	ensureLocalDevJWTSecret()
 
 	cfg := config.Load()
 	ctx := context.Background()
@@ -106,6 +163,14 @@ func main() {
 
 	var api *httpserver.Server
 	if database != nil {
+<<<<<<< Updated upstream
+=======
+		if len(cfg.JWTSecret) < 16 {
+			slog.Error("JWT_SECRET must be at least 16 characters when MongoDB is enabled; set a longer value in the repo root .env or use Dev Container remoteEnv / .devcontainer/docker-compose.yml (see .env.example)", "len", len(cfg.JWTSecret))
+			os.Exit(1)
+		}
+
+>>>>>>> Stashed changes
 		sbCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
 		propID, err := siteboot.EnsureDefaultProperty(sbCtx, database, cfg.SiteDisplayName)
 		cancel()
@@ -123,6 +188,7 @@ func main() {
 		userRepo := user.NewRepo(database)
 		rtRepo := refreshtoken.NewRepo(database)
 		invRepo := invoice.NewRepo(database)
+		walletRepo := wallet.NewRepo(database)
 
 		propSvc := property.NewService(propRepo, dbGetter)
 		unitSvc := unit.NewService(unitRepo, dbGetter, propRepo)
@@ -130,6 +196,7 @@ func main() {
 		leaseSvc := lease.NewService(leaseRepo, unitSvc, resSvc, dbGetter)
 		maintSvc := maintenance.NewService(maintRepo, unitRepo, resRepo)
 		invSvc := invoice.NewService(invRepo)
+		walletSvc := wallet.NewService(walletRepo, userRepo)
 
 		authCfg := authservice.AuthConfig{
 			JWTSecret:  []byte(cfg.JWTSecret),
@@ -147,7 +214,7 @@ func main() {
 
 		api = httpserver.NewServer(
 			propSvc, unitSvc, resSvc, leaseSvc, maintSvc,
-			authSvc, []byte(cfg.JWTSecret), propID, cfg.SiteDisplayName, invSvc,
+			authSvc, []byte(cfg.JWTSecret), propID, cfg.SiteDisplayName, invSvc, walletSvc,
 		)
 	}
 

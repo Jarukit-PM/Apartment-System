@@ -11,6 +11,10 @@
       "version": "22"
     }
   },
+  "remoteEnv": {
+    "MONGODB_URI": "mongodb://mongo:27017/apartment_system",
+    "JWT_SECRET": "devcontainer-compose-local-not-for-production"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -23,5 +27,6 @@
     }
   },
   "remoteUser": "vscode",
-  "postCreateCommand": "npm ci --prefix apps/web && echo 'Web deps installed. JWT_SECRET and MONGODB_URI are set on the devcontainer service in docker-compose.yml — Rebuild Container after changing them.'"
+  "postCreateCommand": "bash -lc 'set -e; npm ci --prefix apps/web; echo Web deps installed. JWT_SECRET and MONGODB_URI are set on the devcontainer service in docker-compose.yml — Rebuild Container after changing them.'",
+  "postStartCommand": "bash -lc 'set -e; test -x apps/web/node_modules/.bin/next || npm ci --prefix apps/web'"
 }

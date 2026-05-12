@@ -5,7 +5,11 @@ import { getAccessTokenRoles } from "@/lib/session-roles";
 
 const links = [
   { href: "/my", key: "summary" as const },
+<<<<<<< Updated upstream
   { href: "/my/rent", key: "rentBook" as const },
+=======
+  { href: "/my/wallet", key: "wallet" as const },
+>>>>>>> Stashed changes
   { href: "/my/invoices", key: "invoices" as const },
   { href: "/my/maintenance", key: "maintenance" as const },
 ];
