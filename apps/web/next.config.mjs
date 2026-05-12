@@ -40,6 +40,18 @@ applySelectedKeysFromRootEnv();
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   output: "standalone",
+  webpack: (config, { dev }) => {
+    // PackFileCacheStrategy / FileSystemInfo “import(t)” lines come from webpack’s
+    // infrastructure logger, not compilation warnings — ignoreWarnings does not apply.
+    // next-intl triggers this; harmless. Quieter dev logs without hiding compile errors.
+    if (dev) {
+      config.infrastructureLogging = {
+        ...config.infrastructureLogging,
+        level: "error",
+      };
+    }
+    return config;
+  },
   // Turbopack can bundle PostCSS/Tailwind in a way that breaks `require("lightningcss-*")`
   // for native bindings; keep these on the Node resolution path.
   serverExternalPackages: [
