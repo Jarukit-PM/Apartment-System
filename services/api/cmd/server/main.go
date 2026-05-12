@@ -30,13 +30,7 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/siteboot"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"github.com/jarukit/apartment-system/services/api/internal/user"
-<<<<<<< Updated upstream
-=======
 	"github.com/jarukit/apartment-system/services/api/internal/wallet"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
->>>>>>> Stashed changes
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -163,14 +157,11 @@ func main() {
 
 	var api *httpserver.Server
 	if database != nil {
-<<<<<<< Updated upstream
-=======
 		if len(cfg.JWTSecret) < 16 {
 			slog.Error("JWT_SECRET must be at least 16 characters when MongoDB is enabled; set a longer value in the repo root .env or use Dev Container remoteEnv / .devcontainer/docker-compose.yml (see .env.example)", "len", len(cfg.JWTSecret))
 			os.Exit(1)
 		}
 
->>>>>>> Stashed changes
 		sbCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
 		propID, err := siteboot.EnsureDefaultProperty(sbCtx, database, cfg.SiteDisplayName)
 		cancel()

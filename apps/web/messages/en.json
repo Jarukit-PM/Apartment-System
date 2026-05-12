@@ -31,7 +31,8 @@
       "units": "Units",
       "residents": "Residents",
       "leases": "Leases",
-      "maintenance": "Maintenance"
+      "maintenance": "Maintenance",
+      "wallet": "Wallet"
     }
   },
   "DashboardPage": {
@@ -76,13 +77,6 @@
     "unitsTitle": "Units at this property",
     "unitsError": "Could not load units.",
     "unitsEmpty": "No units yet.",
-    "listingAmount": "Listing rent (optional)",
-    "listingAmountPh": "e.g. 12000",
-    "listingCurrency": "Currency",
-    "selfService": "Allow residents to book this unit online (when vacant and rent is set)",
-    "listingLine": "Listed at {amount} {currency}/mo for self-service",
-    "editListing": "Listing & self-service",
-    "saveListing": "Save",
     "fetchErrorTitle": "Could not load this property",
     "fetchErrorBody": "The API returned an error. If you were signed out, sign in again."
   },
@@ -95,7 +89,6 @@
       "label": "Label",
       "property": "Property",
       "status": "Status",
-      "listing": "Listing rent",
       "id": "Id"
     }
   },
@@ -181,11 +174,8 @@
     "navLabel": "Resident navigation",
     "nav": {
       "summary": "Summary",
-<<<<<<< Updated upstream
       "rentBook": "Rent a unit",
-=======
       "wallet": "Wallet",
->>>>>>> Stashed changes
       "invoices": "Invoices",
       "maintenance": "Maintenance"
     },
@@ -197,10 +187,10 @@
     "phone": "Phone",
     "homeSection": "Building & unit",
     "homeLine": "{building} · unit {unit}",
-    "homeUnknown": "No primary unit on file yet. You can rent an available unit online, or ask the office to link your unit.",
+    "homeUnknown": "No primary unit on file yet. Ask the office to link your unit.",
     "leaseStatus": "Lease status: {status}",
     "noActiveLease": "No active lease on file. Billing and maintenance requests need an active lease.",
-    "summaryRentLink": "Browse available units to lease online",
+    "summaryRentLink": "Browse vacant units to rent online",
     "forbiddenHint": "This area is for residents. If you are staff, open the admin console instead.",
     "loadError": "Could not load data. Check that you are signed in and the API is running.",
     "invoicesTitle": "Invoices",
@@ -221,25 +211,23 @@
     "ticketListTitle": "Your requests",
     "ticketsEmpty": "No requests yet.",
     "ticketMeta": "{status} · ref …{id}",
-<<<<<<< Updated upstream
     "rentBook": {
       "title": "Rent a unit",
-      "subtitle": "Vacant units with a listed rent can be booked instantly. Your lease becomes active as soon as you confirm.",
-      "empty": "No units are available for self-service right now. Ask the office when new units open up.",
+      "subtitle": "Vacant units with published rent can be booked online; your lease becomes active when you confirm.",
+      "empty": "No units are available for online rent right now. Contact the office when a room opens up.",
       "loadError": "Could not load available units. Check that you are signed in and the API is running.",
-      "loadErrorStatus": "HTTP status {status}.",
-      "loadError404Hint": "If you recently updated the app, rebuild and restart the Go API so it serves GET /v1/me/available-units (for example: docker compose up -d --build api).",
-      "loadError403Hint": "You may be signed in as an account without resident access, or your session is missing a linked resident profile.",
+      "loadErrorStatus": "HTTP status {status}",
+      "loadError404Hint": "If you just updated the app, rebuild and restart the Go API so GET /v1/me/available-units exists (e.g. docker compose up -d --build api).",
+      "loadError403Hint": "You may be signed in with a non-resident account, or your session has no resident profile.",
       "unitLabel": "Unit {label}",
       "rentLine": "{amount} {currency} / month",
       "floor": "Floor {n}",
-      "bedrooms": "{n} bed",
+      "bedrooms": "{n} bedrooms",
       "startLabel": "Lease start",
       "endLabel": "Lease end (optional)",
-      "endHint": "Leave blank for an open-ended lease. If set, end must be after start.",
+      "endHint": "Leave blank for open-ended. If set, end date must be after the start date.",
       "bookSubmit": "Book this unit"
-    }
-=======
+    },
     "walletTitle": "Wallet",
     "walletSubtitle": "Your balance in THB (satang). Top-ups are simulated credits for this MVP.",
     "walletSignInHint": "Sign in to view your wallet.",
@@ -261,6 +249,5 @@
     "ledgerTransferOut": "Transfer sent",
     "ledgerTransferIn": "Transfer received",
     "walletPeer": "Counterparty"
->>>>>>> Stashed changes
   }
 }

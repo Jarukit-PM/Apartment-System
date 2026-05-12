@@ -43,6 +43,7 @@ export async function walletTopUp(_prev: ActionState, formData: FormData): Promi
     return fail(res.error?.message ?? "Top-up failed");
   }
   revalidatePath(`/${locale}/my/wallet`, "page");
+  revalidatePath(`/${locale}/wallet`, "page");
   return ok();
 }
 
@@ -66,5 +67,6 @@ export async function walletTransfer(_prev: ActionState, formData: FormData): Pr
     return fail(res.error?.message ?? "Transfer failed");
   }
   revalidatePath(`/${locale}/my/wallet`, "page");
+  revalidatePath(`/${locale}/wallet`, "page");
   return ok();
 }

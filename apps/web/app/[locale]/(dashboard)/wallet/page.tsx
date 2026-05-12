@@ -3,7 +3,7 @@ import { WalletPanel } from "@/components/wallet-panel";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
-export default async function MyWalletPage({ params }: PageProps) {
+export default async function DashboardWalletPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   return <WalletPanel locale={locale} />;

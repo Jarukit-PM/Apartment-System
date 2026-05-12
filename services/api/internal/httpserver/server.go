@@ -178,15 +178,13 @@ func classifyError(err error) (status int, code string, message string) {
 		errors.Is(err, lease.ErrConflict),
 		errors.Is(err, lease.ErrDeleteActive):
 		return http.StatusConflict, "CONFLICT", err.Error()
-	case errors.Is(err, lease.ErrInvalidResidents),
+		case errors.Is(err, lease.ErrInvalidResidents),
 		errors.Is(err, lease.ErrUnitMissing),
 		errors.Is(err, lease.ErrSelfServiceInvalidDates):
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
-<<<<<<< Updated upstream
 	case errors.Is(err, lease.ErrResidentAlreadyLeasing),
 		errors.Is(err, lease.ErrSelfServiceUnitUnavailable):
 		return http.StatusConflict, "CONFLICT", err.Error()
-=======
 	case errors.Is(err, wallet.ErrInsufficientFunds):
 		return http.StatusConflict, "CONFLICT", err.Error()
 	case errors.Is(err, wallet.ErrRecipientNotFound):
@@ -194,7 +192,6 @@ func classifyError(err error) (status int, code string, message string) {
 	case errors.Is(err, wallet.ErrSelfTransfer),
 		errors.Is(err, wallet.ErrInvalidAmount):
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
->>>>>>> Stashed changes
 	default:
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
 	}

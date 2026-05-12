@@ -9,6 +9,7 @@ const links = [
   { href: "/residents", key: "residents" as const },
   { href: "/leases", key: "leases" as const },
   { href: "/maintenance", key: "maintenance" as const },
+  { href: "/wallet", key: "wallet" as const },
 ];
 
 export async function PortalChrome({
@@ -27,7 +28,7 @@ export async function PortalChrome({
           </p>
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{t("console")}</p>
         </div>
-        <nav className="flex flex-wrap gap-2 md:flex-col md:gap-1" aria-label={t("navLabel")}>
+        <nav className="flex flex-col gap-1" aria-label={t("navLabel")}>
           {links.map((l) => (
             <Link
               key={l.href}
