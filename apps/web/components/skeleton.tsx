@@ -2,8 +2,7 @@ import type { ComponentProps } from "react";
 
 type DivProps = ComponentProps<"div">;
 
-const baseBlock =
-  "rounded-md bg-zinc-200/90 dark:bg-zinc-700/90 ap-skeleton-shimmer";
+const baseBlock = "relative overflow-hidden rounded-md ap-skeleton-shimmer";
 
 /** Generic block placeholder (shimmer + reduced motion fallback). */
 export function Skeleton({ className = "", ...props }: DivProps) {

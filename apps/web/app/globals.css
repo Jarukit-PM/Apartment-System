@@ -47,48 +47,56 @@ body {
   }
 }
 
-/* Skeleton shimmer (respect reduced motion) */
-@keyframes ap-shimmer {
+/* Skeleton shimmer: base fill + ::after sweep (avoids Tailwind bg-* overriding gradients) */
+@keyframes ap-shimmer-sweep {
   0% {
-    background-position: 120% 0;
+    transform: translateX(-100%);
   }
   100% {
-    background-position: -20% 0;
+    transform: translateX(100%);
   }
 }
 
 .ap-skeleton-shimmer {
+  background-color: rgb(228 228 231 / 0.92);
+}
+
+.ap-skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
   background: linear-gradient(
-    100deg,
-    rgb(228 228 231 / 0.95) 35%,
-    rgb(250 250 250) 50%,
-    rgb(228 228 231 / 0.95) 65%
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.08) 35%,
+    rgb(255 255 255 / 0.45) 50%,
+    rgb(255 255 255 / 0.08) 65%,
+    transparent 100%
   );
-  background-size: 220% 100%;
-  animation: ap-shimmer 1.35s ease-in-out infinite;
+  animation: ap-shimmer-sweep 1.45s ease-in-out infinite;
 }
 
 @media (prefers-color-scheme: dark) {
   .ap-skeleton-shimmer {
+    background-color: rgb(63 63 70 / 0.92);
+  }
+
+  .ap-skeleton-shimmer::after {
     background: linear-gradient(
-      100deg,
-      rgb(63 63 70 / 0.95) 35%,
-      rgb(82 82 91) 50%,
-      rgb(63 63 70 / 0.95) 65%
+      90deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.04) 35%,
+      rgb(255 255 255 / 0.14) 50%,
+      rgb(255 255 255 / 0.04) 65%,
+      transparent 100%
     );
-    background-size: 220% 100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ap-skeleton-shimmer {
+  .ap-skeleton-shimmer::after {
     animation: none;
-    background: rgb(228 228 231 / 0.95);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .ap-skeleton-shimmer {
-      background: rgb(63 63 70 / 0.95);
-    }
+    opacity: 0;
   }
 }
