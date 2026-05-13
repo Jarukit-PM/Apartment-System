@@ -21,6 +21,19 @@ export default async function MySummaryPage({ params }: PageProps) {
         </div>
       );
     }
+    if (res.status === 404) {
+      return (
+        <div className="mx-auto max-w-xl space-y-4">
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("summaryTitle")}</h1>
+          <p className="text-sm text-red-600 dark:text-red-400">{t("loadError404Resident")}</p>
+          {res.error?.message ? (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400" role="status">
+              {res.error.message}
+            </p>
+          ) : null}
+        </div>
+      );
+    }
     return (
       <div className="mx-auto max-w-xl space-y-4">
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("summaryTitle")}</h1>

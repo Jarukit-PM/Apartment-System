@@ -94,6 +94,74 @@ func (r *Repo) TopUp(ctx context.Context, userID primitive.ObjectID, amountSatan
 	return err
 }
 
+// Debit decrements balance when sufficient; appends one ledger row (kind must be non-empty).
+func (r *Repo) Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error {
+	if amountSatang <= 0 || amountSatang > maxSingleTopUpSatang {
+		return ErrInvalidAmount
+	}
+	kind = strings.TrimSpace(kind)
+	if kind == "" {
+		return ErrInvalidAmount
+	}
+	if _, err := r.EnsureWallet(ctx, userID); err != nil {
+		return err
+	}
+	now := time.Now().UTC()
+	res, err := r.wallets().UpdateOne(ctx, bson.M{
+		"userId":        userID,
+		"balanceSatang": bson.M{"$gte": amountSatang},
+	}, bson.M{
+		"$inc": bson.M{"balanceSatang": -amountSatang},
+		"$set": bson.M{"updatedAt": now},
+	})
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return ErrInsufficientFunds
+	}
+	led := LedgerDoc{
+		ID:           primitive.NewObjectID(),
+		UserID:       userID,
+		Kind:         kind,
+		AmountSatang: amountSatang,
+		CreatedAt:    now,
+	}
+	_, err = r.ledger().InsertOne(ctx, led)
+	return err
+}
+
+// Credit increments balance and appends a ledger row (used to compensate after a failed booking step on standalone MongoDB).
+func (r *Repo) Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error {
+	if amountSatang <= 0 || amountSatang > maxSingleTopUpSatang {
+		return ErrInvalidAmount
+	}
+	kind = strings.TrimSpace(kind)
+	if kind == "" {
+		return ErrInvalidAmount
+	}
+	if _, err := r.EnsureWallet(ctx, userID); err != nil {
+		return err
+	}
+	now := time.Now().UTC()
+	_, err := r.wallets().UpdateOne(ctx, bson.M{"userId": userID}, bson.M{
+		"$inc": bson.M{"balanceSatang": amountSatang},
+		"$set": bson.M{"updatedAt": now},
+	})
+	if err != nil {
+		return err
+	}
+	led := LedgerDoc{
+		ID:           primitive.NewObjectID(),
+		UserID:       userID,
+		Kind:         kind,
+		AmountSatang: amountSatang,
+		CreatedAt:    now,
+	}
+	_, err = r.ledger().InsertOne(ctx, led)
+	return err
+}
+
 // ListLedger returns recent ledger rows for a user (newest first).
 func (r *Repo) ListLedger(ctx context.Context, userID primitive.ObjectID, limit int64) ([]LedgerDoc, error) {
 	if limit <= 0 {
@@ -124,6 +192,11 @@ func mongoTxnUnsupported(err error) bool {
 	return strings.Contains(s, "Transaction numbers are only allowed") ||
 		strings.Contains(s, "replica set member") ||
 		strings.Contains(s, "IllegalOperation")
+}
+
+// MongoTxnUnsupported reports whether err is due to multi-document transactions not being available (e.g. standalone mongod).
+func MongoTxnUnsupported(err error) bool {
+	return mongoTxnUnsupported(err)
 }
 
 // Transfer moves satang from fromUser to toUser and writes two ledger rows.

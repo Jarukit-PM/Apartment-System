@@ -29,7 +29,7 @@ async function applyTokenCookies(data: {
   });
 }
 
-export type LoginState = { ok: boolean; message: string; redirectTo?: string };
+export type LoginState = { ok: boolean; message: string };
 
 /** Path for `next-intl` router (no `/{locale}` prefix — the router adds it). */
 function postAuthPath(locale: string, next: string, roles: string[]): string {
@@ -76,7 +76,7 @@ export async function loginPasswordAction(
   const roles = body.data.user?.roles ?? [];
   const destPath = postAuthPath(locale, next, roles);
   revalidatePath(`/${locale}${destPath}`);
-  return { ok: true, message: "", redirectTo: destPath };
+  redirect(`/${locale}${destPath}`);
 }
 
 export async function registerResidentAction(
@@ -106,14 +106,10 @@ export async function registerResidentAction(
   }
   await applyTokenCookies(body.data);
   revalidatePath(`/${locale}/my`);
-  return { ok: true, message: "", redirectTo: "/my" };
+  redirect(`/${locale}/my`);
 }
 
-export async function loginGoogleAction(
-  idToken: string,
-  locale: string,
-  next?: string,
-): Promise<LoginState> {
+export async function loginGoogleAction(idToken: string, locale: string, next?: string): Promise<void> {
   const res = await fetch(`${apiBaseUrl()}/v1/auth/oauth/google`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -131,7 +127,7 @@ export async function loginGoogleAction(
   const roles = body.data.user?.roles ?? [];
   const destPath = postAuthPath(locale, next ?? "", roles);
   revalidatePath(`/${locale}${destPath}`);
-  return { ok: true, message: "", redirectTo: destPath };
+  redirect(`/${locale}${destPath}`);
 }
 
 export async function logoutFormAction(formData: FormData): Promise<never> {

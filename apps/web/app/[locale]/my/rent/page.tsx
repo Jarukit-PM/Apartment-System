@@ -54,7 +54,11 @@ export default async function MyRentPage({ params }: PageProps) {
         </p>
       ) : (
         <ul className="space-y-6">
-          {units.map((u) => (
+          {units.map((u) => {
+            const offers = u.rentalPeriodOffers ?? [];
+            const hasOffers = offers.length > 0;
+            const hasListing = u.listingRent != null && u.listingRent.amount > 0;
+            return (
             <li
               key={u.id}
               className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
@@ -63,13 +67,33 @@ export default async function MyRentPage({ params }: PageProps) {
                 <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
                   {t("unitLabel", { label: u.label })}
                 </h2>
-                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                  {t("rentLine", {
-                    amount: u.listingRent.amount,
-                    currency: u.listingRent.currency,
-                  })}
-                </p>
+                {hasListing ? (
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                    {t("rentLine", {
+                      amount: u.listingRent!.amount,
+                      currency: u.listingRent!.currency,
+                    })}
+                  </p>
+                ) : null}
               </div>
+              {hasOffers ? (
+                <div className="mt-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                    {t("ratesByPeriod")}
+                  </p>
+                  <ul className="mt-1 list-inside list-disc text-sm text-zinc-700 dark:text-zinc-300">
+                    {offers.map((o) => (
+                      <li key={o.periodId}>
+                        {t("rateRow", {
+                          periodId: o.periodId,
+                          amount: o.amount,
+                          currency: o.currency,
+                        })}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                 {u.propertyName ?? u.propertyId}
                 {u.floor != null ? ` · ${t("floor", { n: u.floor })}` : null}
@@ -79,6 +103,32 @@ export default async function MyRentPage({ params }: PageProps) {
                 <ActionForm action={selfLeaseAction} locale={locale} submitLabel={t("bookSubmit")}>
                   <input type="hidden" name="unitId" value={u.id} />
                   <div className="grid gap-4 sm:grid-cols-2">
+                    {hasOffers ? (
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor={`period-${u.id}`}
+                          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                        >
+                          {t("periodLabel")}
+                        </label>
+                        <select
+                          id={`period-${u.id}`}
+                          name="periodId"
+                          required
+                          className="mt-1 w-full max-w-md rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            {t("periodPlaceholder")}
+                          </option>
+                          {offers.map((o) => (
+                            <option key={o.periodId} value={o.periodId}>
+                              {o.periodId} — {o.amount} {o.currency}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
                     <div className="sm:col-span-2">
                       <label
                         htmlFor={`start-${u.id}`}
@@ -89,31 +139,35 @@ export default async function MyRentPage({ params }: PageProps) {
                       <input
                         id={`start-${u.id}`}
                         name="startDate"
-                        type="datetime-local"
+                        type="date"
                         required
                         className="mt-1 w-full max-w-md rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
                       />
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("dateHint")}</p>
                     </div>
-                    <div className="sm:col-span-2">
-                      <label
-                        htmlFor={`end-${u.id}`}
-                        className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                      >
-                        {t("endLabel")}
-                      </label>
-                      <input
-                        id={`end-${u.id}`}
-                        name="endDate"
-                        type="datetime-local"
-                        className="mt-1 w-full max-w-md rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-                      />
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("endHint")}</p>
-                    </div>
+                    {!hasOffers ? (
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor={`end-${u.id}`}
+                          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                        >
+                          {t("endLabel")}
+                        </label>
+                        <input
+                          id={`end-${u.id}`}
+                          name="endDate"
+                          type="date"
+                          className="mt-1 w-full max-w-md rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
+                        />
+                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("endHint")}</p>
+                      </div>
+                    ) : null}
                   </div>
                 </ActionForm>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

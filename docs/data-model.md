@@ -92,7 +92,9 @@ Contract linking residents to units for a period.
 | `startDate` | date | |
 | `endDate` | date | Nullable for open-ended leases. |
 | `status` | string | e.g. `draft`, `active`, `ended`. |
-| `rentAmount` | decimal / object | Currency-aware structure recommended (`amount`, `currency`). |
+| `rent` | object | `amount`, `currency` — for self-service and period offers this is **monthly** rent. |
+| `rentBasis` | string | Optional. `monthly` when automated rent invoices use `rent.amount` per calendar month. |
+| `nextRentBillMonth` | string | Optional `YYYY-MM` (UTC). Next calendar month to receive a scheduled rent invoice (first month at booking is paid from the wallet, not invoiced here). |
 | `createdAt` | date | |
 | `updatedAt` | date | |
 
@@ -126,7 +128,7 @@ Contract linking residents to units for a period.
 
 ### `wallets` / `wallet_ledger`
 
-Per **user account** (`users._id`): one wallet document holds `balanceSatang` (THB minor units / satang). The `wallet_ledger` collection stores append-only movements from the perspective of `userId`: `top_up`, `transfer_out`, and `transfer_in` (with optional `peerUserId`).
+Per **user account** (`users._id`): one wallet document holds `balanceSatang` (THB minor units / satang). The `wallet_ledger` collection stores append-only movements from the perspective of `userId`: `top_up`, `transfer_out`, `transfer_in` (with optional `peerUserId`), and `lease_first_month` (debit for self-service booking gate).
 
 | Field (wallet) | Type | Description |
 |----------------|------|-------------|
@@ -145,7 +147,7 @@ Per **user account** (`users._id`): one wallet document holds `balanceSatang` (T
 
 ### `invoices` / `payments` (later slice)
 
-Keep **invoices** as billing documents and **payments** as settlement records; link both to `leases` or `residents` with explicit statuses. Add indexes on `leaseId`, `dueDate`, and `status` when implemented.
+Keep **invoices** as billing documents and **payments** as settlement records; link both to `leases` or `residents` with explicit statuses. Scheduled monthly rent uses optional `billingMonth` (`YYYY-MM`, UTC) for idempotency; **unique** partial index on `{ leaseId: 1, billingMonth: 1 }` where `billingMonth` is non-empty. Other indexes: `leaseId` + `dueDate`, `residentId` + `status`.
 
 ---
 
@@ -158,5 +160,6 @@ If the product targets **one** physical building, you may omit `properties` and 
 ## Consistency notes
 
 - When creating a lease, validate that `unitId` exists and that `status` transitions follow allowed rules (e.g. only one `active` lease per unit).
-- **Resident self-service**: instant **active** leases use the unit’s `listingRent` for the lease `rent`; require the unit to be **vacant** with `listingRent.amount > 0` and not opted out via `selfServiceEnabled: false`. Apply lease insert, unit status `occupied`, and resident `primaryUnitId` inside a **multi-document transaction** to avoid double booking.
+- **Resident self-service**: instant **active** leases use the unit’s `listingRent` or **period offers** for the lease `rent` (amounts are **monthly** rent; period length still sets `endDate`). The resident’s **wallet** must cover the first calendar month of `rent` before the lease is created (`lease_first_month` ledger). Require the unit to be **vacant** with a priced self-service rate and not opted out via `selfServiceEnabled: false`. Apply wallet debit, lease insert (with `rentBasis: monthly` and `nextRentBillMonth`), unit status `occupied`, and resident `primaryUnitId` inside a **multi-document transaction** to avoid double booking.
+- A background **billing** job in the API process (`BILLING_TICK_INTERVAL_SECONDS`, default 3600; `0` disables) creates **open** rent `invoices` for active monthly leases whose `nextRentBillMonth` is due, then advances that field.
 - Use multi-document transactions when updating `units.status` and inserting a `leases` document in one logical operation, if required by business rules.

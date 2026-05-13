@@ -78,6 +78,28 @@ func (r *Repo) CountActiveOtherThan(ctx context.Context, unitID, excludeLeaseID 
 	return r.coll.CountDocuments(ctx, f)
 }
 
+// ListActiveMonthlyBillingDue returns active leases whose nextRentBillMonth is set and on/before monthCap (YYYY-MM).
+func (r *Repo) ListActiveMonthlyBillingDue(ctx context.Context, monthCap string) ([]Doc, error) {
+	f := bson.M{
+		"status":    StatusActive,
+		"rentBasis": RentBasisMonthly,
+		"nextRentBillMonth": bson.M{
+			"$lte": monthCap,
+			"$ne":  "",
+		},
+	}
+	cur, err := r.coll.Find(ctx, f)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Doc
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Insert creates a lease document (caller sets timestamps).
 func (r *Repo) Insert(ctx context.Context, d *Doc) error {
 	_, err := r.coll.InsertOne(ctx, d)

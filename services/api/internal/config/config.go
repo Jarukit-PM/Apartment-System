@@ -20,6 +20,7 @@ type Config struct {
 	BootstrapAdminEmail  string
 	BootstrapAdminPass   string
 	SiteDisplayName      string // single-building default property name
+	BillingTickerSeconds int    // background rent-invoice job interval; 0 disables
 }
 
 // Load reads configuration from environment variables with safe defaults.
@@ -48,17 +49,19 @@ func Load() Config {
 	if siteName == "" {
 		siteName = "Main building"
 	}
+	billSec := getenvInt("BILLING_TICK_INTERVAL_SECONDS", 3600)
 	return Config{
-		Port:                port,
-		MongoURI:            mongoURI,
-		CORSOrigins:         list,
-		JWTSecret:           strings.TrimSpace(os.Getenv("JWT_SECRET")),
-		AccessTokenTTL:    time.Duration(accessMin) * time.Minute,
-		RefreshTokenTTL:   time.Duration(refreshH) * time.Hour,
-		GoogleClientID:    strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_ID")),
-		BootstrapAdminEmail: strings.TrimSpace(strings.ToLower(os.Getenv("BOOTSTRAP_ADMIN_EMAIL"))),
-		BootstrapAdminPass:  os.Getenv("BOOTSTRAP_ADMIN_PASSWORD"),
-		SiteDisplayName:     siteName,
+		Port:                 port,
+		MongoURI:             mongoURI,
+		CORSOrigins:          list,
+		JWTSecret:            strings.TrimSpace(os.Getenv("JWT_SECRET")),
+		AccessTokenTTL:       time.Duration(accessMin) * time.Minute,
+		RefreshTokenTTL:      time.Duration(refreshH) * time.Hour,
+		GoogleClientID:       strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_ID")),
+		BootstrapAdminEmail:  strings.TrimSpace(strings.ToLower(os.Getenv("BOOTSTRAP_ADMIN_EMAIL"))),
+		BootstrapAdminPass:   os.Getenv("BOOTSTRAP_ADMIN_PASSWORD"),
+		SiteDisplayName:      siteName,
+		BillingTickerSeconds: billSec,
 	}
 }
 

@@ -33,11 +33,19 @@ func TestUnitBookableForSelfService(t *testing.T) {
 			t.Fatal("expected not bookable")
 		}
 	})
-	t.Run("no_listing", func(t *testing.T) {
+	t.Run("no_listing_no_offers", func(t *testing.T) {
 		u := base
 		u.ListingRent = nil
 		if unitBookableForSelfService(&u) {
 			t.Fatal("expected not bookable")
+		}
+	})
+	t.Run("period_offers_only", func(t *testing.T) {
+		u := base
+		u.ListingRent = nil
+		u.RentalPeriodOffers = []unit.RentalPeriodOffer{{PeriodID: "1m", Amount: 5000, Currency: "THB"}}
+		if !unitBookableForSelfService(&u) {
+			t.Fatal("expected bookable")
 		}
 	})
 	t.Run("zero_amount", func(t *testing.T) {

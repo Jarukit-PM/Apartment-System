@@ -52,4 +52,15 @@ func Ensure(ctx context.Context, db *mongo.Database) {
 			slog.Warn("index ensure", "collection", s.coll, "name", s.name, "error", err)
 		}
 	}
+	partialInv := options.Index().
+		SetName("invoices_lease_billing_month_unique").
+		SetUnique(true).
+		SetPartialFilterExpression(bson.M{"billingMonth": bson.M{"$gt": ""}})
+	_, err := db.Collection("invoices").Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "leaseId", Value: 1}, {Key: "billingMonth", Value: 1}},
+		Options: partialInv,
+	})
+	if err != nil {
+		slog.Warn("index ensure", "collection", "invoices", "name", "invoices_lease_billing_month_unique", "error", err)
+	}
 }

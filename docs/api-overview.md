@@ -55,7 +55,7 @@ Authenticated **residents** (`role: resident`, JWT with resident id) may call:
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/v1/me/available-units` | Lists **vacant** units with `listingRent.amount > 0` and self-service allowed, scoped to the default property when configured. Returns `data[]` with `listingRent`, `propertyName`, etc. |
-| `POST` | `/v1/me/leases` | Body: `{ "unitId", "startDate" (RFC3339), "endDate?" }`. Creates an **active** lease for the caller only, rent from `listingRent`, sets unit **occupied**, sets resident **primaryUnitId**. `409 CONFLICT` if the resident already has an active lease, the unit is not bookable, or the unit already has an active lease. `400` if `endDate` is not strictly after `startDate`. |
+| `POST` | `/v1/me/leases` | Body: `{ "unitId", "startDate" (RFC3339), "endDate?", "periodId?" }`. Creates an **active** lease for the caller only. **Rent** is **monthly** (from `listingRent` or the unit’s period offer). **First month** rent is debited from the caller’s **wallet** in the same transaction (`402 PAYMENT_REQUIRED` / `PAYMENT_REQUIRED` if balance is insufficient). Sets `rentBasis: monthly`, `nextRentBillMonth` for scheduled invoices, unit **occupied**, resident **primaryUnitId**. `409 CONFLICT` if the resident already has an active lease, the unit is not bookable, or the unit already has an active lease. `400` if dates or `periodId` are invalid. |
 
 Admin-only `POST /v1/leases` remains for staff workflows (arbitrary residents, draft/active, custom rent).
 

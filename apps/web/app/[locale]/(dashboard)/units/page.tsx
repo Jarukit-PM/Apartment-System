@@ -41,7 +41,7 @@ export default async function UnitsPage({ params }: PageProps) {
                 <th className="px-4 py-3">{t("col.label")}</th>
                 <th className="px-4 py-3">{t("col.property")}</th>
                 <th className="px-4 py-3">{t("col.status")}</th>
-                <th className="px-4 py-3">{t("col.listing")}</th>
+                <th className="px-4 py-3">{t("col.rates")}</th>
                 <th className="px-4 py-3 font-mono">{t("col.id")}</th>
               </tr>
             </thead>
@@ -54,9 +54,22 @@ export default async function UnitsPage({ params }: PageProps) {
                   </td>
                   <td className="px-4 py-3">{u.status}</td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-                    {u.listingRent
-                      ? `${u.listingRent.amount} ${u.listingRent.currency}`
-                      : "—"}
+                    <div className="space-y-1">
+                      <div>
+                        {u.listingRent
+                          ? `${u.listingRent.amount} ${u.listingRent.currency} (${t("col.listingShort")})`
+                          : t("col.noListing")}
+                      </div>
+                      {u.rentalPeriodOffers != null && u.rentalPeriodOffers.length > 0 ? (
+                        <ul className="list-inside list-disc text-xs text-zinc-500 dark:text-zinc-400">
+                          {u.rentalPeriodOffers.map((o) => (
+                            <li key={o.periodId}>
+                              {o.periodId}: {o.amount} {o.currency}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-zinc-500">{u.id}</td>
                 </tr>

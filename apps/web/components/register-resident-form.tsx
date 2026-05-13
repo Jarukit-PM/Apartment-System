@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import { registerResidentAction, type LoginState } from "@/lib/auth-actions";
-import { useAuthActionRedirect } from "@/lib/use-auth-action-redirect";
 import { SubmitButton } from "@/components/submit-button";
 
 const initial: LoginState = { ok: true, message: "" };
@@ -17,7 +16,6 @@ type Labels = {
 
 export function RegisterResidentForm({ locale, labels }: { locale: string; labels: Labels }) {
   const [state, formAction] = useActionState(registerResidentAction, initial);
-  useAuthActionRedirect(state);
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="locale" value={locale} />

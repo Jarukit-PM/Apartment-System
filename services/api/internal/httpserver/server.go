@@ -1,12 +1,15 @@
 package httpserver
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jarukit/apartment-system/services/api/internal/authservice"
 	"github.com/jarukit/apartment-system/services/api/internal/httpx"
 	"github.com/jarukit/apartment-system/services/api/internal/invoice"
@@ -17,7 +20,6 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
 	"github.com/jarukit/apartment-system/services/api/internal/user"
 	"github.com/jarukit/apartment-system/services/api/internal/wallet"
-	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -178,9 +180,16 @@ func classifyError(err error) (status int, code string, message string) {
 		errors.Is(err, lease.ErrConflict),
 		errors.Is(err, lease.ErrDeleteActive):
 		return http.StatusConflict, "CONFLICT", err.Error()
-		case errors.Is(err, lease.ErrInvalidResidents),
+	case errors.Is(err, lease.ErrInvalidResidents),
 		errors.Is(err, lease.ErrUnitMissing),
-		errors.Is(err, lease.ErrSelfServiceInvalidDates):
+		errors.Is(err, lease.ErrSelfServiceInvalidDates),
+		errors.Is(err, lease.ErrSelfServiceUnknownPeriod),
+		errors.Is(err, lease.ErrSelfServicePeriodNotOffered),
+		errors.Is(err, lease.ErrSelfServicePeriodRequired):
+		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
+	case errors.Is(err, lease.ErrInsufficientWalletForFirstRent):
+		return http.StatusPaymentRequired, "PAYMENT_REQUIRED", err.Error()
+	case errors.Is(err, lease.ErrInvalidRentAmount):
 		return http.StatusBadRequest, "VALIDATION_ERROR", err.Error()
 	case errors.Is(err, lease.ErrResidentAlreadyLeasing),
 		errors.Is(err, lease.ErrSelfServiceUnitUnavailable):
@@ -198,11 +207,33 @@ func classifyError(err error) (status int, code string, message string) {
 }
 
 func decodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
-	dec := json.NewDecoder(r.Body)
+	const maxBytes = 1 << 20 // 1 MiB
+	raw, err := io.ReadAll(io.LimitReader(r.Body, maxBytes+1))
+	if err != nil {
+		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "could not read request body: "+err.Error(), nil)
+		return false
+	}
+	if len(raw) > maxBytes {
+		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "request body too large", nil)
+		return false
+	}
+	raw = bytes.TrimSpace(raw)
+	if len(raw) == 0 {
+		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "empty request body", nil)
+		return false
+	}
+
+	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(dst); err != nil {
-		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid JSON body", nil)
+		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid JSON: "+err.Error(), nil)
 		return false
+	}
+	if off := dec.InputOffset(); off < int64(len(raw)) {
+		if len(bytes.TrimSpace(raw[int(off):])) > 0 {
+			httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "trailing data after JSON value", nil)
+			return false
+		}
 	}
 	return true
 }

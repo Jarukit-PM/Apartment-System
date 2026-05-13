@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { parseRentalPeriodOffersFromForm } from "@/lib/rental-periods";
 import { apiFetchJsonAuthed } from "@/lib/server-api";
 
 export type ActionState = { ok: boolean; message: string };
@@ -9,6 +10,18 @@ const ok = (): ActionState => ({ ok: true, message: "" });
 
 function fail(msg: string): ActionState {
   return { ok: false, message: msg };
+}
+
+function apiUserMessage(msg: string, fallback: string): string {
+  let m = msg.trim() || fallback;
+  if (/unknown field/i.test(m)) {
+    m +=
+      " If you updated only the web app, redeploy the Go API (it must include `rentalPeriodOffers` on PATCH /v1/units).";
+  }
+  if (/empty request body/i.test(m)) {
+    m += " The API received no JSON body—check proxies or try saving again.";
+  }
+  return m;
 }
 
 export async function createProperty(
@@ -59,15 +72,25 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
     if (!Number.isNaN(amt) && amt > 0) {
       const cur = String(formData.get("listingCurrency") ?? "THB").trim() || "THB";
       body.listingRent = { amount: amt, currency: cur };
-      body.selfServiceEnabled = formData.get("selfService") === "on";
     }
+  }
+  const parsed = parseRentalPeriodOffersFromForm(formData);
+  if (!parsed.ok) {
+    return fail(parsed.error);
+  }
+  const offers = parsed.offers;
+  if (offers.length > 0) {
+    body.rentalPeriodOffers = offers;
+  }
+  if (body.listingRent != null || offers.length > 0) {
+    body.selfServiceEnabled = formData.get("selfService") === "on";
   }
   const res = await apiFetchJsonAuthed(`/v1/units`, {
     method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
   });
-  if (!res.ok) return fail(res.error?.message ?? "Could not create unit");
+  if (!res.ok) return fail(apiUserMessage(res.error?.message ?? "", "Could not create unit"));
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   revalidatePath(`/${locale}/units`, "page");
@@ -92,6 +115,13 @@ export async function patchUnit(_prev: ActionState, formData: FormData): Promise
   if (formData.get("selfServiceUpdate") === "1") {
     body.selfServiceEnabled = formData.get("selfService") === "on";
   }
+  if (formData.get("periodOffersUpdate") === "1") {
+    const parsed = parseRentalPeriodOffersFromForm(formData);
+    if (!parsed.ok) {
+      return fail(parsed.error);
+    }
+    body.rentalPeriodOffers = parsed.offers;
+  }
   if (Object.keys(body).length === 0) {
     return fail("Nothing to update");
   }
@@ -100,7 +130,7 @@ export async function patchUnit(_prev: ActionState, formData: FormData): Promise
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
   });
-  if (!res.ok) return fail(res.error?.message ?? "Could not update unit");
+  if (!res.ok) return fail(apiUserMessage(res.error?.message ?? "", "Could not update unit"));
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/units`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");

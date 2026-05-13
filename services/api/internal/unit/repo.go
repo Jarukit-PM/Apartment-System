@@ -46,10 +46,17 @@ func (r *Repo) List(ctx context.Context, propertyID *primitive.ObjectID) ([]Doc,
 func (r *Repo) ListAvailableForSelfService(ctx context.Context, propertyID *primitive.ObjectID) ([]Doc, error) {
 	filter := bson.M{
 		"status": StatusVacant,
-		"listingRent.amount": bson.M{"$gt": 0},
 		"$or": []bson.M{
-			{"selfServiceEnabled": true},
-			{"selfServiceEnabled": bson.M{"$exists": false}},
+			{"listingRent.amount": bson.M{"$gt": 0}},
+			{"rentalPeriodOffers": bson.M{"$elemMatch": bson.M{"amount": bson.M{"$gt": 0}}}},
+		},
+		"$and": []bson.M{
+			{
+				"$or": []bson.M{
+					{"selfServiceEnabled": true},
+					{"selfServiceEnabled": bson.M{"$exists": false}},
+				},
+			},
 		},
 	}
 	if propertyID != nil {
@@ -88,16 +95,17 @@ func (r *Repo) Insert(ctx context.Context, in CreateInput) (*Doc, error) {
 		st = StatusVacant
 	}
 	d := Doc{
-		ID:                   primitive.NewObjectID(),
-		PropertyID:           in.PropertyID,
-		Label:                in.Label,
-		Floor:                in.Floor,
-		Bedrooms:             in.Bedrooms,
-		Status:               st,
-		ListingRent:          in.ListingRent,
-		SelfServiceEnabled:   in.SelfServiceEnabled,
-		CreatedAt:            now,
-		UpdatedAt:            now,
+		ID:                 primitive.NewObjectID(),
+		PropertyID:         in.PropertyID,
+		Label:              in.Label,
+		Floor:              in.Floor,
+		Bedrooms:           in.Bedrooms,
+		Status:             st,
+		ListingRent:        in.ListingRent,
+		RentalPeriodOffers: in.RentalPeriodOffers,
+		SelfServiceEnabled: in.SelfServiceEnabled,
+		CreatedAt:          now,
+		UpdatedAt:          now,
 	}
 	if _, err := r.coll.InsertOne(ctx, d); err != nil {
 		return nil, err
@@ -125,6 +133,9 @@ func (r *Repo) Update(ctx context.Context, id primitive.ObjectID, in UpdateInput
 	}
 	if in.SelfServiceEnabled != nil {
 		set["selfServiceEnabled"] = *in.SelfServiceEnabled
+	}
+	if in.RentalPeriodOffers != nil {
+		set["rentalPeriodOffers"] = *in.RentalPeriodOffers
 	}
 	res, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
 	if err != nil {

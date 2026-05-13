@@ -2,7 +2,6 @@
 
 import type { CredentialResponse } from "@react-oauth/google";
 import { GoogleLogin } from "@react-oauth/google";
-import { useRouter } from "@/i18n/navigation";
 import { loginGoogleAction } from "@/lib/auth-actions";
 
 type Props = {
@@ -13,7 +12,6 @@ type Props = {
 };
 
 export function GoogleSignIn({ locale, caption, next }: Props) {
-  const router = useRouter();
   if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
     return null;
   }
@@ -25,11 +23,7 @@ export function GoogleSignIn({ locale, caption, next }: Props) {
           onSuccess={async (credentialResponse: CredentialResponse) => {
             const c = credentialResponse.credential;
             if (!c) return;
-            const result = await loginGoogleAction(c, locale, next);
-            if (result.redirectTo) {
-              router.push(result.redirectTo);
-              router.refresh();
-            }
+            await loginGoogleAction(c, locale, next);
           }}
           onError={() => undefined}
           useOneTap={false}

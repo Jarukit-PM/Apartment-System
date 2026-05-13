@@ -31,6 +31,12 @@ export type Property = {
   updatedAt: string;
 };
 
+export type RentalPeriodOfferWire = {
+  periodId: string;
+  amount: number;
+  currency: string;
+};
+
 export type Unit = {
   id: string;
   propertyId: string;
@@ -39,6 +45,7 @@ export type Unit = {
   bedrooms?: number;
   status: string;
   listingRent?: { amount: number; currency: string };
+  rentalPeriodOffers?: RentalPeriodOfferWire[];
   selfServiceEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -52,7 +59,8 @@ export type AvailableUnit = {
   floor?: number;
   bedrooms?: number;
   status: string;
-  listingRent: { amount: number; currency: string };
+  listingRent?: { amount: number; currency: string };
+  rentalPeriodOffers?: RentalPeriodOfferWire[];
   selfServiceEnabled: boolean;
 };
 
@@ -74,6 +82,8 @@ export type Lease = {
   endDate?: string;
   status: string;
   rent: { amount: number; currency: string };
+  rentBasis?: string;
+  nextRentBillMonth?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -112,6 +122,7 @@ export type Invoice = {
   currency: string;
   status: string;
   dueDate: string;
+  billingMonth?: string;
   createdAt: string;
   updatedAt: string;
 };

@@ -65,6 +65,11 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 	}
 	in.Status = normalizeStatus(in.Status)
 	in.ListingRent = normalizeListingRentPtr(in.ListingRent)
+	offers, err := NormalizeRentalPeriodOffers(in.RentalPeriodOffers)
+	if err != nil {
+		return nil, err
+	}
+	in.RentalPeriodOffers = offers
 	return s.repo.Insert(ctx, in)
 }
 
@@ -83,6 +88,13 @@ func (s *Service) Update(ctx context.Context, id primitive.ObjectID, in UpdateIn
 	if in.ListingRent != nil {
 		nr := normalizeListingRentPtr(in.ListingRent)
 		in.ListingRent = nr
+	}
+	if in.RentalPeriodOffers != nil {
+		offers, err := NormalizeRentalPeriodOffers(*in.RentalPeriodOffers)
+		if err != nil {
+			return nil, err
+		}
+		in.RentalPeriodOffers = &offers
 	}
 	return s.repo.Update(ctx, id, in)
 }

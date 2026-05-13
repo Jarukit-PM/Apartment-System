@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jarukit/apartment-system/services/api/internal/httpx"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
-	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -15,23 +15,31 @@ type unitRentBody struct {
 	Currency string  `json:"currency"`
 }
 
+type rentalPeriodOfferBody struct {
+	PeriodID string  `json:"periodId"`
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
+}
+
 type unitCreateBody struct {
-	PropertyID         string         `json:"propertyId"`
-	Label              string         `json:"label"`
-	Floor              *int           `json:"floor"`
-	Bedrooms           *int           `json:"bedrooms"`
-	Status             string         `json:"status"`
-	ListingRent        *unitRentBody  `json:"listingRent"`
-	SelfServiceEnabled *bool          `json:"selfServiceEnabled"`
+	PropertyID         string                  `json:"propertyId"`
+	Label              string                  `json:"label"`
+	Floor              *int                    `json:"floor"`
+	Bedrooms           *int                    `json:"bedrooms"`
+	Status             string                  `json:"status"`
+	ListingRent        *unitRentBody           `json:"listingRent"`
+	RentalPeriodOffers []rentalPeriodOfferBody `json:"rentalPeriodOffers"`
+	SelfServiceEnabled *bool                   `json:"selfServiceEnabled"`
 }
 
 type unitPatchBody struct {
-	Label              *string        `json:"label"`
-	Floor              *int           `json:"floor"`
-	Bedrooms           *int           `json:"bedrooms"`
-	Status             *string        `json:"status"`
-	ListingRent        *unitRentBody  `json:"listingRent"`
-	SelfServiceEnabled *bool          `json:"selfServiceEnabled"`
+	Label              *string                  `json:"label"`
+	Floor              *int                     `json:"floor"`
+	Bedrooms           *int                     `json:"bedrooms"`
+	Status             *string                  `json:"status"`
+	ListingRent        *unitRentBody            `json:"listingRent"`
+	RentalPeriodOffers *[]rentalPeriodOfferBody `json:"rentalPeriodOffers"`
+	SelfServiceEnabled *bool                    `json:"selfServiceEnabled"`
 }
 
 func (s *Server) listUnits(w http.ResponseWriter, r *http.Request) {
@@ -85,6 +93,7 @@ func (s *Server) createUnit(w http.ResponseWriter, r *http.Request) {
 		Bedrooms:           body.Bedrooms,
 		Status:             body.Status,
 		ListingRent:        unitRentBodyToListing(body.ListingRent),
+		RentalPeriodOffers: rentalOfferBodiesToUnit(body.RentalPeriodOffers),
 		SelfServiceEnabled: body.SelfServiceEnabled,
 	})
 	if err != nil {
@@ -116,14 +125,19 @@ func (s *Server) patchUnit(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &body) {
 		return
 	}
-	u, err := s.Units.Update(r.Context(), id, unit.UpdateInput{
+	in := unit.UpdateInput{
 		Label:              body.Label,
 		Floor:              body.Floor,
 		Bedrooms:           body.Bedrooms,
 		Status:             body.Status,
 		ListingRent:        unitRentBodyToListing(body.ListingRent),
 		SelfServiceEnabled: body.SelfServiceEnabled,
-	})
+	}
+	if body.RentalPeriodOffers != nil {
+		uo := rentalOfferBodiesToUnit(*body.RentalPeriodOffers)
+		in.RentalPeriodOffers = &uo
+	}
+	u, err := s.Units.Update(r.Context(), id, in)
 	if err != nil {
 		handleServiceError(w, r, err)
 		return
@@ -164,6 +178,17 @@ func unitJSON(u *unit.Doc) map[string]any {
 			"currency": u.ListingRent.Currency,
 		}
 	}
+	if len(u.RentalPeriodOffers) > 0 {
+		offers := make([]map[string]any, 0, len(u.RentalPeriodOffers))
+		for _, o := range u.RentalPeriodOffers {
+			offers = append(offers, map[string]any{
+				"periodId": o.PeriodID,
+				"amount":   o.Amount,
+				"currency": o.Currency,
+			})
+		}
+		m["rentalPeriodOffers"] = offers
+	}
 	if u.SelfServiceEnabled != nil {
 		m["selfServiceEnabled"] = *u.SelfServiceEnabled
 	}
@@ -175,4 +200,19 @@ func unitRentBodyToListing(b *unitRentBody) *unit.ListingRent {
 		return nil
 	}
 	return &unit.ListingRent{Amount: b.Amount, Currency: b.Currency}
+}
+
+func rentalOfferBodiesToUnit(in []rentalPeriodOfferBody) []unit.RentalPeriodOffer {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]unit.RentalPeriodOffer, 0, len(in))
+	for _, b := range in {
+		out = append(out, unit.RentalPeriodOffer{
+			PeriodID: b.PeriodID,
+			Amount:   b.Amount,
+			Currency: b.Currency,
+		})
+	}
+	return out
 }

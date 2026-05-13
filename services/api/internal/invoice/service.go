@@ -41,13 +41,14 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 		cur = "THB"
 	}
 	d := &Doc{
-		LeaseID:     in.LeaseID,
-		ResidentID:  in.ResidentID,
-		Description: strings.TrimSpace(in.Description),
-		Amount:      in.Amount,
-		Currency:    cur,
-		DueDate:     in.DueDate.UTC(),
-		Status:      st,
+		LeaseID:      in.LeaseID,
+		ResidentID:   in.ResidentID,
+		Description:  strings.TrimSpace(in.Description),
+		Amount:       in.Amount,
+		Currency:     cur,
+		DueDate:      in.DueDate.UTC(),
+		BillingMonth: strings.TrimSpace(in.BillingMonth),
+		Status:       st,
 	}
 	if err := s.repo.Insert(ctx, d); err != nil {
 		return nil, err

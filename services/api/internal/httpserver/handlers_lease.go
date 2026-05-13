@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/jarukit/apartment-system/services/api/internal/httpx"
@@ -183,6 +184,12 @@ func leaseJSON(d *lease.Doc) map[string]any {
 		"rent":        d.Rent,
 		"createdAt":   d.CreatedAt.UTC().Format("2006-01-02T15:04:05.000Z"),
 		"updatedAt":   d.UpdatedAt.UTC().Format("2006-01-02T15:04:05.000Z"),
+	}
+	if strings.TrimSpace(d.RentBasis) != "" {
+		m["rentBasis"] = d.RentBasis
+	}
+	if strings.TrimSpace(d.NextRentBillMonth) != "" {
+		m["nextRentBillMonth"] = d.NextRentBillMonth
 	}
 	if d.EndDate != nil {
 		m["endDate"] = d.EndDate.UTC().Format(time.RFC3339Nano)

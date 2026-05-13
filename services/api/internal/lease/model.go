@@ -21,15 +21,17 @@ type Rent struct {
 
 // Doc is a lease document.
 type Doc struct {
-	ID          primitive.ObjectID   `bson:"_id,omitempty"`
-	UnitID      primitive.ObjectID   `bson:"unitId"`
-	ResidentIDs []primitive.ObjectID `bson:"residentIds"`
-	StartDate   time.Time            `bson:"startDate"`
-	EndDate     *time.Time           `bson:"endDate,omitempty"`
-	Status      string               `bson:"status"`
-	Rent        Rent                 `bson:"rent"`
-	CreatedAt   time.Time            `bson:"createdAt"`
-	UpdatedAt   time.Time            `bson:"updatedAt"`
+	ID                primitive.ObjectID   `bson:"_id,omitempty"`
+	UnitID            primitive.ObjectID   `bson:"unitId"`
+	ResidentIDs       []primitive.ObjectID `bson:"residentIds"`
+	StartDate         time.Time            `bson:"startDate"`
+	EndDate           *time.Time           `bson:"endDate,omitempty"`
+	Status            string               `bson:"status"`
+	Rent              Rent                 `bson:"rent"`
+	RentBasis         string               `bson:"rentBasis,omitempty"`         // "monthly" when rent is per calendar month
+	NextRentBillMonth string               `bson:"nextRentBillMonth,omitempty"` // YYYY-MM next scheduled rent invoice month
+	CreatedAt         time.Time            `bson:"createdAt"`
+	UpdatedAt         time.Time            `bson:"updatedAt"`
 }
 
 // CreateInput for new lease.

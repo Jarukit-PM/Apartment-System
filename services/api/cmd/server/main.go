@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jarukit/apartment-system/services/api/internal/authservice"
+	"github.com/jarukit/apartment-system/services/api/internal/billing"
 	"github.com/jarukit/apartment-system/services/api/internal/config"
 	"github.com/jarukit/apartment-system/services/api/internal/db"
 	"github.com/jarukit/apartment-system/services/api/internal/httpserver"
@@ -184,10 +185,34 @@ func main() {
 		propSvc := property.NewService(propRepo, dbGetter)
 		unitSvc := unit.NewService(unitRepo, dbGetter, propRepo)
 		resSvc := resident.NewService(resRepo, dbGetter, unitRepo)
-		leaseSvc := lease.NewService(leaseRepo, unitSvc, resSvc, dbGetter)
-		maintSvc := maintenance.NewService(maintRepo, unitRepo, resRepo)
 		invSvc := invoice.NewService(invRepo)
 		walletSvc := wallet.NewService(walletRepo, userRepo)
+		leaseSvc := lease.NewService(leaseRepo, unitSvc, resSvc, walletSvc, dbGetter)
+		maintSvc := maintenance.NewService(maintRepo, unitRepo, resRepo)
+
+		if cfg.BillingTickerSeconds > 0 {
+			interval := time.Duration(cfg.BillingTickerSeconds) * time.Second
+			billRunner := billing.NewRunner(leaseRepo, invRepo)
+			go func() {
+				run := func() {
+					runCtx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+					n, err := billRunner.RunOnce(runCtx)
+					cancel()
+					if err != nil {
+						slog.Warn("billing job", "error", err)
+					} else if n > 0 {
+						slog.Info("billing job", "invoicesCreated", n)
+					}
+				}
+				run()
+				tick := time.NewTicker(interval)
+				defer tick.Stop()
+				for range tick.C {
+					run()
+				}
+			}()
+			slog.Info("billing job scheduled", "intervalSeconds", cfg.BillingTickerSeconds)
+		}
 
 		authCfg := authservice.AuthConfig{
 			JWTSecret:  []byte(cfg.JWTSecret),

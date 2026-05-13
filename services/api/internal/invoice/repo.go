@@ -54,6 +54,11 @@ func (r *Repo) Insert(ctx context.Context, d *Doc) error {
 	return err
 }
 
+// CountByLeaseAndBillingMonth counts invoices for a lease and scheduled billing month (YYYY-MM).
+func (r *Repo) CountByLeaseAndBillingMonth(ctx context.Context, leaseID primitive.ObjectID, billingMonth string) (int64, error) {
+	return r.collection().CountDocuments(ctx, bson.M{"leaseId": leaseID, "billingMonth": billingMonth})
+}
+
 // Get fetches one invoice.
 func (r *Repo) Get(ctx context.Context, id primitive.ObjectID) (*Doc, error) {
 	var d Doc

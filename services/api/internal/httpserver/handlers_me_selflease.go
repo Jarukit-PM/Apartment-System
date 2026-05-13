@@ -28,16 +28,29 @@ func (s *Server) meAvailableUnits(w http.ResponseWriter, r *http.Request) {
 	out := make([]any, 0, len(list))
 	for i := range list {
 		u := &list[i]
-		if u.ListingRent == nil {
+		if !u.HasPricedSelfServiceRate() {
 			continue
 		}
 		m := map[string]any{
-			"id":           u.ID.Hex(),
-			"propertyId":   u.PropertyID.Hex(),
-			"label":        u.Label,
-			"status":       u.Status,
-			"listingRent":  map[string]any{"amount": u.ListingRent.Amount, "currency": u.ListingRent.Currency},
+			"id":                 u.ID.Hex(),
+			"propertyId":         u.PropertyID.Hex(),
+			"label":              u.Label,
+			"status":             u.Status,
 			"selfServiceEnabled": u.SelfServiceEnabled == nil || *u.SelfServiceEnabled,
+		}
+		if u.ListingRent != nil {
+			m["listingRent"] = map[string]any{"amount": u.ListingRent.Amount, "currency": u.ListingRent.Currency}
+		}
+		if len(u.RentalPeriodOffers) > 0 {
+			offers := make([]map[string]any, 0, len(u.RentalPeriodOffers))
+			for _, o := range u.RentalPeriodOffers {
+				offers = append(offers, map[string]any{
+					"periodId": o.PeriodID,
+					"amount":   o.Amount,
+					"currency": o.Currency,
+				})
+			}
+			m["rentalPeriodOffers"] = offers
 		}
 		if u.Floor != nil {
 			m["floor"] = *u.Floor
@@ -55,6 +68,7 @@ func (s *Server) meAvailableUnits(w http.ResponseWriter, r *http.Request) {
 
 type meLeaseCreateBody struct {
 	UnitID    string  `json:"unitId"`
+	PeriodID  string  `json:"periodId"`
 	StartDate string  `json:"startDate"`
 	EndDate   *string `json:"endDate"`
 }
@@ -99,8 +113,9 @@ func (s *Server) meCreateLease(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	d, err := s.Leases.CreateSelfService(r.Context(), *p.ResidentID, lease.SelfServiceLeaseInput{
+	d, err := s.Leases.CreateSelfService(r.Context(), *p.ResidentID, p.UserID, lease.SelfServiceLeaseInput{
 		UnitID:    uid,
+		PeriodID:  body.PeriodID,
 		StartDate: st,
 		EndDate:   end,
 	})

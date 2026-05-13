@@ -11,9 +11,11 @@ const CurrencyTHB = "THB"
 
 // Ledger kinds (per-user perspective).
 const (
-	LedgerTopUp        = "top_up"
-	LedgerTransferOut  = "transfer_out"
-	LedgerTransferIn   = "transfer_in"
+	LedgerTopUp           = "top_up"
+	LedgerTransferOut     = "transfer_out"
+	LedgerTransferIn      = "transfer_in"
+	LedgerLeaseFirstMonth        = "lease_first_month"
+	LedgerLeaseBookingReversal   = "lease_booking_reversal" // credits wallet after a failed non-txn booking step
 )
 
 // WalletDoc is one wallet per user account.
