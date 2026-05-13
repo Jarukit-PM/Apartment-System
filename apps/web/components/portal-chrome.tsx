@@ -20,7 +20,7 @@ export async function PortalChrome({
   const [t, locale] = await Promise.all([getTranslations("Portal"), getLocale()]);
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
+    <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="border-b border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900 md:w-56 md:border-b-0 md:border-r md:py-8">
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">

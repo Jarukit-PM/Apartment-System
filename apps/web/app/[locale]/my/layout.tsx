@@ -26,7 +26,7 @@ export default async function MyPortalLayout({ children, params }: LayoutProps) 
   const isAdmin = roles?.includes("admin") ?? false;
 
   return (
-    <div className="flex min-h-full flex-col bg-zinc-50 md:flex-row dark:bg-zinc-950">
+    <div className="flex min-h-dvh flex-col bg-zinc-50 md:flex-row dark:bg-zinc-950">
       <aside className="border-b border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900 md:w-56 md:border-b-0 md:border-r md:py-8">
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
