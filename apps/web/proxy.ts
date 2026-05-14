@@ -7,35 +7,41 @@ import { routing } from "./i18n/routing";
 
 const handleI18n = createMiddleware(routing);
 
+const LEGACY_LOCALE_PREFIX = /^\/(en|th)(\/.*)?$/i;
+
 export default function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const m = pathname.match(/^\/(en|th)(\/.*)?$/i);
-  if (!m) {
-    return handleI18n(request);
-  }
-  const locale = m[1].toLowerCase();
-  const rest = m[2] ?? "";
 
-  // Canonical locale segment (avoids /EN vs /en mismatches with the App Router).
-  if (m[1] !== locale) {
+  /** Old bookmarks `/en/...` → unprefixed path + `NEXT_LOCALE` cookie. */
+  const legacy = pathname.match(LEGACY_LOCALE_PREFIX);
+  if (legacy) {
+    const loc = legacy[1].toLowerCase();
+    const rest = legacy[2] ?? "";
     const url = request.nextUrl.clone();
-    url.pathname = `/${locale}${rest}`;
-    return NextResponse.redirect(url);
+    url.pathname = rest === "" || rest === "/" ? "/" : rest;
+    const res = NextResponse.redirect(url);
+    if (routing.locales.includes(loc as (typeof routing.locales)[number])) {
+      res.cookies.set("NEXT_LOCALE", loc, {
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365,
+      });
+    }
+    return res;
   }
 
-  // Localized home: /{locale} or /{locale}/ — public, no admin gate.
-  if (rest === "" || rest === "/") {
+  if (pathname === "/" || pathname === "") {
     return handleI18n(request);
   }
 
-  if (rest.startsWith("/login") || rest.startsWith("/register")) {
+  if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
     return handleI18n(request);
   }
 
-  if (rest.startsWith("/my")) {
+  if (pathname === "/my" || pathname.startsWith("/my/")) {
     if (!request.cookies.get("as_access")) {
       const url = request.nextUrl.clone();
-      url.pathname = `/${locale}/login`;
+      url.pathname = "/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
@@ -43,11 +49,11 @@ export default function proxy(request: NextRequest) {
   }
 
   for (const p of ADMIN_REST_PREFIXES) {
-    if (rest === p || rest.startsWith(`${p}/`)) {
+    if (pathname === p || pathname.startsWith(`${p}/`)) {
       const raw = request.cookies.get("as_access")?.value;
       if (!raw) {
         const url = request.nextUrl.clone();
-        url.pathname = `/${locale}/login`;
+        url.pathname = "/login";
         url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
       }
@@ -55,7 +61,7 @@ export default function proxy(request: NextRequest) {
       const v = verifyAccessToken(raw, secret);
       if (!v.ok) {
         const url = request.nextUrl.clone();
-        url.pathname = `/${locale}/login`;
+        url.pathname = "/login";
         url.searchParams.set("next", pathname);
         const res = NextResponse.redirect(url);
         res.cookies.delete("as_access");
@@ -64,7 +70,7 @@ export default function proxy(request: NextRequest) {
       }
       if (!v.roles.includes("admin")) {
         const url = request.nextUrl.clone();
-        url.pathname = `/${locale}/my`;
+        url.pathname = "/my";
         return NextResponse.redirect(url);
       }
       return handleI18n(request);

@@ -158,7 +158,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       notFound();
     }
     const tAuth = await getTranslations("Auth");
-    const nextPath = `/${locale}/properties/${id}`;
+    const nextPath = `/properties/${id}`;
     const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
     return (
       <div className="mx-auto max-w-lg space-y-4 py-8">

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { apiBaseUrl } from "@/lib/api";
 import { isAdminPortalPath } from "@/lib/admin-paths";
+import { isSafeAppPath } from "@/lib/url-guards";
 
 const cookieBase = {
   httpOnly: true,
@@ -12,6 +13,8 @@ const cookieBase = {
   path: "/",
   secure: process.env.NODE_ENV === "production",
 };
+
+import { NEXT_INTL_LOCALE_COOKIE_NAME } from "@/lib/next-intl-locale-constants";
 
 async function applyTokenCookies(data: {
   accessToken: string;
@@ -29,23 +32,35 @@ async function applyTokenCookies(data: {
   });
 }
 
+async function setUiLocaleCookie(locale: string) {
+  const jar = await cookies();
+  jar.set(NEXT_INTL_LOCALE_COOKIE_NAME, locale, {
+    path: "/",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+    secure: process.env.NODE_ENV === "production",
+  });
+}
+
 export type LoginState = { ok: boolean; message: string };
 
-/** Path for `next-intl` router (no `/{locale}` prefix — the router adds it). */
-function postAuthPath(locale: string, next: string, roles: string[]): string {
+/** `next` is a locale-free app path (e.g. `/properties/1`). */
+function postAuthPath(next: string, roles: string[]): string {
   const n = next.trim();
-  if (n.startsWith(`/${locale}/`) || n === `/${locale}`) {
-    const rest = n.slice(`/${locale}`.length);
-    const path = rest.startsWith("/") ? rest : `/${rest}`;
-    if (isAdminPortalPath(path) && !roles.includes("admin")) {
-      return "/my";
-    }
-    return path;
+  if (!n || !isSafeAppPath(n)) {
+    return roles.includes("admin") ? "/dashboard" : "/my";
   }
-  if (n.startsWith(`/${locale}?`)) {
-    return "/";
+  const pathOnly = n.split("?")[0] ?? "/";
+  if (!isSafeAppPath(pathOnly)) {
+    return roles.includes("admin") ? "/dashboard" : "/my";
   }
-  return roles.includes("admin") ? "/dashboard" : "/my";
+  if (pathOnly.startsWith("/login") || pathOnly.startsWith("/register")) {
+    return roles.includes("admin") ? "/dashboard" : "/my";
+  }
+  if (isAdminPortalPath(pathOnly) && !roles.includes("admin")) {
+    return "/my";
+  }
+  return pathOnly;
 }
 
 export async function loginPasswordAction(
@@ -74,9 +89,10 @@ export async function loginPasswordAction(
   }
   await applyTokenCookies(body.data);
   const roles = body.data.user?.roles ?? [];
-  const destPath = postAuthPath(locale, next, roles);
+  const destPath = postAuthPath(next, roles);
+  await setUiLocaleCookie(locale);
   revalidatePath(`/${locale}${destPath}`);
-  redirect(`/${locale}${destPath}`);
+  redirect(destPath);
 }
 
 export async function registerResidentAction(
@@ -105,8 +121,9 @@ export async function registerResidentAction(
     return { ok: false, message: body?.error?.message ?? "Registration failed" };
   }
   await applyTokenCookies(body.data);
+  await setUiLocaleCookie(locale);
   revalidatePath(`/${locale}/my`);
-  redirect(`/${locale}/my`);
+  redirect("/my");
 }
 
 export async function loginGoogleAction(idToken: string, locale: string, next?: string): Promise<void> {
@@ -121,13 +138,14 @@ export async function loginGoogleAction(idToken: string, locale: string, next?: 
     error?: { message?: string };
   } | null;
   if (!res.ok || !body?.data) {
-    redirect(`/${locale}/login?error=google`);
+    redirect("/login?error=google");
   }
   await applyTokenCookies(body.data);
   const roles = body.data.user?.roles ?? [];
-  const destPath = postAuthPath(locale, next ?? "", roles);
+  const destPath = postAuthPath(next ?? "", roles);
+  await setUiLocaleCookie(locale);
   revalidatePath(`/${locale}${destPath}`);
-  redirect(`/${locale}${destPath}`);
+  redirect(destPath);
 }
 
 export async function logoutFormAction(formData: FormData): Promise<never> {
@@ -146,5 +164,5 @@ export async function logoutFormAction(formData: FormData): Promise<never> {
   jar.delete("as_refresh");
   revalidatePath(`/${locale}/my`);
   revalidatePath(`/${locale}/dashboard`);
-  redirect(`/${locale}/login`);
+  redirect("/login");
 }

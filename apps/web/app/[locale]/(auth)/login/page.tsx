@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { LoginPasswordForm } from "@/components/login-password-form";
+import { isSafeAppPath } from "@/lib/url-guards";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
@@ -13,7 +14,7 @@ export default async function LoginPage({ params, searchParams }: PageProps) {
   const sp = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations("Auth");
-  const next = sp.next?.startsWith(`/${locale}/`) ? sp.next : undefined;
+  const next = sp.next && isSafeAppPath(sp.next) ? sp.next : undefined;
 
   return (
     <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">

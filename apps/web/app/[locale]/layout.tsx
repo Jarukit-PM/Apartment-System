@@ -13,6 +13,7 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 type LayoutProps = {
@@ -46,7 +47,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
       className={`${geistSans.variable} ${geistMono.variable} min-h-dvh antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-dvh flex-col">
+      <body className="flex min-h-dvh flex-col font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>
