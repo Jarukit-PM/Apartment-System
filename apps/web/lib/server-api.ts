@@ -95,3 +95,12 @@ export async function apiFetchJsonAuthed<T>(
 export async function apiGetJsonAuthed<T>(path: string): Promise<FetchOutcome<T>> {
   return apiFetchJsonAuthed<T>(path, { method: "GET" });
 }
+
+type MediaUploadResponse = { data: { url: string } };
+
+/** Uploads an image file to POST /v1/media (admin). Do not set Content-Type; boundary is automatic. */
+export async function apiUploadMediaAuthed(file: Blob, filename: string): Promise<FetchOutcome<MediaUploadResponse>> {
+  const fd = new FormData();
+  fd.append("file", file, filename);
+  return apiFetchJsonAuthed<MediaUploadResponse>("/v1/media", { method: "POST", body: fd });
+}

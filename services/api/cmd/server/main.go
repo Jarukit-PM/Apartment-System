@@ -25,6 +25,7 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/invoice"
 	"github.com/jarukit/apartment-system/services/api/internal/lease"
 	"github.com/jarukit/apartment-system/services/api/internal/maintenance"
+	"github.com/jarukit/apartment-system/services/api/internal/media"
 	"github.com/jarukit/apartment-system/services/api/internal/property"
 	"github.com/jarukit/apartment-system/services/api/internal/refreshtoken"
 	"github.com/jarukit/apartment-system/services/api/internal/resident"
@@ -228,9 +229,17 @@ func main() {
 		}
 		cancel()
 
+		mediaStore, err := media.NewStore(cfg.MediaDir, cfg.MediaMaxBytes)
+		if err != nil {
+			slog.Error("media store init failed", "error", err)
+			os.Exit(1)
+		}
+		slog.Info("media storage ready", "dir", cfg.MediaDir)
+
 		api = httpserver.NewServer(
 			propSvc, unitSvc, resSvc, leaseSvc, maintSvc,
 			authSvc, []byte(cfg.JWTSecret), propID, cfg.SiteDisplayName, invSvc, walletSvc,
+			mediaStore,
 		)
 	}
 

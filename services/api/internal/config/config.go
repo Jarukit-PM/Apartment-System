@@ -21,6 +21,8 @@ type Config struct {
 	BootstrapAdminPass   string
 	SiteDisplayName      string // single-building default property name
 	BillingTickerSeconds int    // background rent-invoice job interval; 0 disables
+	MediaDir             string // on-disk folder for uploaded images
+	MediaMaxBytes        int64  // per-upload size limit
 }
 
 // Load reads configuration from environment variables with safe defaults.
@@ -50,6 +52,11 @@ func Load() Config {
 		siteName = "Main building"
 	}
 	billSec := getenvInt("BILLING_TICK_INTERVAL_SECONDS", 3600)
+	mediaDir := strings.TrimSpace(os.Getenv("MEDIA_DIR"))
+	if mediaDir == "" {
+		mediaDir = "uploads"
+	}
+	mediaMax := int64(getenvInt("MEDIA_MAX_BYTES", 5<<20))
 	return Config{
 		Port:                 port,
 		MongoURI:             mongoURI,
@@ -62,6 +69,8 @@ func Load() Config {
 		BootstrapAdminPass:   os.Getenv("BOOTSTRAP_ADMIN_PASSWORD"),
 		SiteDisplayName:      siteName,
 		BillingTickerSeconds: billSec,
+		MediaDir:             mediaDir,
+		MediaMaxBytes:        mediaMax,
 	}
 }
 

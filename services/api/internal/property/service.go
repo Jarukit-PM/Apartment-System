@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/jarukit/apartment-system/services/api/internal/media"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -36,6 +37,12 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 	if in.Name == "" {
 		return nil, errors.New("name is required")
 	}
+	in.ImageURL = strings.TrimSpace(in.ImageURL)
+	if in.ImageURL != "" {
+		if err := media.ValidatePublicPath(in.ImageURL); err != nil {
+			return nil, err
+		}
+	}
 	return s.repo.Insert(ctx, in)
 }
 
@@ -45,6 +52,15 @@ func (s *Service) Update(ctx context.Context, id primitive.ObjectID, in UpdateIn
 		*in.Name = strings.TrimSpace(*in.Name)
 		if *in.Name == "" {
 			return nil, errors.New("name cannot be empty")
+		}
+	}
+	if in.ImageURL != nil {
+		trimmed := strings.TrimSpace(*in.ImageURL)
+		in.ImageURL = &trimmed
+		if *in.ImageURL != "" {
+			if err := media.ValidatePublicPath(*in.ImageURL); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return s.repo.Update(ctx, id, in)

@@ -58,6 +58,7 @@ func (r *Repo) Insert(ctx context.Context, in CreateInput) (*Doc, error) {
 		ID:        primitive.NewObjectID(),
 		Name:      in.Name,
 		Address:   in.Address,
+		ImageURL:  in.ImageURL,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -70,13 +71,25 @@ func (r *Repo) Insert(ctx context.Context, in CreateInput) (*Doc, error) {
 // Update patches a property.
 func (r *Repo) Update(ctx context.Context, id primitive.ObjectID, in UpdateInput) (*Doc, error) {
 	set := bson.M{"updatedAt": time.Now().UTC()}
+	unset := bson.M{}
 	if in.Name != nil {
 		set["name"] = *in.Name
 	}
 	if in.Address != nil {
 		set["address"] = in.Address
 	}
-	res, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
+	if in.ImageURL != nil {
+		if *in.ImageURL == "" {
+			unset["imageUrl"] = ""
+		} else {
+			set["imageUrl"] = *in.ImageURL
+		}
+	}
+	update := bson.M{"$set": set}
+	if len(unset) > 0 {
+		update["$unset"] = unset
+	}
+	res, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, update)
 	if err != nil {
 		return nil, err
 	}

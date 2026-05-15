@@ -19,6 +19,7 @@ export type SingleWrapper<T> = { data: T };
 export type Property = {
   id: string;
   name: string;
+  imageUrl?: string;
   address?: {
     line1?: string;
     line2?: string;
@@ -47,6 +48,7 @@ export type Unit = {
   listingRent?: { amount: number; currency: string };
   rentalPeriodOffers?: RentalPeriodOfferWire[];
   selfServiceEnabled?: boolean;
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -55,6 +57,8 @@ export type AvailableUnit = {
   id: string;
   propertyId: string;
   propertyName?: string;
+  propertyImageUrl?: string;
+  imageUrl?: string;
   label: string;
   floor?: number;
   bedrooms?: number;

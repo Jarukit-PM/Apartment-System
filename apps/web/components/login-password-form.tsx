@@ -17,11 +17,11 @@ type Props = {
 export function LoginPasswordForm({ locale, next, emailLabel, passwordLabel, submitLabel }: Props) {
   const [state, formAction] = useActionState(loginPasswordAction, initial);
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       <input type="hidden" name="locale" value={locale} />
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <div>
-        <label htmlFor="login-email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <label htmlFor="login-email" className="ap-label">
           {emailLabel}
         </label>
         <input
@@ -30,11 +30,11 @@ export function LoginPasswordForm({ locale, next, emailLabel, passwordLabel, sub
           type="email"
           autoComplete="email"
           required
-          className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+          className="ap-input"
         />
       </div>
       <div>
-        <label htmlFor="login-password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <label htmlFor="login-password" className="ap-label">
           {passwordLabel}
         </label>
         <input
@@ -43,7 +43,7 @@ export function LoginPasswordForm({ locale, next, emailLabel, passwordLabel, sub
           type="password"
           autoComplete="current-password"
           required
-          className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+          className="ap-input"
         />
       </div>
       {!state.ok && state.message ? (

@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ActionForm } from "@/components/action-form";
+import { UnitImage } from "@/components/entity-image";
 import { selfLeaseAction } from "@/lib/resident-lease-actions";
 import { apiGetJsonAuthed } from "@/lib/server-api";
 import type { AvailableUnit, ListWrapper } from "@/lib/types";
@@ -61,8 +62,15 @@ export default async function MyRentPage({ params }: PageProps) {
             return (
             <li
               key={u.id}
-              className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+              className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
             >
+              <UnitImage
+                label={u.label}
+                imageUrl={u.imageUrl}
+                propertyImageUrl={u.propertyImageUrl}
+                className="rounded-none border-0 border-b border-zinc-200 dark:border-zinc-800"
+              />
+              <div className="p-6">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
                   {t("unitLabel", { label: u.label })}
@@ -164,6 +172,7 @@ export default async function MyRentPage({ params }: PageProps) {
                     ) : null}
                   </div>
                 </ActionForm>
+              </div>
               </div>
             </li>
             );

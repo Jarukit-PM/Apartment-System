@@ -17,9 +17,9 @@ export default async function LoginPage({ params, searchParams }: PageProps) {
   const next = sp.next && isSafeAppPath(sp.next) ? sp.next : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{t("loginTitle")}</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("loginSubtitle")}</p>
+    <article className="ap-glass-elevated mx-auto w-full max-w-md rounded-[var(--ap-radius-lg)] p-8 md:p-10">
+      <h1 className="ap-headline text-xl">{t("loginTitle")}</h1>
+      <p className="ap-body mt-2 text-sm">{t("loginSubtitle")}</p>
 
       {sp.error === "google" ? (
         <p className="mt-4 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -39,21 +39,21 @@ export default async function LoginPage({ params, searchParams }: PageProps) {
 
       <div className="relative my-8">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <span className="w-full border-t border-zinc-200 dark:border-zinc-700" />
+          <span className="w-full border-t border-[var(--ap-border)]" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase tracking-wide">
-          <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">{t("divider")}</span>
+        <div className="relative flex justify-center text-xs font-semibold uppercase tracking-wider">
+          <span className="bg-[var(--ap-surface-elevated)] px-3 text-[var(--ap-muted)]">{t("divider")}</span>
         </div>
       </div>
 
       <GoogleSignIn locale={locale} caption={t("googleCaption")} next={next} />
 
-      <p className="mt-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="mt-8 text-center text-sm text-[var(--ap-muted)]">
         {t("needAccount")}{" "}
-        <Link href="/register" className="font-medium text-zinc-900 underline dark:text-zinc-100">
+        <Link href="/register" className="font-medium text-[var(--ap-accent)] hover:underline">
           {t("registerLink")}
         </Link>
       </p>
-    </div>
+    </article>
   );
 }

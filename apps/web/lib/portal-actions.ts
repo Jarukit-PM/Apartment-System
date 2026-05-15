@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { parseRentalPeriodOffersFromForm } from "@/lib/rental-periods";
-import { apiFetchJsonAuthed } from "@/lib/server-api";
+import { apiFetchJsonAuthed, apiUploadMediaAuthed } from "@/lib/server-api";
 
 export type ActionState = { ok: boolean; message: string };
 
@@ -40,6 +40,148 @@ export async function createProperty(
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
   return ok();
+}
+
+function addressFromForm(formData: FormData) {
+  const line1 = String(formData.get("addressLine1") ?? "").trim();
+  const line2 = String(formData.get("addressLine2") ?? "").trim();
+  const city = String(formData.get("addressCity") ?? "").trim();
+  const region = String(formData.get("addressRegion") ?? "").trim();
+  const postalCode = String(formData.get("addressPostalCode") ?? "").trim();
+  const country = String(formData.get("addressCountry") ?? "").trim();
+  if (!line1 && !line2 && !city && !region && !postalCode && !country) return undefined;
+  return {
+    ...(line1 ? { line1 } : {}),
+    ...(line2 ? { line2 } : {}),
+    ...(city ? { city } : {}),
+    ...(region ? { region } : {}),
+    ...(postalCode ? { postalCode } : {}),
+    ...(country ? { country } : {}),
+  };
+}
+
+export async function updateProperty(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const locale = String(formData.get("locale") ?? "en");
+  const id = String(formData.get("id") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!id) return fail("Property is required");
+  if (!name) return fail("Name is required");
+
+  const body: Record<string, unknown> = { name };
+  const address = addressFromForm(formData);
+  if (address !== undefined) {
+    body.address = address;
+  }
+
+  const res = await apiFetchJsonAuthed(`/v1/properties/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) return fail(res.error?.message ?? "Could not update property");
+
+  revalidatePath(`/${locale}/properties`, "page");
+  revalidatePath(`/${locale}/properties/${id}`, "page");
+  revalidatePath(`/${locale}/dashboard`, "page");
+  return ok();
+}
+
+async function uploadImageFromForm(formData: FormData): Promise<string | ActionState> {
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) {
+    return fail("Choose an image file");
+  }
+  const res = await apiUploadMediaAuthed(file, file.name || "upload.jpg");
+  if (!res.ok) {
+    return fail(res.error?.message ?? "Could not upload image");
+  }
+  return res.data.data.url;
+}
+
+export async function uploadPropertyImage(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const locale = String(formData.get("locale") ?? "en");
+  const id = String(formData.get("propertyId") ?? "").trim();
+  if (!id) return fail("Property is required");
+
+  const uploaded = await uploadImageFromForm(formData);
+  if (typeof uploaded !== "string") return uploaded;
+
+  const res = await apiFetchJsonAuthed(`/v1/properties/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ imageUrl: uploaded }),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) return fail(res.error?.message ?? "Could not save property image");
+
+  revalidatePath(`/${locale}/properties`, "page");
+  revalidatePath(`/${locale}/properties/${id}`, "page");
+  revalidatePath(`/${locale}/units`, "page");
+  revalidatePath(`/${locale}/dashboard`, "page");
+  return ok();
+}
+
+export async function removePropertyImage(formData: FormData): Promise<void> {
+  const locale = String(formData.get("locale") ?? "en");
+  const id = String(formData.get("propertyId") ?? "").trim();
+  if (!id) return;
+  await apiFetchJsonAuthed(`/v1/properties/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ imageUrl: "" }),
+    headers: { "Content-Type": "application/json" },
+  });
+  revalidatePath(`/${locale}/properties`, "page");
+  revalidatePath(`/${locale}/properties/${id}`, "page");
+  revalidatePath(`/${locale}/units`, "page");
+}
+
+export async function uploadUnitImage(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const locale = String(formData.get("locale") ?? "en");
+  const unitId = String(formData.get("unitId") ?? "").trim();
+  const propertyId = String(formData.get("propertyId") ?? "").trim();
+  if (!unitId) return fail("Unit is required");
+
+  const uploaded = await uploadImageFromForm(formData);
+  if (typeof uploaded !== "string") return uploaded;
+
+  const res = await apiFetchJsonAuthed(`/v1/units/${unitId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ imageUrl: uploaded }),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) return fail(res.error?.message ?? "Could not save unit image");
+
+  revalidatePath(`/${locale}/units`, "page");
+  revalidatePath(`/${locale}/units/${unitId}`, "page");
+  if (propertyId) {
+    revalidatePath(`/${locale}/properties/${propertyId}`, "page");
+  }
+  return ok();
+}
+
+export async function removeUnitImage(formData: FormData): Promise<void> {
+  const locale = String(formData.get("locale") ?? "en");
+  const unitId = String(formData.get("unitId") ?? "").trim();
+  const propertyId = String(formData.get("propertyId") ?? "").trim();
+  if (!unitId) return;
+  await apiFetchJsonAuthed(`/v1/units/${unitId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ imageUrl: "" }),
+    headers: { "Content-Type": "application/json" },
+  });
+  revalidatePath(`/${locale}/units`, "page");
+  revalidatePath(`/${locale}/units/${unitId}`, "page");
+  if (propertyId) {
+    revalidatePath(`/${locale}/properties/${propertyId}`, "page");
+  }
 }
 
 export async function deleteProperty(formData: FormData): Promise<void> {
@@ -94,6 +236,7 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   revalidatePath(`/${locale}/units`, "page");
+  revalidatePath(`/${locale}/units/new`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
   return ok();
 }
@@ -137,6 +280,7 @@ export async function patchUnit(_prev: ActionState, formData: FormData): Promise
   if (propertyId) {
     revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   }
+  revalidatePath(`/${locale}/units/${unitId}`, "page");
   return ok();
 }
 

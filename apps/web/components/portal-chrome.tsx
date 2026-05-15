@@ -1,6 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { LogoutForm } from "@/components/logout-form";
+import { PortalNav } from "@/components/portal-nav";
+import { PortalShell } from "@/components/portal-shell";
+import { SidebarUserPanel } from "@/components/sidebar-user-panel";
+import { enrichSessionUser, getSessionUser } from "@/lib/session-user";
 
 const links = [
   { href: "/dashboard", key: "dashboard" as const },
@@ -18,40 +20,31 @@ export async function PortalChrome({
   children: React.ReactNode;
 }) {
   const [t, locale] = await Promise.all([getTranslations("Portal"), getLocale()]);
+  const rawUser = await getSessionUser();
+  const user = rawUser ? await enrichSessionUser(rawUser) : null;
+
+  const navItems = links.map((l) => ({
+    href: l.href,
+    label: t(`nav.${l.key}`),
+  }));
 
   return (
-    <div className="flex min-h-dvh flex-col md:flex-row">
-      <aside className="border-b border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900 md:w-56 md:border-b-0 md:border-r md:py-8">
-        <div className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            {t("brand")}
-          </p>
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{t("console")}</p>
-        </div>
-        <nav className="flex flex-col gap-1" aria-label={t("navLabel")}>
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-            >
-              {t(`nav.${l.key}`)}
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-6 space-y-3 border-t border-zinc-200 pt-6 dark:border-zinc-700">
-          <Link
-            href="/my"
-            className="block rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-          >
-            {t("myPortal")}
-          </Link>
-          <LogoutForm locale={locale} />
-        </div>
-      </aside>
-      <div className="flex min-h-0 flex-1 flex-col">
-        <main className="flex-1 px-4 py-8 md:px-10">{children}</main>
-      </div>
-    </div>
+    <PortalShell
+      brand={t("brand")}
+      title={t("console")}
+      nav={<PortalNav items={navItems} ariaLabel={t("navLabel")} />}
+      sidebarFooter={
+        <SidebarUserPanel
+          user={user}
+          locale={locale}
+          profileHref={user ? (user.isResident ? "/my/profile" : "/account") : undefined}
+          extraLinks={[
+            { href: "/my", label: t("myPortal") },
+          ]}
+        />
+      }
+    >
+      {children}
+    </PortalShell>
   );
 }

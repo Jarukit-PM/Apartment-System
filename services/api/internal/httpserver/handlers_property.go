@@ -9,13 +9,15 @@ import (
 )
 
 type propertyCreateBody struct {
-	Name    string            `json:"name"`
-	Address *property.Address `json:"address"`
+	Name     string            `json:"name"`
+	Address  *property.Address `json:"address"`
+	ImageURL string            `json:"imageUrl"`
 }
 
 type propertyPatchBody struct {
-	Name    *string           `json:"name"`
-	Address *property.Address `json:"address"`
+	Name     *string           `json:"name"`
+	Address  *property.Address `json:"address"`
+	ImageURL *string           `json:"imageUrl"`
 }
 
 func (s *Server) listProperties(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +38,9 @@ func (s *Server) createProperty(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &body) {
 		return
 	}
-	p, err := s.Props.Create(r.Context(), property.CreateInput{Name: body.Name, Address: body.Address})
+	p, err := s.Props.Create(r.Context(), property.CreateInput{
+		Name: body.Name, Address: body.Address, ImageURL: body.ImageURL,
+	})
 	if err != nil {
 		handleServiceError(w, r, err)
 		return
@@ -66,7 +70,9 @@ func (s *Server) patchProperty(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &body) {
 		return
 	}
-	p, err := s.Props.Update(r.Context(), id, property.UpdateInput{Name: body.Name, Address: body.Address})
+	p, err := s.Props.Update(r.Context(), id, property.UpdateInput{
+		Name: body.Name, Address: body.Address, ImageURL: body.ImageURL,
+	})
 	if err != nil {
 		handleServiceError(w, r, err)
 		return
@@ -95,6 +101,9 @@ func propertyJSON(p *property.Doc) map[string]any {
 	}
 	if p.Address != nil {
 		m["address"] = p.Address
+	}
+	if p.ImageURL != "" {
+		m["imageUrl"] = p.ImageURL
 	}
 	return m
 }

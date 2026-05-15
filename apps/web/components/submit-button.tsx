@@ -9,15 +9,13 @@ type Props = {
 };
 
 const base =
-  "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50";
+  "ap-btn inline-flex items-center justify-center disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ap-accent)]";
 
 const variants: Record<NonNullable<Props["variant"]>, string> = {
-  primary:
-    "bg-zinc-900 text-white hover:bg-zinc-800 focus-visible:outline-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white",
+  primary: "ap-btn-primary",
   danger:
-    "bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600",
-  ghost:
-    "border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
+    "!rounded-[0.75rem] !bg-red-600 !text-white hover:!bg-red-500 !shadow-none focus-visible:!outline-red-600",
+  ghost: "ap-btn-secondary !rounded-[0.75rem]",
 };
 
 export function SubmitButton({ label, pendingLabel, variant = "primary" }: Props) {

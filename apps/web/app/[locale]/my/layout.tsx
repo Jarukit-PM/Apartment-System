@@ -1,10 +1,12 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { LogoutForm } from "@/components/logout-form";
-import { getAccessTokenRoles } from "@/lib/session-roles";
+import { PortalNav } from "@/components/portal-nav";
+import { PortalShell } from "@/components/portal-shell";
+import { SidebarUserPanel } from "@/components/sidebar-user-panel";
+import { enrichSessionUser, getSessionUser } from "@/lib/session-user";
 
 const links = [
   { href: "/my", key: "summary" as const },
+  { href: "/my/profile", key: "profile" as const },
   { href: "/my/rent", key: "rentBook" as const },
   { href: "/my/wallet", key: "wallet" as const },
   { href: "/my/invoices", key: "invoices" as const },
@@ -19,45 +21,35 @@ type LayoutProps = {
 export default async function MyPortalLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, roles] = await Promise.all([
-    getTranslations("MyPortal"),
-    getAccessTokenRoles(),
-  ]);
-  const isAdmin = roles?.includes("admin") ?? false;
+  const t = await getTranslations("MyPortal");
+  const rawUser = await getSessionUser();
+  const user = rawUser ? await enrichSessionUser(rawUser) : null;
+  const isAdmin = user?.isAdmin ?? false;
+
+  const navItems = links.map((l) => ({
+    href: l.href,
+    label: t(`nav.${l.key}`),
+  }));
+
+  const extraLinks = isAdmin
+    ? [{ href: "/dashboard", label: t("adminConsole") }]
+    : [];
 
   return (
-    <div className="flex min-h-dvh flex-col bg-zinc-50 md:flex-row dark:bg-zinc-950">
-      <aside className="border-b border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900 md:w-56 md:border-b-0 md:border-r md:py-8">
-        <div className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            {t("brand")}
-          </p>
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{t("title")}</p>
-        </div>
-        <nav className="flex flex-wrap gap-2 md:flex-col md:gap-1" aria-label={t("navLabel")}>
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-            >
-              {t(`nav.${l.key}`)}
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-8 space-y-3 border-t border-zinc-200 pt-6 dark:border-zinc-700">
-          {isAdmin ? (
-            <Link
-              href="/dashboard"
-              className="block rounded-lg px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            >
-              {t("adminConsole")}
-            </Link>
-          ) : null}
-          <LogoutForm locale={locale} />
-        </div>
-      </aside>
-      <main className="flex-1 px-4 py-8 md:px-10">{children}</main>
-    </div>
+    <PortalShell
+      brand={t("brand")}
+      title={t("title")}
+      nav={<PortalNav items={navItems} ariaLabel={t("navLabel")} />}
+      sidebarFooter={
+        <SidebarUserPanel
+          user={user}
+          locale={locale}
+          profileHref="/my/profile"
+          extraLinks={extraLinks}
+        />
+      }
+    >
+      {children}
+    </PortalShell>
   );
 }

@@ -21,7 +21,7 @@ export function ActionForm({ action, locale, children, submitLabel }: Props) {
       <input type="hidden" name="locale" value={locale} />
       {children}
       {!state.ok && state.message ? (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className="text-sm text-red-600" role="alert">
           {state.message}
         </p>
       ) : null}

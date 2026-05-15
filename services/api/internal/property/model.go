@@ -19,20 +19,23 @@ type Address struct {
 // Doc is the MongoDB document shape.
 type Doc struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Name      string               `bson:"name"`
-	Address   *Address             `bson:"address,omitempty"`
-	CreatedAt time.Time            `bson:"createdAt"`
-	UpdatedAt time.Time            `bson:"updatedAt"`
+	Name      string             `bson:"name"`
+	Address   *Address           `bson:"address,omitempty"`
+	ImageURL  string             `bson:"imageUrl,omitempty"`
+	CreatedAt time.Time          `bson:"createdAt"`
+	UpdatedAt time.Time          `bson:"updatedAt"`
 }
 
 // CreateInput is used when inserting a property.
 type CreateInput struct {
-	Name    string
-	Address *Address
+	Name     string
+	Address  *Address
+	ImageURL string
 }
 
 // UpdateInput is a partial update.
 type UpdateInput struct {
-	Name    *string
-	Address *Address
+	Name     *string
+	Address  *Address
+	ImageURL *string // nil = unchanged; "" = remove; non-empty = set
 }

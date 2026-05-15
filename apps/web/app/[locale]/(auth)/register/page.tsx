@@ -12,9 +12,9 @@ export default async function RegisterPage({ params }: PageProps) {
   const t = await getTranslations("Auth");
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{t("registerTitle")}</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("registerSubtitle")}</p>
+    <article className="ap-glass-elevated mx-auto w-full max-w-md rounded-[var(--ap-radius-lg)] p-8 md:p-10">
+      <h1 className="ap-headline text-xl">{t("registerTitle")}</h1>
+      <p className="ap-body mt-2 text-sm">{t("registerSubtitle")}</p>
 
       <div className="mt-8">
         <RegisterResidentForm
@@ -29,12 +29,12 @@ export default async function RegisterPage({ params }: PageProps) {
         />
       </div>
 
-      <p className="mt-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="mt-8 text-center text-sm text-[var(--ap-muted)]">
         {t("haveAccount")}{" "}
-        <Link href="/login" className="font-medium text-zinc-900 underline dark:text-zinc-100">
+        <Link href="/login" className="font-medium text-[var(--ap-accent)] hover:underline">
           {t("signInLink")}
         </Link>
       </p>
-    </div>
+    </article>
   );
 }

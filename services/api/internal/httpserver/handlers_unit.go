@@ -30,6 +30,7 @@ type unitCreateBody struct {
 	ListingRent        *unitRentBody           `json:"listingRent"`
 	RentalPeriodOffers []rentalPeriodOfferBody `json:"rentalPeriodOffers"`
 	SelfServiceEnabled *bool                   `json:"selfServiceEnabled"`
+	ImageURL           string                  `json:"imageUrl"`
 }
 
 type unitPatchBody struct {
@@ -40,6 +41,7 @@ type unitPatchBody struct {
 	ListingRent        *unitRentBody            `json:"listingRent"`
 	RentalPeriodOffers *[]rentalPeriodOfferBody `json:"rentalPeriodOffers"`
 	SelfServiceEnabled *bool                    `json:"selfServiceEnabled"`
+	ImageURL           *string                  `json:"imageUrl"`
 }
 
 func (s *Server) listUnits(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +97,7 @@ func (s *Server) createUnit(w http.ResponseWriter, r *http.Request) {
 		ListingRent:        unitRentBodyToListing(body.ListingRent),
 		RentalPeriodOffers: rentalOfferBodiesToUnit(body.RentalPeriodOffers),
 		SelfServiceEnabled: body.SelfServiceEnabled,
+		ImageURL:           body.ImageURL,
 	})
 	if err != nil {
 		handleServiceError(w, r, err)
@@ -132,6 +135,7 @@ func (s *Server) patchUnit(w http.ResponseWriter, r *http.Request) {
 		Status:             body.Status,
 		ListingRent:        unitRentBodyToListing(body.ListingRent),
 		SelfServiceEnabled: body.SelfServiceEnabled,
+		ImageURL:           body.ImageURL,
 	}
 	if body.RentalPeriodOffers != nil {
 		uo := rentalOfferBodiesToUnit(*body.RentalPeriodOffers)
@@ -191,6 +195,9 @@ func unitJSON(u *unit.Doc) map[string]any {
 	}
 	if u.SelfServiceEnabled != nil {
 		m["selfServiceEnabled"] = *u.SelfServiceEnabled
+	}
+	if u.ImageURL != "" {
+		m["imageUrl"] = u.ImageURL
 	}
 	return m
 }

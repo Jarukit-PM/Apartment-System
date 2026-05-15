@@ -37,6 +37,7 @@ type Doc struct {
 	ListingRent        *ListingRent        `bson:"listingRent,omitempty"`
 	RentalPeriodOffers []RentalPeriodOffer `bson:"rentalPeriodOffers,omitempty"`
 	SelfServiceEnabled *bool               `bson:"selfServiceEnabled,omitempty"`
+	ImageURL           string              `bson:"imageUrl,omitempty"`
 	CreatedAt          time.Time           `bson:"createdAt"`
 	UpdatedAt          time.Time           `bson:"updatedAt"`
 }
@@ -51,6 +52,7 @@ type CreateInput struct {
 	ListingRent        *ListingRent
 	RentalPeriodOffers []RentalPeriodOffer
 	SelfServiceEnabled *bool
+	ImageURL           string
 }
 
 // UpdateInput partial update.
@@ -62,4 +64,5 @@ type UpdateInput struct {
 	ListingRent        *ListingRent
 	RentalPeriodOffers *[]RentalPeriodOffer
 	SelfServiceEnabled *bool
+	ImageURL           *string // nil = unchanged; "" = remove; non-empty = set
 }

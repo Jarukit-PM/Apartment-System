@@ -4,6 +4,7 @@ import { WalletTopUpClient } from "@/components/wallet-top-up-client";
 import { apiGetJsonAuthed } from "@/lib/server-api";
 import { walletTransfer } from "@/lib/wallet-actions";
 import type { SingleWrapper, WalletBundle } from "@/lib/types";
+import { isWalletLedgerDebit } from "@/lib/wallet-ledger";
 
 function formatThb(satang: number, locale: string): string {
   const baht = satang / 100;
@@ -124,7 +125,12 @@ export async function WalletPanel({ locale }: { locale: string }) {
                     ? t("ledgerTransferOut")
                     : row.kind === "transfer_in"
                       ? t("ledgerTransferIn")
-                      : row.kind;
+                      : row.kind === "lease_first_month"
+                        ? t("ledgerLeaseFirstMonth")
+                        : row.kind === "lease_booking_reversal"
+                          ? t("ledgerLeaseBookingReversal")
+                          : row.kind;
+              const debit = isWalletLedgerDebit(row.kind);
               return (
                 <li
                   key={row.id}
@@ -133,7 +139,7 @@ export async function WalletPanel({ locale }: { locale: string }) {
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="font-medium text-zinc-900 dark:text-zinc-50">{label}</span>
                     <span className="tabular-nums text-zinc-800 dark:text-zinc-200">
-                      {row.kind === "transfer_out" ? "−" : "+"}
+                      {debit ? "−" : "+"}
                       {formatThb(row.amountSatang, locale)}
                     </span>
                   </div>

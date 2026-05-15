@@ -28,14 +28,14 @@ export function MyPortalPageSkeleton() {
         <Skeleton className="h-8 w-52 max-w-[85%]" />
         <Skeleton className="h-4 w-full max-w-md" />
       </div>
-      <section className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="ap-card space-y-4 p-6">
         <Skeleton className="h-3 w-24" />
         <div className="grid gap-3 sm:grid-cols-2">
           <Skeleton className="h-14 w-full" />
           <Skeleton className="h-14 w-full" />
         </div>
       </section>
-      <section className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="ap-card space-y-4 p-6">
         <Skeleton className="h-3 w-32" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full max-w-lg" />
@@ -60,14 +60,14 @@ export function DashboardPageSkeleton() {
         {["a", "b", "c", "d"].map((k) => (
           <div
             key={k}
-            className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+            className="ap-card p-5"
           >
             <Skeleton className="h-3 w-20" />
             <Skeleton className="mt-4 h-8 w-16" />
           </div>
         ))}
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="ap-card p-6">
         <Skeleton className="h-4 w-40" />
         <div className="mt-6 space-y-3">
           <Skeleton className="h-3 w-full" />
@@ -98,7 +98,7 @@ export function LocaleShellSkeleton() {
 export function AuthCardSkeleton() {
   return (
     <div
-      className="mx-auto mt-10 max-w-md space-y-6 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+      className="ap-glass-elevated mx-auto mt-10 max-w-md space-y-6 rounded-[var(--ap-radius-lg)] p-8"
       aria-busy="true"
       aria-label="Loading"
     >

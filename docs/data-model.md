@@ -25,6 +25,7 @@ Represents a building or managed property (use a single document if the product 
 |-------|------|-------------|
 | `_id` | ObjectId | Primary key. |
 | `name` | string | Display name. |
+| `imageUrl` | string | Optional. Public path served by the API (e.g. `/media/{id}.jpg`) after admin upload. |
 | `address` | object | Optional structured address (lines, city, region, postalCode, country). |
 | `createdAt` | date | Creation time. |
 | `updatedAt` | date | Last update time. |
@@ -49,6 +50,7 @@ A leasable unit within a property (apartment, room, parking space, etc.).
 | `status` | string | e.g. `vacant`, `occupied`, `maintenance`. |
 | `listingRent` | object | Optional. Admin-set **asking rent** for display and resident self-booking: `{ amount: number, currency: string }`. Required for a unit to appear in the resident self-service catalog (with `amount > 0`). |
 | `selfServiceEnabled` | bool | Optional. When explicitly `false`, the unit is hidden from resident self-service even if vacant with `listingRent`. Absent or `true` allows self-service when other rules pass. |
+| `imageUrl` | string | Optional. Unit photo (`/media/...`). UI may fall back to the parent property image or a placeholder. |
 | `createdAt` | date | |
 | `updatedAt` | date | |
 

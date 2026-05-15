@@ -104,6 +104,7 @@ func (r *Repo) Insert(ctx context.Context, in CreateInput) (*Doc, error) {
 		ListingRent:        in.ListingRent,
 		RentalPeriodOffers: in.RentalPeriodOffers,
 		SelfServiceEnabled: in.SelfServiceEnabled,
+		ImageURL:           in.ImageURL,
 		CreatedAt:          now,
 		UpdatedAt:          now,
 	}
@@ -137,7 +138,19 @@ func (r *Repo) Update(ctx context.Context, id primitive.ObjectID, in UpdateInput
 	if in.RentalPeriodOffers != nil {
 		set["rentalPeriodOffers"] = *in.RentalPeriodOffers
 	}
-	res, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": set})
+	unset := bson.M{}
+	if in.ImageURL != nil {
+		if *in.ImageURL == "" {
+			unset["imageUrl"] = ""
+		} else {
+			set["imageUrl"] = *in.ImageURL
+		}
+	}
+	update := bson.M{"$set": set}
+	if len(unset) > 0 {
+		update["$unset"] = unset
+	}
+	res, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, update)
 	if err != nil {
 		return nil, err
 	}

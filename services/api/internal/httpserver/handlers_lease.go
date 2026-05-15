@@ -29,17 +29,33 @@ type leasePatchBody struct {
 }
 
 func (s *Server) listLeases(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query().Get("unitId")
-	var uid *primitive.ObjectID
-	if q != "" {
-		id, err := primitive.ObjectIDFromHex(q)
-		if err != nil {
-			httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid unitId", nil)
+	unitQ := r.URL.Query().Get("unitId")
+	residentQ := r.URL.Query().Get("residentId")
+	if unitQ != "" && residentQ != "" {
+		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "use unitId or residentId, not both", nil)
+		return
+	}
+	var list []lease.Doc
+	var err error
+	if residentQ != "" {
+		rid, parseErr := primitive.ObjectIDFromHex(residentQ)
+		if parseErr != nil {
+			httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid residentId", nil)
 			return
 		}
-		uid = &id
+		list, err = s.Leases.ListForResident(r.Context(), rid)
+	} else {
+		var uid *primitive.ObjectID
+		if unitQ != "" {
+			id, parseErr := primitive.ObjectIDFromHex(unitQ)
+			if parseErr != nil {
+				httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "invalid unitId", nil)
+				return
+			}
+			uid = &id
+		}
+		list, err = s.Leases.List(r.Context(), uid)
 	}
-	list, err := s.Leases.List(r.Context(), uid)
 	if err != nil {
 		handleServiceError(w, r, err)
 		return

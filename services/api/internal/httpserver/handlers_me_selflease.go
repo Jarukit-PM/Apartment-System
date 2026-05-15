@@ -60,6 +60,12 @@ func (s *Server) meAvailableUnits(w http.ResponseWriter, r *http.Request) {
 		}
 		if prop, err := s.Props.Get(r.Context(), u.PropertyID); err == nil {
 			m["propertyName"] = prop.Name
+			if prop.ImageURL != "" {
+				m["propertyImageUrl"] = prop.ImageURL
+			}
+		}
+		if u.ImageURL != "" {
+			m["imageUrl"] = u.ImageURL
 		}
 		out = append(out, m)
 	}

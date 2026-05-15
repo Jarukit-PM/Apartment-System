@@ -15,6 +15,7 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/invoice"
 	"github.com/jarukit/apartment-system/services/api/internal/lease"
 	"github.com/jarukit/apartment-system/services/api/internal/maintenance"
+	"github.com/jarukit/apartment-system/services/api/internal/media"
 	"github.com/jarukit/apartment-system/services/api/internal/property"
 	"github.com/jarukit/apartment-system/services/api/internal/resident"
 	"github.com/jarukit/apartment-system/services/api/internal/unit"
@@ -37,6 +38,7 @@ type Server struct {
 	SiteName          string
 	Invoice           *invoice.Service
 	Wallet            *wallet.Service
+	Media             *media.Store
 }
 
 // NewServer constructs a Server with domain and auth dependencies.
@@ -52,6 +54,7 @@ func NewServer(
 	siteName string,
 	inv *invoice.Service,
 	w *wallet.Service,
+	mediaStore *media.Store,
 ) *Server {
 	return &Server{
 		Props:             p,
@@ -65,11 +68,16 @@ func NewServer(
 		SiteName:          siteName,
 		Invoice:           inv,
 		Wallet:            w,
+		Media:             mediaStore,
 	}
 }
 
 // Mount registers versioned routes on r (caller mounts at / or prefixes).
 func (s *Server) Mount(r chi.Router) {
+	if s.Media != nil {
+		r.Get("/media/{filename}", s.serveMedia)
+	}
+
 	r.Get("/v1/site", s.getSite)
 
 	r.Route("/v1/auth", func(r chi.Router) {
@@ -106,6 +114,8 @@ func (s *Server) Mount(r chi.Router) {
 			r.Get("/properties/{id}", s.getProperty)
 			r.Patch("/properties/{id}", s.patchProperty)
 			r.Delete("/properties/{id}", s.deleteProperty)
+
+			r.Post("/media", s.uploadMedia)
 
 			r.Get("/units", s.listUnits)
 			r.Post("/units", s.createUnit)

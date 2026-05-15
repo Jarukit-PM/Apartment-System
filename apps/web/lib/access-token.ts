@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const expectedIssuer = "apartment-system-api";
 
 export type AccessTokenVerifyResult =
-  | { ok: true; roles: string[] }
+  | { ok: true; roles: string[]; email: string; subject: string; residentId?: string }
   | { ok: false; reason: "invalid" | "expired" };
 
 /**
@@ -43,5 +43,8 @@ export function verifyAccessToken(token: string, secret: string): AccessTokenVer
   const roles = o.roles;
   if (!Array.isArray(roles)) return { ok: false, reason: "invalid" };
   const out = roles.filter((r): r is string => typeof r === "string");
-  return { ok: true, roles: out };
+  const email = typeof o.email === "string" ? o.email : "";
+  const subject = typeof o.sub === "string" ? o.sub : "";
+  const residentId = typeof o.rid === "string" && o.rid ? o.rid : undefined;
+  return { ok: true, roles: out, email, subject, residentId };
 }
