@@ -1,5 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Plus, Wrench } from "lucide-react";
 import { ActionForm } from "@/components/ui/action-form";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge, statusVariant } from "@/components/ui/status-badge";
 import { apiGetJsonAuthed } from "@/lib/api/server";
 import { createMyMaintenanceRequest } from "@/lib/actions/resident";
 import type { ListWrapper, MaintenanceRequest, MeSummaryData, SingleWrapper } from "@/lib/api/types";
@@ -20,15 +25,15 @@ export default async function MyMaintenancePage({ params }: PageProps) {
     if (summaryRes.status === 403 || listRes.status === 403) {
       return (
         <div className="mx-auto max-w-3xl">
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("maintenanceTitle")}</h1>
-          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">{t("forbiddenHint")}</p>
+          <PageHeader title={t("maintenanceTitle")} icon={Wrench} />
+          <p className="mt-4 text-sm text-[var(--ap-muted)]">{t("forbiddenHint")}</p>
         </div>
       );
     }
     return (
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("maintenanceTitle")}</h1>
-        <p className="mt-4 text-sm text-red-600 dark:text-red-400">{t("loadError")}</p>
+        <PageHeader title={t("maintenanceTitle")} icon={Wrench} />
+        <p className="ap-alert-error mt-4">{t("loadError")}</p>
       </div>
     );
   }
@@ -47,15 +52,11 @@ export default async function MyMaintenancePage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <header>
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("maintenanceTitle")}</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("maintenanceSubtitle")}</p>
-      </header>
+      <PageHeader title={t("maintenanceTitle")} subtitle={t("maintenanceSubtitle")} icon={Wrench} />
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">{t("newRequestTitle")}</h2>
+      <SectionCard title={t("newRequestTitle")} icon={Plus}>
         {unitChoices.length === 0 ? (
-          <p className="mt-3 text-sm text-amber-800 dark:text-amber-200">{t("maintenanceNoUnit")}</p>
+          <p className="mt-3 ap-alert ap-alert-warning">{t("maintenanceNoUnit")}</p>
         ) : (
           <div className="mt-4">
             <ActionForm
@@ -64,14 +65,14 @@ export default async function MyMaintenancePage({ params }: PageProps) {
               submitLabel={t("newRequestSubmit")}
             >
               <div>
-                <label htmlFor="my-maint-unit" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                <label htmlFor="my-maint-unit" className="ap-label">
                   {t("unit")}
                 </label>
                 <select
                   id="my-maint-unit"
                   name="unitId"
                   required
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                  className="mt-1 w-full ap-select"
                   defaultValue={unitChoices[0]?.unitId}
                 >
                   {unitChoices.map((u) => (
@@ -82,20 +83,20 @@ export default async function MyMaintenancePage({ params }: PageProps) {
                 </select>
               </div>
               <div>
-                <label htmlFor="my-maint-title" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                <label htmlFor="my-maint-title" className="ap-label">
                   {t("ticketTitle")}
                 </label>
                 <input
                   id="my-maint-title"
                   name="title"
                   required
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                  className="mt-1 w-full ap-select"
                 />
               </div>
               <div>
                 <label
                   htmlFor="my-maint-desc"
-                  className="block text-sm font-medium text-zinc-700 dark:text-zinc-200"
+                  className="ap-label"
                 >
                   {t("description")}
                 </label>
@@ -103,28 +104,30 @@ export default async function MyMaintenancePage({ params }: PageProps) {
                   id="my-maint-desc"
                   name="description"
                   rows={3}
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                  className="mt-1 w-full ap-select"
                 />
               </div>
             </ActionForm>
           </div>
         )}
-      </section>
+      </SectionCard>
 
       <section>
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">{t("ticketListTitle")}</h2>
+        <h2 className="ap-eyebrow">{t("ticketListTitle")}</h2>
         {tickets.length === 0 ? (
-          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">{t("ticketsEmpty")}</p>
+          <div className="mt-4">
+            <EmptyState icon={Wrench} title={t("ticketsEmpty")} />
+          </div>
         ) : (
-          <ul className="mt-4 space-y-3">
+          <ul className="ap-card mt-4 divide-y divide-[var(--ap-border)] overflow-hidden">
             {tickets.map((m) => (
-              <li
-                key={m.id}
-                className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <p className="font-medium text-zinc-900 dark:text-zinc-50">{m.title}</p>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{m.description}</p>
-                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              <li key={m.id} className="p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium text-[var(--foreground)]">{m.title}</p>
+                  <StatusBadge variant={statusVariant(m.status)}>{m.status}</StatusBadge>
+                </div>
+                <p className="mt-1 text-sm text-[var(--ap-muted)]">{m.description}</p>
+                <p className="mt-2 text-xs text-[var(--ap-muted)]">
                   {t("ticketMeta", { status: m.status, id: m.id.slice(-8) })}
                 </p>
               </li>

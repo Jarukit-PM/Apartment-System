@@ -8,6 +8,7 @@ import (
 	"github.com/jarukit/apartment-system/services/api/internal/invoice"
 	"github.com/jarukit/apartment-system/services/api/internal/lease"
 	"github.com/jarukit/apartment-system/services/api/internal/maintenance"
+	"github.com/jarukit/apartment-system/services/api/internal/resident"
 )
 
 func (s *Server) getSite(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +68,36 @@ func (s *Server) meSummary(w http.ResponseWriter, r *http.Request) {
 		out["activeLease"] = leaseJSON(active)
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{"data": out})
+}
+
+type meProfilePatchBody struct {
+	FullName *string `json:"fullName"`
+	Phone    *string `json:"phone"`
+}
+
+func (s *Server) mePatchProfile(w http.ResponseWriter, r *http.Request) {
+	p, ok := authn.PrincipalFrom(r.Context())
+	if !ok || p.ResidentID == nil {
+		httpx.WriteError(w, r, http.StatusForbidden, "FORBIDDEN", "resident profile required", nil)
+		return
+	}
+	var body meProfilePatchBody
+	if !decodeJSON(w, r, &body) {
+		return
+	}
+	if body.FullName == nil && body.Phone == nil {
+		httpx.WriteError(w, r, http.StatusBadRequest, "VALIDATION_ERROR", "at least one of fullName or phone is required", nil)
+		return
+	}
+	d, err := s.Res.UpdateSelfProfile(r.Context(), *p.ResidentID, resident.SelfProfileInput{
+		FullName: body.FullName,
+		Phone:    body.Phone,
+	})
+	if err != nil {
+		handleServiceError(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"data": residentJSON(d)})
 }
 
 func (s *Server) meInvoices(w http.ResponseWriter, r *http.Request) {

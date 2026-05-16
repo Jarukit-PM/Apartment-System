@@ -32,3 +32,9 @@ type UpdateInput struct {
 	Phone         *string
 	PrimaryUnitID *primitive.ObjectID
 }
+
+// SelfProfileInput is what a resident may change on their own profile.
+type SelfProfileInput struct {
+	FullName *string
+	Phone    *string
+}

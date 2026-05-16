@@ -16,12 +16,7 @@ export async function LoginPanel({ locale, next, error }: Props) {
 
   return (
     <article className="ap-glass-elevated w-full rounded-[var(--ap-radius-lg)] p-8 md:p-10">
-      <AuthCardHeader
-        brand={t("brand")}
-        languageLabel={t("language")}
-        title={t("loginTitle")}
-        variant="login"
-      />
+      <AuthCardHeader title={t("loginTitle")} variant="login" />
 
       {error === "google" ? (
         <p className="mt-4 text-sm text-red-600" role="alert" aria-live="polite">
@@ -39,6 +34,7 @@ export async function LoginPanel({ locale, next, error }: Props) {
           submitLabel={t("signIn")}
           showPasswordLabel={t("showPassword")}
           hidePasswordLabel={t("hidePassword")}
+          navigatingLabel={t("navigating")}
         />
       </div>
 
@@ -51,7 +47,7 @@ export async function LoginPanel({ locale, next, error }: Props) {
         </div>
       </div>
 
-      <GoogleSignIn locale={locale} next={next} />
+      <GoogleSignIn locale={locale} next={next} navigatingLabel={t("navigating")} />
 
       <p className="mt-8 flex flex-wrap items-center justify-center gap-1.5 text-center text-sm text-[var(--ap-muted)]">
         <span>{t("needAccount")}</span>

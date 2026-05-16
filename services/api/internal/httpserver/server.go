@@ -98,6 +98,7 @@ func (s *Server) Mount(r chi.Router) {
 		r.Route("/me", func(r chi.Router) {
 			r.Use(s.mustRole(user.RoleResident))
 			r.Get("/summary", s.meSummary)
+			r.Patch("/profile", s.mePatchProfile)
 			r.Get("/available-units", s.meAvailableUnits)
 			r.Post("/leases", s.meCreateLease)
 			r.Get("/invoices", s.meInvoices)

@@ -129,7 +129,7 @@ export function WalletTopUpClient({ locale }: { locale: string }) {
       </fieldset>
 
       <div>
-        <label htmlFor={`${formId}-amount`} className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <label htmlFor={`${formId}-amount`} className="ap-label">
           {t("walletAmountLabel")}
         </label>
         <input
@@ -139,12 +139,12 @@ export function WalletTopUpClient({ locale }: { locale: string }) {
           placeholder="100.00"
           value={amountBaht}
           onChange={(e) => setAmountBaht(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+          className="mt-1 w-full ap-select"
         />
       </div>
 
       {errorMsg && !modalOpen ? (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className="ap-alert-error" role="alert">
           {errorMsg}
         </p>
       ) : null}
@@ -170,12 +170,12 @@ export function WalletTopUpClient({ locale }: { locale: string }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby={`${formId}-dialog-title`}
-            className="max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+            className="max-w-md ap-card p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
           >
             <h3 id={`${formId}-dialog-title`} className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
               {t("walletQrModalTitle")}
             </h3>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("walletQrModalHint")}</p>
+            <p className="mt-2 text-sm text-[var(--ap-muted)]">{t("walletQrModalHint")}</p>
             {qrSrc ? (
               <div className="mt-4 flex justify-center rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700">
                 {/* eslint-disable-next-line @next/next/no-img-element -- data URL from qrcode */}
@@ -183,7 +183,7 @@ export function WalletTopUpClient({ locale }: { locale: string }) {
               </div>
             ) : null}
             {errorMsg ? (
-              <p className="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">
+              <p className="mt-3 ap-alert-error" role="alert">
                 {errorMsg}
               </p>
             ) : null}

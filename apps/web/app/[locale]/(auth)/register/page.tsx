@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { AuthImmersiveShell } from "@/components/auth/auth-immersive-shell";
+import { AuthPageShell } from "@/components/auth/auth-page-shell";
 import { RegisterPanel } from "@/components/auth/register-panel";
 import { getSessionUser } from "@/lib/auth/session-user";
 
@@ -18,8 +18,8 @@ export default async function RegisterPage({ params }: PageProps) {
   }
 
   return (
-    <AuthImmersiveShell>
+    <AuthPageShell variant="register">
       <RegisterPanel locale={locale} />
-    </AuthImmersiveShell>
+    </AuthPageShell>
   );
 }

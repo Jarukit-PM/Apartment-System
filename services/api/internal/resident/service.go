@@ -94,6 +94,21 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 	return s.repo.Insert(ctx, d)
 }
 
+// UpdateSelfProfile patches only fullName and phone for the authenticated resident.
+func (s *Service) UpdateSelfProfile(ctx context.Context, id primitive.ObjectID, in SelfProfileInput) (*Doc, error) {
+	up := UpdateInput{}
+	if in.FullName != nil {
+		up.FullName = in.FullName
+	}
+	if in.Phone != nil {
+		up.Phone = in.Phone
+	}
+	if up.FullName == nil && up.Phone == nil {
+		return nil, errors.New("at least one of fullName or phone is required")
+	}
+	return s.Update(ctx, id, up)
+}
+
 // Update validates and patches.
 func (s *Service) Update(ctx context.Context, id primitive.ObjectID, in UpdateInput) (*Doc, error) {
 	set := bson.M{}

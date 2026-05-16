@@ -2,7 +2,15 @@ type IconProps = { className?: string };
 
 function iconClass(size: string, className?: string): string {
   const hasSize = className?.includes("h-") || className?.includes("w-");
-  return [hasSize ? "" : size, "shrink-0", className].filter(Boolean).join(" ");
+  return [hasSize ? "" : size, "shrink-0 max-h-full max-w-full", className].filter(Boolean).join(" ");
+}
+
+/** Tailwind may load after first paint; keep SVG from expanding to intrinsic 300×150. */
+function iconDimensions(className?: string): { width: number; height: number } {
+  const match = className?.match(/h-(\d+(?:\.\d+)?)/);
+  if (!match) return { width: 24, height: 24 };
+  const rem = Number(match[1]) * 4;
+  return { width: rem, height: rem };
 }
 
 const stroke = {
@@ -14,8 +22,16 @@ const stroke = {
 };
 
 export function IconBuilding({ className }: IconProps) {
+  const { width, height } = iconDimensions(className);
   return (
-    <svg className={iconClass("h-6 w-6", className)} viewBox="0 0 24 24" aria-hidden {...stroke}>
+    <svg
+      className={iconClass("h-6 w-6", className)}
+      width={width}
+      height={height}
+      viewBox="0 0 24 24"
+      aria-hidden
+      {...stroke}
+    >
       <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01M9 13h.01M15 13h.01" />
     </svg>
   );

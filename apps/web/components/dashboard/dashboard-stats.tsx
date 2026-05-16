@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import { resolveNavIcon, type NavIconKey } from "@/components/layout/nav-icons";
 
 gsap.registerPlugin(useGSAP);
 
@@ -10,6 +11,7 @@ export type StatItem = {
   id: string;
   label: string;
   value: string;
+  iconKey?: NavIconKey;
 };
 
 type Props = {
@@ -35,18 +37,24 @@ export function DashboardStats({ items }: Props) {
 
   return (
     <div ref={gridRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => (
-        <article
-          key={item.id}
-          data-stat-card
-          className="ap-card-interactive p-6"
-        >
-          <p className="text-sm font-medium text-[var(--ap-muted)]">{item.label}</p>
-          <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-[var(--foreground)]">
-            {item.value}
-          </p>
-        </article>
-      ))}
+      {items.map((item) => {
+        const Icon = resolveNavIcon(item.iconKey ?? item.id);
+        return (
+          <article key={item.id} data-stat-card className="ap-card-interactive p-6">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm font-medium text-[var(--ap-muted)]">{item.label}</p>
+              {Icon ? (
+                <span className="ap-icon-tile !h-9 !w-9 shrink-0" aria-hidden>
+                  <Icon className="h-4 w-4" strokeWidth={1.75} />
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-[var(--foreground)]">
+              {item.value}
+            </p>
+          </article>
+        );
+      })}
     </div>
   );
 }

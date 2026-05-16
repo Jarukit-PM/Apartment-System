@@ -1,5 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ClipboardList, Plus } from "lucide-react";
 import { ActionForm } from "@/components/ui/action-form";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge, statusVariant } from "@/components/ui/status-badge";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { createLease, updateLeaseStatus } from "@/lib/actions/portal";
 import { apiGetJsonAuthed } from "@/lib/api/server";
@@ -24,26 +29,16 @@ export default async function LeasesPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-10">
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("subtitle")}</p>
-      </div>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={ClipboardList} />
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">{t("addTitle")}</h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{t("addHint")}</p>
-        <div className="mt-4 max-w-2xl">
+      <SectionCard title={t("addTitle")} description={t("addHint")} icon={Plus}>
+        <div className="max-w-2xl">
           <ActionForm action={createLease} locale={locale} submitLabel={t("addSubmit")}>
             <div>
-              <label htmlFor="unitId" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label htmlFor="unitId" className="ap-label">
                 {t("unit")}
               </label>
-              <select
-                id="unitId"
-                name="unitId"
-                required
-                className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-              >
+              <select id="unitId" name="unitId" required className="ap-select">
                 <option value="">{t("pickUnit")}</option>
                 {units.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -53,7 +48,7 @@ export default async function LeasesPage({ params }: PageProps) {
               </select>
             </div>
             <div>
-              <label htmlFor="residentIds" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label htmlFor="residentIds" className="ap-label">
                 {t("residents")}
               </label>
               <input
@@ -61,53 +56,37 @@ export default async function LeasesPage({ params }: PageProps) {
                 name="residentIds"
                 required
                 placeholder={t("residentsPh")}
-                className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 font-mono text-sm dark:border-zinc-600 dark:bg-zinc-950"
+                className="ap-input font-mono text-sm"
               />
-              <p className="mt-1 text-xs text-zinc-500">{t("residentsHelp")}</p>
+              <p className="mt-1 text-xs text-[var(--ap-muted)]">{t("residentsHelp")}</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="startDate" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="startDate" className="ap-label">
                   {t("start")}
                 </label>
-                <input
-                  id="startDate"
-                  name="startDate"
-                  type="datetime-local"
-                  required
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-                />
+                <input id="startDate" name="startDate" type="datetime-local" required className="ap-input" />
               </div>
               <div>
-                <label htmlFor="endDate" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="endDate" className="ap-label">
                   {t("end")}
                 </label>
-                <input
-                  id="endDate"
-                  name="endDate"
-                  type="datetime-local"
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-                />
+                <input id="endDate" name="endDate" type="datetime-local" className="ap-input" />
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="status" className="ap-label">
                   {t("status")}
                 </label>
-                <select
-                  id="status"
-                  name="status"
-                  defaultValue="draft"
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-                >
+                <select id="status" name="status" defaultValue="draft" className="ap-select">
                   <option value="draft">draft</option>
                   <option value="active">active</option>
                   <option value="ended">ended</option>
                 </select>
               </div>
               <div>
-                <label htmlFor="rentAmount" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="rentAmount" className="ap-label">
                   {t("rentAmount")}
                 </label>
                 <input
@@ -116,69 +95,62 @@ export default async function LeasesPage({ params }: PageProps) {
                   type="number"
                   step="0.01"
                   defaultValue={0}
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
+                  className="ap-input"
                 />
               </div>
               <div>
-                <label htmlFor="rentCurrency" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="rentCurrency" className="ap-label">
                   {t("currency")}
                 </label>
-                <input
-                  id="rentCurrency"
-                  name="rentCurrency"
-                  defaultValue="THB"
-                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-                />
+                <input id="rentCurrency" name="rentCurrency" defaultValue="THB" className="ap-input" />
               </div>
             </div>
           </ActionForm>
         </div>
-      </section>
+      </SectionCard>
 
       <section>
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">{t("listTitle")}</h2>
+        <h2 className="ap-eyebrow">{t("listTitle")}</h2>
         {!leasesRes.ok ? (
-          <p className="mt-4 text-sm text-red-600">{t("listError")}</p>
+          <p className="ap-alert-error mt-4">{t("listError")}</p>
         ) : leases.length === 0 ? (
-          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">{t("empty")}</p>
+          <div className="mt-4">
+            <EmptyState icon={ClipboardList} title={t("empty")} />
+          </div>
         ) : (
           <ul className="mt-4 space-y-4">
             {leases.map((lease) => (
-              <li
-                key={lease.id}
-                className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <li key={lease.id} className="ap-card p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                      {t("leaseLine", { status: lease.status })}
-                    </p>
-                    <p className="mt-1 font-mono text-xs text-zinc-500">{lease.id}</p>
-                    <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-[var(--foreground)]">
+                        {t("leaseLine", { status: lease.status })}
+                      </p>
+                      <StatusBadge variant={statusVariant(lease.status)}>{lease.status}</StatusBadge>
+                    </div>
+                    <p className="mt-1 font-mono text-xs text-[var(--ap-muted)]">{lease.id}</p>
+                    <p className="mt-2 text-sm text-[var(--ap-muted)]">
                       {t("unitId")}: <span className="font-mono">{lease.unitId}</span>
                     </p>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <p className="text-sm text-[var(--ap-muted)]">
                       {t("rent")}: {lease.rent.amount} {lease.rent.currency}
                     </p>
                   </div>
                   <form action={updateLeaseStatus} className="flex flex-wrap items-end gap-2">
                     <input type="hidden" name="locale" value={locale} />
                     <input type="hidden" name="id" value={lease.id} />
-                    <div>
-                      <label className="sr-only" htmlFor={`st-${lease.id}`}>
-                        {t("status")}
-                      </label>
-                      <select
-                        id={`st-${lease.id}`}
-                        name="status"
-                        defaultValue={lease.status}
-                        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-                      >
-                        <option value="draft">draft</option>
-                        <option value="active">active</option>
-                        <option value="ended">ended</option>
-                      </select>
-                    </div>
+                    <select
+                      id={`st-${lease.id}`}
+                      name="status"
+                      defaultValue={lease.status}
+                      className="ap-select !w-auto min-w-[9rem]"
+                      aria-label={t("status")}
+                    >
+                      <option value="draft">draft</option>
+                      <option value="active">active</option>
+                      <option value="ended">ended</option>
+                    </select>
                     <SubmitButton label={t("saveStatus")} variant="ghost" />
                   </form>
                 </div>
@@ -189,9 +161,9 @@ export default async function LeasesPage({ params }: PageProps) {
       </section>
 
       {residents.length > 0 ? (
-        <section className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm dark:border-zinc-600">
-          <p className="font-medium text-zinc-800 dark:text-zinc-200">{t("residentRef")}</p>
-          <ul className="mt-2 space-y-1 font-mono text-xs text-zinc-600 dark:text-zinc-400">
+        <section className="ap-card border-dashed p-5">
+          <p className="ap-eyebrow">{t("residentRef")}</p>
+          <ul className="mt-3 space-y-1 font-mono text-xs text-[var(--ap-muted)]">
             {residents.map((r) => (
               <li key={r.id}>
                 {r.id} — {r.fullName}

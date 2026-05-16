@@ -1,7 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Building2, Plus } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ActionForm } from "@/components/ui/action-form";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { PropertyImage } from "@/components/entities/entity-image";
 import { createProperty, deleteProperty } from "@/lib/actions/portal";
@@ -20,10 +23,9 @@ export default async function PropertiesPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-10">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={Building2} />
 
-      <section className="ap-card p-6 md:p-8">
-        <h2 className="text-lg font-semibold tracking-tight text-[var(--foreground)]">{t("addTitle")}</h2>
+      <SectionCard title={t("addTitle")} icon={Plus}>
         <div className="mt-4 max-w-md">
           <ActionForm action={createProperty} locale={locale} submitLabel={t("addSubmit")}>
             <div>
@@ -34,14 +36,16 @@ export default async function PropertiesPage({ params }: PageProps) {
             </div>
           </ActionForm>
         </div>
-      </section>
+      </SectionCard>
 
       <section>
-        <h2 className="text-lg font-semibold tracking-tight text-[var(--foreground)]">{t("listTitle")}</h2>
+        <h2 className="ap-eyebrow">{t("listTitle")}</h2>
         {!res.ok ? (
-          <p className="mt-4 text-sm text-red-600">{t("listError")}</p>
+          <p className="ap-alert-error mt-4">{t("listError")}</p>
         ) : list.length === 0 ? (
-          <p className="mt-4 text-sm text-[var(--ap-muted)]">{t("empty")}</p>
+          <div className="mt-4">
+            <EmptyState icon={Building2} title={t("empty")} />
+          </div>
         ) : (
           <ul className="ap-card mt-4 divide-y divide-[var(--ap-border)] overflow-hidden">
             {list.map((p) => (

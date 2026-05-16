@@ -42,7 +42,7 @@ async function setUiLocaleCookie(locale: string) {
   });
 }
 
-export type LoginState = { ok: boolean; message: string };
+export type LoginState = { ok: boolean; message: string; redirectTo?: string };
 
 /** `next` is a locale-free app path (e.g. `/properties/1`). */
 function postAuthPath(next: string, roles: string[]): string {
@@ -98,7 +98,7 @@ export async function loginPasswordAction(
   if (roles.includes("resident")) {
     revalidatePath(`/${locale}/my`, "layout");
   }
-  redirect(destPath);
+  return { ok: true, message: "", redirectTo: destPath };
 }
 
 export async function registerResidentAction(
@@ -132,7 +132,11 @@ export async function registerResidentAction(
   redirect("/my");
 }
 
-export async function loginGoogleAction(idToken: string, locale: string, next?: string): Promise<void> {
+export async function loginGoogleAction(
+  idToken: string,
+  locale: string,
+  next?: string,
+): Promise<{ redirectTo: string } | { error: true }> {
   const res = await fetch(`${apiBaseUrl()}/v1/auth/oauth/google`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -144,7 +148,7 @@ export async function loginGoogleAction(idToken: string, locale: string, next?: 
     error?: { message?: string };
   } | null;
   if (!res.ok || !body?.data) {
-    redirect("/?error=google");
+    return { error: true };
   }
   await applyTokenCookies(body.data);
   const roles = body.data.user?.roles ?? [];
@@ -157,7 +161,7 @@ export async function loginGoogleAction(idToken: string, locale: string, next?: 
   if (roles.includes("resident")) {
     revalidatePath(`/${locale}/my`, "layout");
   }
-  redirect(destPath);
+  return { redirectTo: destPath };
 }
 
 export async function logoutFormAction(formData: FormData): Promise<never> {

@@ -42,7 +42,9 @@ export async function walletTopUp(_prev: ActionState, formData: FormData): Promi
   if (!res.ok) {
     return fail(res.error?.message ?? "Top-up failed");
   }
+  revalidatePath(`/${locale}/my`, "layout");
   revalidatePath(`/${locale}/my/wallet`, "page");
+  revalidatePath(`/${locale}`, "layout");
   revalidatePath(`/${locale}/wallet`, "page");
   return ok();
 }
@@ -66,7 +68,9 @@ export async function walletTransfer(_prev: ActionState, formData: FormData): Pr
   if (!res.ok) {
     return fail(res.error?.message ?? "Transfer failed");
   }
+  revalidatePath(`/${locale}/my`, "layout");
   revalidatePath(`/${locale}/my/wallet`, "page");
+  revalidatePath(`/${locale}`, "layout");
   revalidatePath(`/${locale}/wallet`, "page");
   return ok();
 }

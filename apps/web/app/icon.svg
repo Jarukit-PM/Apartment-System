@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Apartment System">
+  <rect width="32" height="32" rx="7" fill="#f5f2eb"/>
+  <path
+    fill="none"
+    stroke="#9a7b3c"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    d="M4 26h24M7 26V11l9-5 9 5v15M12 26v-5h8v5M12 14h.01M20 14h.01M12 18h.01M20 18h.01"
+  />
+</svg>

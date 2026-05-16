@@ -3,7 +3,7 @@ import { logoutFormAction } from "@/lib/auth/actions";
 
 type Props = {
   locale: string;
-  variant?: "default" | "sidebar";
+  variant?: "default" | "sidebar" | "profile";
 };
 
 export async function LogoutForm({ locale, variant = "default" }: Props) {
@@ -12,7 +12,9 @@ export async function LogoutForm({ locale, variant = "default" }: Props) {
   const buttonClass =
     variant === "sidebar"
       ? "ap-btn ap-btn-secondary w-full !rounded-[0.75rem] !py-2.5 text-sm"
-      : "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-800 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800";
+      : variant === "profile"
+        ? "ap-btn ap-btn-secondary shrink-0 text-sm"
+        : "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-800 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800";
 
   return (
     <form action={logoutFormAction} className={variant === "sidebar" ? "w-full" : "inline"}>

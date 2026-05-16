@@ -1,10 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
 import { AuthFormError } from "@/components/auth/auth-form-error";
+import { AuthNavigatingOverlay } from "@/components/auth/auth-navigating-overlay";
 import { IconLogIn, IconMail } from "@/components/auth/auth-icons";
 import { PasswordInput } from "@/components/ui/password-input";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { useRouter } from "@/i18n/navigation";
 import { loginPasswordAction, type LoginState } from "@/lib/auth/actions";
 
 const initial: LoginState = { ok: true, message: "" };
@@ -18,22 +21,34 @@ type Props = {
   submitLabel: string;
   showPasswordLabel: string;
   hidePasswordLabel: string;
+  navigatingLabel?: string;
 };
 
-export function LoginPasswordForm({
+type FieldsProps = Omit<Props, "locale" | "next"> & {
+  locale: string;
+  next?: string;
+  state: LoginState;
+  navigatingLabel: string;
+};
+
+function LoginFormFields({
   locale,
   next,
+  state,
   formLabel,
   emailLabel,
   passwordLabel,
   submitLabel,
   showPasswordLabel,
   hidePasswordLabel,
-}: Props) {
-  const [state, formAction] = useActionState(loginPasswordAction, initial);
+  navigatingLabel,
+}: FieldsProps) {
+  const { pending } = useFormStatus();
+  const showOverlay = pending || Boolean(state.redirectTo);
 
   return (
-    <form action={formAction} className="space-y-5" aria-label={formLabel}>
+    <>
+      {showOverlay ? <AuthNavigatingOverlay label={navigatingLabel} /> : null}
       <input type="hidden" name="locale" value={locale} />
       {next ? <input type="hidden" name="next" value={next} /> : null}
 
@@ -71,6 +86,42 @@ export function LoginPasswordForm({
       <div className="pt-1 [&_button]:w-full [&_button]:gap-2">
         <SubmitButton label={submitLabel} icon={<IconLogIn />} />
       </div>
+    </>
+  );
+}
+
+export function LoginPasswordForm({
+  locale,
+  next,
+  formLabel,
+  emailLabel,
+  passwordLabel,
+  submitLabel,
+  showPasswordLabel,
+  hidePasswordLabel,
+  navigatingLabel = "Signing you in",
+}: Props) {
+  const router = useRouter();
+  const [state, formAction] = useActionState(loginPasswordAction, initial);
+  useEffect(() => {
+    if (!state.redirectTo) return;
+    router.replace(state.redirectTo);
+  }, [state.redirectTo, router]);
+
+  return (
+    <form action={formAction} className="space-y-5" aria-label={formLabel}>
+      <LoginFormFields
+        locale={locale}
+        next={next}
+        state={state}
+        formLabel={formLabel}
+        emailLabel={emailLabel}
+        passwordLabel={passwordLabel}
+        submitLabel={submitLabel}
+        showPasswordLabel={showPasswordLabel}
+        hidePasswordLabel={hidePasswordLabel}
+        navigatingLabel={navigatingLabel}
+      />
     </form>
   );
 }

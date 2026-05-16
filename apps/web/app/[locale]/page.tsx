@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { AuthImmersiveShell } from "@/components/auth/auth-immersive-shell";
+import { AuthPageShell } from "@/components/auth/auth-page-shell";
 import { LoginPanel } from "@/components/auth/login-panel";
 import { getSessionUser } from "@/lib/auth/session-user";
 import { isSafeAppPath } from "@/lib/auth/url-guards";
@@ -27,8 +27,8 @@ export default async function HomePage({ params, searchParams }: PageProps) {
   const next = sp.next && isSafeAppPath(sp.next) ? sp.next : undefined;
 
   return (
-    <AuthImmersiveShell>
+    <AuthPageShell variant="login">
       <LoginPanel locale={locale} next={next} error={sp.error} />
-    </AuthImmersiveShell>
+    </AuthPageShell>
   );
 }
