@@ -81,6 +81,9 @@ Terminal 2 — API (uses `PORT`, `MONGODB_URI`, `JWT_SECRET`, and `CORS_ORIGINS`
 
 ```bash
 cd services/api
+# Live reload on .go changes (install once: go install github.com/air-verse/air@latest)
+air
+# Or without reload:
 go run ./cmd/server
 ```
 
