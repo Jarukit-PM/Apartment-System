@@ -21,7 +21,7 @@ export default async function MyProfilePage({ params }: PageProps) {
   if (!summaryRes.ok) {
     return (
       <div className="mx-auto max-w-xl space-y-4">
-        <PageHeader title={t("title")} subtitle={t("subtitle")} />
+        <PageHeader title={t("title")} />
         <p className="text-sm text-red-600">
           {summaryRes.status === 403 ? t("forbidden") : t("loadError")}
         </p>

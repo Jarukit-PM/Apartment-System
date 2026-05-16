@@ -52,7 +52,7 @@ export default async function MyMaintenancePage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <PageHeader title={t("maintenanceTitle")} subtitle={t("maintenanceSubtitle")} icon={Wrench} />
+      <PageHeader title={t("maintenanceTitle")} icon={Wrench} />
 
       <SectionCard title={t("newRequestTitle")} icon={Plus}>
         {unitChoices.length === 0 ? (

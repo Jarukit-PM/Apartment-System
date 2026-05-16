@@ -47,7 +47,7 @@ export default async function MyRentPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={Home} />
+      <PageHeader title={t("title")} icon={Home} />
 
       {units.length === 0 ? (
         <EmptyState icon={Home} title={t("empty")} />

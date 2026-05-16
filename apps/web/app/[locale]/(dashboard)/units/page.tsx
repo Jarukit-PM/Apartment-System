@@ -61,7 +61,7 @@ export default async function UnitsPage({ params, searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader title={t("title")} subtitle={t("subtitle")} icon={Home} />
+        <PageHeader title={t("title")} icon={Home} />
         <Link href={newUnitHref} className="ap-btn ap-btn-primary shrink-0 self-start">
           <Plus className="h-4 w-4" strokeWidth={1.75} aria-hidden />
           {t("addUnitCta")}

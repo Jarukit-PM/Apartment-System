@@ -59,7 +59,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         <Link href="/properties" className="text-sm text-[var(--ap-gold-deep)] hover:underline">
           ← {t("back")}
         </Link>
-        <PageHeader title={t("editTitle")} subtitle={t("editSubtitle")} />
+        <PageHeader title={t("editTitle")} />
       </div>
 
       <section className="ap-card p-6 md:p-8">

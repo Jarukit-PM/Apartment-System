@@ -11,7 +11,7 @@ import {
 
 export type OccupancyCalendarLabels = {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   prevMonth: string;
   nextMonth: string;
   vacancy: string;
@@ -95,7 +95,9 @@ export function UnitOccupancyCalendar({ locale, leases, labels }: UnitOccupancyC
     <div className="space-y-6">
       <div>
         <h2 className="ap-eyebrow">{labels.title}</h2>
-        <p className="mt-1 text-sm text-[var(--ap-muted)]">{labels.subtitle}</p>
+        {labels.subtitle ? (
+          <p className="mt-1 text-sm text-[var(--ap-muted)]">{labels.subtitle}</p>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-between gap-3">

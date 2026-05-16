@@ -29,7 +29,7 @@ export default async function LeasesPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-10">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={ClipboardList} />
+      <PageHeader title={t("title")} icon={ClipboardList} />
 
       <SectionCard title={t("addTitle")} description={t("addHint")} icon={Plus}>
         <div className="max-w-2xl">

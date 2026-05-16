@@ -84,7 +84,7 @@ export default async function DashboardPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-12">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={LayoutDashboard} />
+      <PageHeader title={t("title")} icon={LayoutDashboard} />
 
       <section aria-labelledby="stats-heading">
         <h2 id="stats-heading" className="sr-only">

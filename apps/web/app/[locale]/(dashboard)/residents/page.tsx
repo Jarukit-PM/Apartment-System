@@ -31,7 +31,7 @@ export default async function ResidentsPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-10">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={Users} />
+      <PageHeader title={t("title")} icon={Users} />
 
       <SectionCard title={t("addTitle")} icon={Plus} eyebrow>
         <div className="mt-4 max-w-lg">

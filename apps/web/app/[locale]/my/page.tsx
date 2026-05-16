@@ -19,7 +19,7 @@ export default async function MySummaryPage({ params }: PageProps) {
     if (res.status === 403) {
       return (
         <div className="mx-auto max-w-xl space-y-4">
-          <PageHeader title={t("summaryTitle")} subtitle={t("forbiddenHint")} icon={LayoutDashboard} />
+          <PageHeader title={t("summaryTitle")} icon={LayoutDashboard} />
         </div>
       );
     }
@@ -50,11 +50,7 @@ export default async function MySummaryPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <PageHeader
-        title={t("summaryTitle")}
-        subtitle={t("greeting", { name: me.resident.fullName })}
-        icon={LayoutDashboard}
-      />
+      <PageHeader title={t("summaryTitle")} icon={LayoutDashboard} />
 
       <SectionCard title={t("profileSection")} icon={Mail} eyebrow>
         <dl className="grid gap-4 text-sm sm:grid-cols-2">

@@ -37,7 +37,7 @@ export async function WalletPanel({ locale }: { locale: string }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <PageHeader title={t("walletTitle")} subtitle={t("walletSubtitle")} icon={Wallet} />
+      <PageHeader title={t("walletTitle")} icon={Wallet} />
 
       <section className="ap-card ap-card-interactive p-8">
         <p className="ap-eyebrow">{t("walletBalanceSection")}</p>

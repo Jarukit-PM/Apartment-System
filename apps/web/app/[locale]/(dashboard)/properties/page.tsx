@@ -23,7 +23,7 @@ export default async function PropertiesPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-10">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} icon={Building2} />
+      <PageHeader title={t("title")} icon={Building2} />
 
       <SectionCard title={t("addTitle")} icon={Plus}>
         <div className="mt-4 max-w-md">

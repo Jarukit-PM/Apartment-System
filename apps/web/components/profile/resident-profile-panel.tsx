@@ -76,7 +76,6 @@ export async function ResidentProfilePanel({
     <div className="mx-auto max-w-3xl space-y-8">
       <ProfileHero
         fullName={me.resident.fullName}
-        subtitle={t("greeting", { name: me.resident.fullName })}
         meta={
           <span className="inline-flex items-center gap-2">
             <Mail className="h-4 w-4 text-[var(--ap-gold-deep)]" strokeWidth={1.75} aria-hidden />

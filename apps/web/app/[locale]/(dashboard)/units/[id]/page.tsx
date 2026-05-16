@@ -97,7 +97,7 @@ export default async function UnitDetailPage({ params }: PageProps) {
         <Link href="/units" className="text-sm text-[var(--ap-gold-deep)] hover:underline">
           ← {t("back")}
         </Link>
-        <PageHeader title={unit.label} subtitle={t("editSubtitle")} />
+        <PageHeader title={unit.label} />
         <p className="mt-1 text-sm text-[var(--ap-muted)]">
           {propertyName ? (
             <>
@@ -168,7 +168,6 @@ export default async function UnitDetailPage({ params }: PageProps) {
             leases={occupancyLeases}
             labels={{
               title: t("occupancyTitle"),
-              subtitle: t("occupancySubtitle"),
               prevMonth: t("occupancyPrevMonth"),
               nextMonth: t("occupancyNextMonth"),
               vacancy: t("occupancyVacancy"),

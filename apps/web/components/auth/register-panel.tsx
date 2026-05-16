@@ -13,7 +13,7 @@ export async function RegisterPanel({ locale }: Props) {
 
   return (
     <article className="ap-glass-elevated w-full rounded-[var(--ap-radius-lg)] p-8 md:p-10">
-      <AuthCardHeader title={t("registerTitle")} subtitle={t("registerSubtitle")} variant="register" />
+      <AuthCardHeader title={t("registerTitle")} variant="register" />
 
       <div className="mt-8">
         <RegisterResidentForm

@@ -50,7 +50,6 @@ export async function AdminAccountPanel({ locale, user }: Props) {
     <div className="mx-auto max-w-3xl space-y-8">
       <ProfileHero
         fullName={user.displayName}
-        subtitle={t("adminSubtitle")}
         meta={<span>{user.email}</span>}
         badges={<StatusBadge>{roleLabel}</StatusBadge>}
       />

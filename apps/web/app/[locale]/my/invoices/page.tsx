@@ -36,7 +36,7 @@ export default async function MyInvoicesPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader title={t("invoicesTitle")} subtitle={t("invoicesSubtitle")} icon={Receipt} />
+      <PageHeader title={t("invoicesTitle")} icon={Receipt} />
 
       {rows.length === 0 ? (
         <EmptyState icon={Receipt} title={t("invoicesEmpty")} />

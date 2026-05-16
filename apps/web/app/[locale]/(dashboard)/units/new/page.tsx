@@ -33,7 +33,7 @@ export default async function NewUnitPage({ params, searchParams }: PageProps) {
         <Link href={unitsBackHref} className="text-sm text-[var(--ap-gold-deep)] hover:underline">
           ← {t("back")}
         </Link>
-        <PageHeader title={t("addUnitTitle")} subtitle={t("addUnitHint")} />
+        <PageHeader title={t("addUnitTitle")} />
       </div>
 
       <section className="ap-card p-6 md:p-8">

@@ -16,7 +16,7 @@ export default async function AccountPage({ params }: PageProps) {
   if (!user) {
     return (
       <div className="mx-auto max-w-xl">
-        <PageHeader title={t("title")} subtitle={t("subtitle")} />
+        <PageHeader title={t("title")} />
         <p className="mt-4 text-sm text-[var(--ap-muted)]">{t("notSignedIn")}</p>
       </div>
     );

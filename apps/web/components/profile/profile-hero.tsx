@@ -3,7 +3,7 @@ import { profileInitials } from "@/lib/domain/profile-initials";
 
 type Props = {
   fullName: string;
-  subtitle: string;
+  subtitle?: string;
   meta?: ReactNode;
   badges?: ReactNode;
 };
@@ -19,7 +19,7 @@ export function ProfileHero({ fullName, subtitle, meta, badges }: Props) {
         </span>
         <div className="min-w-0 flex-1">
           <h1 className="ap-display text-2xl md:text-3xl">{fullName}</h1>
-          <p className="mt-1 text-sm text-[var(--ap-muted)]">{subtitle}</p>
+          {subtitle ? <p className="mt-1 text-sm text-[var(--ap-muted)]">{subtitle}</p> : null}
           {meta ? <div className="mt-2 text-sm text-[var(--foreground)]">{meta}</div> : null}
           {badges ? <div className="mt-3 flex flex-wrap gap-2">{badges}</div> : null}
         </div>

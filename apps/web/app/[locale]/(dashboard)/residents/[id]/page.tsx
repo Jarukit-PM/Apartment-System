@@ -74,7 +74,7 @@ export default async function ResidentDetailPage({ params }: PageProps) {
         <Link href="/residents" className="text-sm text-[var(--ap-gold-deep)] hover:underline">
           ← {t("back")}
         </Link>
-        <PageHeader title={resident.fullName} subtitle={resident.email} />
+        <PageHeader title={resident.fullName} />
         {resident.phone ? (
           <p className="mt-1 text-sm text-[var(--ap-muted)]">{resident.phone}</p>
         ) : null}
@@ -125,7 +125,6 @@ export default async function ResidentDetailPage({ params }: PageProps) {
             stays={stays}
             labels={{
               title: t("calendarTitle"),
-              subtitle: t("calendarSubtitle"),
               prevMonth: t("prevMonth"),
               nextMonth: t("nextMonth"),
               noStay: t("noStay"),
