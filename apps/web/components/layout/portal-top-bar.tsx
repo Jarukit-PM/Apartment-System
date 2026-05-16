@@ -38,6 +38,8 @@ export function PortalTopBar({
     fallbackTitle: consoleTitle,
     detailsLabel,
   });
+  const isLeafPage = crumbs.length === 1 && crumbs[0]?.href === pathname;
+  const showMobileTitle = !isLeafPage || title !== crumbs[0]?.label;
 
   return (
     <header className="ap-topbar">
@@ -47,7 +49,7 @@ export function PortalTopBar({
             type="button"
             className="ap-sidebar-menu-btn shrink-0"
             aria-expanded={menuExpanded}
-            aria-controls="portal-sidebar"
+            aria-controls={menuExpanded ? "portal-sidebar-mobile" : "portal-sidebar"}
             onClick={onMenuClick}
           >
             {menuExpanded ? (
@@ -96,9 +98,11 @@ export function PortalTopBar({
               </Fragment>
             ))}
           </ol>
-          <p className="mt-0.5 truncate text-lg font-semibold tracking-tight text-[var(--foreground)] sm:hidden">
-            {title}
-          </p>
+          {showMobileTitle ? (
+            <p className="mt-0.5 truncate text-lg font-semibold tracking-tight text-[var(--foreground)] sm:hidden">
+              {title}
+            </p>
+          ) : null}
         </nav>
 
         {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}

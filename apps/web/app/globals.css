@@ -68,7 +68,8 @@ body {
     radial-gradient(ellipse 45% 35% at 0% 100%, rgba(196, 160, 82, 0.08), transparent 45%);
 }
 
-.ap-ambient-bg > * {
+/* Keep page content above the ambient ::before layer; never override fixed drawer/scrim. */
+.ap-ambient-bg > :not(#portal-sidebar):not(#portal-sidebar-mobile):not(.ap-portal-scrim):not(.ap-portal-sidebar-drawer) {
   position: relative;
   z-index: 1;
 }
@@ -655,13 +656,48 @@ h1.ap-headline {
   transform: translateX(0);
 }
 
+/* Mobile drawer: viewport-fixed overlay above main content. */
+@media (max-width: 767px) {
+  /* .ap-sidebar { display:flex } must not override Tailwind `hidden` on the desktop aside */
+  #portal-sidebar.ap-sidebar {
+    display: none !important;
+  }
+
+  .ap-portal-sidebar-drawer.ap-sidebar {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    display: flex;
+    width: min(18rem, 88vw);
+    max-width: 18rem;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .ap-portal-scrim {
+    position: fixed !important;
+    inset: 0;
+    z-index: 90;
+    pointer-events: auto;
+  }
+
+  .ap-portal-main .ap-topbar {
+    position: relative;
+    z-index: 110;
+    pointer-events: auto;
+  }
+}
+
 @media (min-width: 768px) {
-  .ap-sidebar {
+  #portal-sidebar.ap-sidebar {
     position: sticky;
     top: 0;
     z-index: 20;
     height: 100dvh;
     flex-shrink: 0;
+    pointer-events: auto;
     transform: none;
     box-shadow: none;
     transition:

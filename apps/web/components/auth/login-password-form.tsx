@@ -1,13 +1,12 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { AuthFormError } from "@/components/auth/auth-form-error";
 import { AuthNavigatingOverlay } from "@/components/auth/auth-navigating-overlay";
 import { IconLogIn, IconMail } from "@/components/auth/auth-icons";
 import { PasswordInput } from "@/components/ui/password-input";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { useRouter } from "@/i18n/navigation";
 import { loginPasswordAction, type LoginState } from "@/lib/auth/actions";
 
 const initial: LoginState = { ok: true, message: "" };
@@ -44,7 +43,7 @@ function LoginFormFields({
   navigatingLabel,
 }: FieldsProps) {
   const { pending } = useFormStatus();
-  const showOverlay = pending || Boolean(state.redirectTo);
+  const showOverlay = pending;
 
   return (
     <>
@@ -101,12 +100,7 @@ export function LoginPasswordForm({
   hidePasswordLabel,
   navigatingLabel = "Signing you in",
 }: Props) {
-  const router = useRouter();
   const [state, formAction] = useActionState(loginPasswordAction, initial);
-  useEffect(() => {
-    if (!state.redirectTo) return;
-    router.replace(state.redirectTo);
-  }, [state.redirectTo, router]);
 
   return (
     <form action={formAction} className="space-y-5" aria-label={formLabel}>

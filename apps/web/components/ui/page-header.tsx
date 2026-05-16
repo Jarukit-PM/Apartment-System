@@ -6,11 +6,15 @@ type Props = {
   subtitle?: string;
   icon?: LucideIcon;
   actions?: ReactNode;
+  /** When the portal top bar already shows the page title on small screens. */
+  hideTitleOnMobile?: boolean;
 };
 
-export function PageHeader({ title, subtitle, icon: Icon, actions }: Props) {
+export function PageHeader({ title, subtitle, icon: Icon, actions, hideTitleOnMobile }: Props) {
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <header
+      className={`flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between${hideTitleOnMobile ? " max-md:hidden" : ""}`}
+    >
       <div className="flex min-w-0 items-start gap-4">
         {Icon ? (
           <span className="ap-icon-tile ap-icon-tile-lg shrink-0" aria-hidden>
