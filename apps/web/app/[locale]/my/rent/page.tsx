@@ -1,9 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ActionForm } from "@/components/action-form";
-import { UnitImage } from "@/components/entity-image";
-import { selfLeaseAction } from "@/lib/resident-lease-actions";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import type { AvailableUnit, ListWrapper } from "@/lib/types";
+import { ActionForm } from "@/components/ui/action-form";
+import { UnitImage } from "@/components/entities/entity-image";
+import { selfLeaseAction } from "@/lib/actions/resident-lease";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import type { AvailableUnit, ListWrapper } from "@/lib/api/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
 

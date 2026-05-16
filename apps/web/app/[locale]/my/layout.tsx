@@ -1,8 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { PortalNav } from "@/components/portal-nav";
-import { PortalShell } from "@/components/portal-shell";
-import { SidebarUserPanel } from "@/components/sidebar-user-panel";
-import { enrichSessionUser, getSessionUser } from "@/lib/session-user";
+import { PortalNav } from "@/components/layout/portal-nav";
+import { PortalShell } from "@/components/layout/portal-shell";
+import { SidebarUserPanelSlot } from "@/components/layout/sidebar-user-panel-slot";
+import { getSessionUser } from "@/lib/auth/session-user";
 
 const links = [
   { href: "/my", key: "summary" as const },
@@ -22,8 +22,7 @@ export default async function MyPortalLayout({ children, params }: LayoutProps) 
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("MyPortal");
-  const rawUser = await getSessionUser();
-  const user = rawUser ? await enrichSessionUser(rawUser) : null;
+  const user = await getSessionUser();
   const isAdmin = user?.isAdmin ?? false;
 
   const navItems = links.map((l) => ({
@@ -41,7 +40,7 @@ export default async function MyPortalLayout({ children, params }: LayoutProps) 
       title={t("title")}
       nav={<PortalNav items={navItems} ariaLabel={t("navLabel")} />}
       sidebarFooter={
-        <SidebarUserPanel
+        <SidebarUserPanelSlot
           user={user}
           locale={locale}
           profileHref="/my/profile"

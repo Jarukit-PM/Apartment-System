@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import type { Invoice, ListWrapper } from "@/lib/types";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import type { Invoice, ListWrapper } from "@/lib/api/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
 

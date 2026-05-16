@@ -1,4 +1,4 @@
-import { AuthCardSkeleton } from "@/components/skeleton";
+import { AuthCardSkeleton } from "@/components/ui/skeleton";
 
 export default function AuthLoading() {
   return <AuthCardSkeleton />;

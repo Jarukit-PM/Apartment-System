@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { PageHeader } from "@/components/page-header";
-import { ResidentOccupancyCalendar } from "@/components/resident-occupancy-calendar";
+import { PageHeader } from "@/components/ui/page-header";
+import { ResidentOccupancyCalendar } from "@/components/occupancy/resident-occupancy-calendar";
 import {
   currentActiveStay,
   leasesToResidentStays,
   unitDisplayMap,
-} from "@/lib/resident-occupancy";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import type { Lease, ListWrapper, Property, Resident, SingleWrapper, Unit } from "@/lib/types";
+} from "@/lib/domain/resident-occupancy";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import type { Lease, ListWrapper, Property, Resident, SingleWrapper, Unit } from "@/lib/api/types";
 
 type PageProps = { params: Promise<{ locale: string; id: string }> };
 

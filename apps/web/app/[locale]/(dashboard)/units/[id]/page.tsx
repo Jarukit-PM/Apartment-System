@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ActionForm } from "@/components/action-form";
-import { PageHeader } from "@/components/page-header";
-import { PeriodOfferFields } from "@/components/period-offer-fields";
-import { EntityImageUpload } from "@/components/entity-image-upload";
-import { UnitImage } from "@/components/entity-image";
-import { UnitOccupancyCalendar } from "@/components/unit-occupancy-calendar";
-import { patchUnit, removeUnitImage, uploadUnitImage } from "@/lib/portal-actions";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import { leasesToOccupancy, residentNameMap } from "@/lib/unit-occupancy";
-import type { Lease, ListWrapper, Property, Resident, SingleWrapper, Unit } from "@/lib/types";
+import { ActionForm } from "@/components/ui/action-form";
+import { PageHeader } from "@/components/ui/page-header";
+import { PeriodOfferFields } from "@/components/units/period-offer-fields";
+import { EntityImageUpload } from "@/components/entities/entity-image-upload";
+import { UnitImage } from "@/components/entities/entity-image";
+import { UnitOccupancyCalendar } from "@/components/occupancy/unit-occupancy-calendar";
+import { patchUnit, removeUnitImage, uploadUnitImage } from "@/lib/actions/portal";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import { leasesToOccupancy, residentNameMap } from "@/lib/domain/unit-occupancy";
+import type { Lease, ListWrapper, Property, Resident, SingleWrapper, Unit } from "@/lib/api/types";
 
 type PageProps = { params: Promise<{ locale: string; id: string }> };
 

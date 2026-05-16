@@ -1,8 +1,8 @@
 import createMiddleware from "next-intl/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { verifyAccessToken } from "@/lib/access-token";
-import { ADMIN_REST_PREFIXES } from "@/lib/admin-paths";
+import { verifyAccessToken } from "@/lib/auth/access-token";
+import { ADMIN_REST_PREFIXES } from "@/lib/auth/admin-paths";
 import { routing } from "./i18n/routing";
 
 const handleI18n = createMiddleware(routing);
@@ -41,7 +41,7 @@ export default function proxy(request: NextRequest) {
   if (pathname === "/my" || pathname.startsWith("/my/")) {
     if (!request.cookies.get("as_access")) {
       const url = request.nextUrl.clone();
-      url.pathname = "/login";
+      url.pathname = "/";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
@@ -53,7 +53,7 @@ export default function proxy(request: NextRequest) {
       const raw = request.cookies.get("as_access")?.value;
       if (!raw) {
         const url = request.nextUrl.clone();
-        url.pathname = "/login";
+        url.pathname = "/";
         url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
       }
@@ -61,7 +61,7 @@ export default function proxy(request: NextRequest) {
       const v = verifyAccessToken(raw, secret);
       if (!v.ok) {
         const url = request.nextUrl.clone();
-        url.pathname = "/login";
+        url.pathname = "/";
         url.searchParams.set("next", pathname);
         const res = NextResponse.redirect(url);
         res.cookies.delete("as_access");

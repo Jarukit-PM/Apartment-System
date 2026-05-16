@@ -1,9 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { DashboardStats } from "@/components/dashboard-stats";
-import { PageHeader } from "@/components/page-header";
-import { apiBaseUrl } from "@/lib/api";
-import { apiGetJsonAuthed } from "@/lib/server-api";
+import { DashboardStats } from "@/components/dashboard/dashboard-stats";
+import { PageHeader } from "@/components/ui/page-header";
+import { apiBaseUrl } from "@/lib/api/base";
+import { apiGetJsonAuthed } from "@/lib/api/server";
 import type {
   HealthResponse,
   Lease,
@@ -12,7 +12,7 @@ import type {
   Property,
   Resident,
   Unit,
-} from "@/lib/types";
+} from "@/lib/api/types";
 
 async function fetchHealth(): Promise<HealthResponse | null> {
   const base = apiBaseUrl();

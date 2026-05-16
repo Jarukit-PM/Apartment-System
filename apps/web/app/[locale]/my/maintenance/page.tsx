@@ -1,8 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ActionForm } from "@/components/action-form";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import { createMyMaintenanceRequest } from "@/lib/resident-actions";
-import type { ListWrapper, MaintenanceRequest, MeSummaryData, SingleWrapper } from "@/lib/types";
+import { ActionForm } from "@/components/ui/action-form";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import { createMyMaintenanceRequest } from "@/lib/actions/resident";
+import type { ListWrapper, MaintenanceRequest, MeSummaryData, SingleWrapper } from "@/lib/api/types";
 
 type PageProps = { params: Promise<{ locale: string }> };
 

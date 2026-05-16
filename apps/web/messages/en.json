@@ -11,13 +11,7 @@
     "dashboard": "Admin dashboard"
   },
   "HomePage": {
-    "brand": "Apartment System",
-    "heading": "Property management, beautifully simple.",
-    "intro": "A refined experience for building teams and residents — manage properties, leases, and maintenance in one place.",
-    "language": "Language",
-    "openConsole": "Open admin console",
-    "myPortal": "Resident portal",
-    "signIn": "Sign in"
+    "brand": "Apartment System"
   },
   "ProfilePage": {
     "title": "Profile",
@@ -315,24 +309,30 @@
     "saveStatus": "Update status"
   },
   "Auth": {
-    "loginTitle": "Sign in",
-    "loginSubtitle": "Staff and residents use the same login. Choose email and password or Google.",
-    "registerTitle": "Create resident account",
-    "registerSubtitle": "Use the email you share with the building. If it is already linked, sign in instead.",
+    "brand": "Apartment System",
+    "language": "Language",
+    "loginTitle": "Welcome back",
+    "loginFormLabel": "Sign in with email",
+    "registerTitle": "Create account",
+    "registerSubtitle": "For residents. Use the email your building has on file.",
+    "registerFormLabel": "Create resident account",
     "email": "Email",
     "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "fullName": "Full name",
     "phoneOptional": "Phone (optional)",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "createAccount": "Create account",
     "divider": "Or",
-    "googleCaption": "Continue with Google",
     "googleError": "Google sign-in failed. Try again or use email and password.",
     "needAccount": "Need an account?",
-    "registerLink": "Register as a resident",
+    "registerLink": "Register",
     "haveAccount": "Already have an account?",
-    "signInLink": "Sign in"
+    "signInLink": "Sign in",
+    "securityNote": "Sign-in is encrypted. Never share your password with anyone."
   },
   "MyPortal": {
     "brand": "Apartment System",

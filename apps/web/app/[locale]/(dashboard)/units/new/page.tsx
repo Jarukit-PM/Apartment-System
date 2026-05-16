@@ -1,11 +1,11 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ActionForm } from "@/components/action-form";
-import { PageHeader } from "@/components/page-header";
-import { PeriodOfferFields } from "@/components/period-offer-fields";
-import { createUnit } from "@/lib/portal-actions";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import type { ListWrapper, Property } from "@/lib/types";
+import { ActionForm } from "@/components/ui/action-form";
+import { PageHeader } from "@/components/ui/page-header";
+import { PeriodOfferFields } from "@/components/units/period-offer-fields";
+import { createUnit } from "@/lib/actions/portal";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import type { ListWrapper, Property } from "@/lib/api/types";
 
 type PageProps = {
   params: Promise<{ locale: string }>;

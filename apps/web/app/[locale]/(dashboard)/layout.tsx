@@ -1,4 +1,4 @@
-import { PortalChrome } from "@/components/portal-chrome";
+import { PortalChrome } from "@/components/layout/portal-chrome";
 
 export default function DashboardGroupLayout({
   children,

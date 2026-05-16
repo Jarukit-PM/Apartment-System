@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { WalletPanel } from "@/components/wallet-panel";
+import { WalletPanel } from "@/components/wallet/wallet-panel";
 
 type PageProps = { params: Promise<{ locale: string }> };
 

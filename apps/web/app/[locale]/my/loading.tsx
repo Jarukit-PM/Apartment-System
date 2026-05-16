@@ -1,4 +1,4 @@
-import { MyPortalPageSkeleton } from "@/components/skeleton";
+import { MyPortalPageSkeleton } from "@/components/ui/skeleton";
 
 export default function MyPortalLoading() {
   return <MyPortalPageSkeleton />;

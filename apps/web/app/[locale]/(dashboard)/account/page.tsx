@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { PageHeader } from "@/components/page-header";
-import { enrichSessionUser, getSessionUser } from "@/lib/session-user";
+import { PageHeader } from "@/components/ui/page-header";
+import { enrichSessionUser, getSessionUser } from "@/lib/auth/session-user";
 
 type PageProps = { params: Promise<{ locale: string }> };
 

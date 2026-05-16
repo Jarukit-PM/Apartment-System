@@ -1,17 +1,17 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ActionForm } from "@/components/action-form";
-import { PageHeader } from "@/components/page-header";
-import { EntityImageUpload } from "@/components/entity-image-upload";
-import { PropertyImage } from "@/components/entity-image";
+import { ActionForm } from "@/components/ui/action-form";
+import { PageHeader } from "@/components/ui/page-header";
+import { EntityImageUpload } from "@/components/entities/entity-image-upload";
+import { PropertyImage } from "@/components/entities/entity-image";
 import {
   removePropertyImage,
   updateProperty,
   uploadPropertyImage,
-} from "@/lib/portal-actions";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import type { ListWrapper, Property, SingleWrapper, Unit } from "@/lib/types";
+} from "@/lib/actions/portal";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import type { ListWrapper, Property, SingleWrapper, Unit } from "@/lib/api/types";
 
 type PageProps = { params: Promise<{ locale: string; id: string }> };
 
@@ -30,7 +30,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       notFound();
     }
     const tAuth = await getTranslations("Auth");
-    const loginHref = `/login?next=${encodeURIComponent(`/properties/${id}`)}`;
+    const loginHref = `/?next=${encodeURIComponent(`/properties/${id}`)}`;
     return (
       <div className="mx-auto max-w-lg space-y-4 py-8">
         <Link href="/properties" className="text-sm text-[var(--ap-gold-deep)] hover:underline">

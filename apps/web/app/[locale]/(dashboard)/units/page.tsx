@@ -1,9 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { UnitImage } from "@/components/entity-image";
-import { PageHeader } from "@/components/page-header";
-import { apiGetJsonAuthed } from "@/lib/server-api";
-import type { ListWrapper, Property, Unit } from "@/lib/types";
+import { UnitImage } from "@/components/entities/entity-image";
+import { PageHeader } from "@/components/ui/page-header";
+import { apiGetJsonAuthed } from "@/lib/api/server";
+import type { ListWrapper, Property, Unit } from "@/lib/api/types";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
