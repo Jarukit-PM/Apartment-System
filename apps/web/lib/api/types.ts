@@ -98,6 +98,7 @@ export type MaintenanceRequest = {
   requestedByResidentId?: string;
   title: string;
   description: string;
+  imageUrls?: string[];
   status: string;
   createdAt: string;
   updatedAt: string;

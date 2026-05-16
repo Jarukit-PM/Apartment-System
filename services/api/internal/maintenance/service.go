@@ -3,12 +3,16 @@ package maintenance
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/jarukit/apartment-system/services/api/internal/media"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+const maxMaintenanceImages = 20
 
 // UnitChecker validates unit id.
 type UnitChecker interface {
@@ -73,6 +77,10 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 	if in.Title == "" {
 		return nil, errors.New("title is required")
 	}
+	imageURLs, err := normalizeImageURLs(in.ImageURLs)
+	if err != nil {
+		return nil, err
+	}
 	now := time.Now().UTC()
 	d := &Doc{
 		ID:                    primitive.NewObjectID(),
@@ -80,6 +88,7 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*Doc, error) {
 		RequestedByResidentID: in.RequestedByResidentID,
 		Title:                 in.Title,
 		Description:           strings.TrimSpace(in.Description),
+		ImageURLs:             imageURLs,
 		Status:                normalizeStatus(in.Status),
 		CreatedAt:             now,
 		UpdatedAt:             now,
@@ -150,4 +159,33 @@ func (s *Service) CreateForResident(ctx context.Context, residentID primitive.Ob
 	rid := residentID
 	in.RequestedByResidentID = &rid
 	return s.Create(ctx, in)
+}
+
+func normalizeImageURLs(urls []string) ([]string, error) {
+	if len(urls) == 0 {
+		return nil, nil
+	}
+	if len(urls) > maxMaintenanceImages {
+		return nil, fmt.Errorf("at most %d images allowed", maxMaintenanceImages)
+	}
+	out := make([]string, 0, len(urls))
+	seen := make(map[string]struct{}, len(urls))
+	for _, raw := range urls {
+		u := strings.TrimSpace(raw)
+		if u == "" {
+			continue
+		}
+		if err := media.ValidatePublicPath(u); err != nil {
+			return nil, errors.New("invalid imageUrl")
+		}
+		if _, dup := seen[u]; dup {
+			continue
+		}
+		seen[u] = struct{}{}
+		out = append(out, u)
+	}
+	if len(out) == 0 {
+		return nil, nil
+	}
+	return out, nil
 }

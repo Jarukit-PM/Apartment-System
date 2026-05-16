@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { parseRentalPeriodOffersFromForm } from "@/lib/domain/rental-periods";
 import { apiFetchJsonAuthed, apiUploadMediaAuthed } from "@/lib/api/server";
+import { uploadMaintenanceImagesFromForm } from "@/lib/maintenance/upload-images";
 
 export type ActionState = { ok: boolean; message: string };
 
@@ -373,8 +374,11 @@ export async function createMaintenance(
   const status = String(formData.get("status") ?? "open");
   const by = String(formData.get("requestedByResidentId") ?? "").trim();
   if (!unitId || !title) return fail("Unit and title are required");
+  const uploaded = await uploadMaintenanceImagesFromForm(formData, apiUploadMediaAuthed);
+  if (!Array.isArray(uploaded)) return uploaded;
   const body: Record<string, unknown> = { unitId, title, description, status };
   if (by) body.requestedByResidentId = by;
+  if (uploaded.length > 0) body.imageUrls = uploaded;
   const res = await apiFetchJsonAuthed(`/v1/maintenance-requests`, {
     method: "POST",
     body: JSON.stringify(body),

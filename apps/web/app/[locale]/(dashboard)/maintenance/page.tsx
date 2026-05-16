@@ -1,12 +1,14 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Plus, Wrench } from "lucide-react";
-import { ActionForm } from "@/components/ui/action-form";
+import { MaintenanceRequestForm } from "@/components/maintenance/maintenance-request-form";
+import { MaintenanceTicketImages } from "@/components/maintenance/maintenance-ticket-images";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge, statusVariant } from "@/components/ui/status-badge";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { createMaintenance, updateMaintenanceStatus } from "@/lib/actions/portal";
+import { maintenanceCategoryOptions } from "@/lib/maintenance/category-labels";
 import { apiGetJsonAuthed } from "@/lib/api/server";
 import type { ListWrapper, MaintenanceRequest, Resident, Unit } from "@/lib/api/types";
 
@@ -16,6 +18,7 @@ export default async function MaintenancePage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("MaintenancePage");
+  const tCat = await getTranslations("MaintenanceCategories");
 
   const [listRes, unitsRes, resRes] = await Promise.all([
     apiGetJsonAuthed<ListWrapper<MaintenanceRequest>>("/v1/maintenance-requests"),
@@ -26,6 +29,7 @@ export default async function MaintenancePage({ params }: PageProps) {
   const items = listRes.ok ? listRes.data.data : [];
   const units = unitsRes.ok ? unitsRes.data.data : [];
   const residents = resRes.ok ? resRes.data.data : [];
+  const categories = maintenanceCategoryOptions((key) => tCat(key));
 
   return (
     <div className="mx-auto max-w-4xl space-y-10">
@@ -33,56 +37,29 @@ export default async function MaintenancePage({ params }: PageProps) {
 
       <SectionCard title={t("addTitle")} icon={Plus}>
         <div className="max-w-lg">
-          <ActionForm action={createMaintenance} locale={locale} submitLabel={t("addSubmit")}>
-            <div>
-              <label htmlFor="unitId" className="ap-label">
-                {t("unit")}
-              </label>
-              <select id="unitId" name="unitId" required className="ap-select">
-                <option value="">{t("pickUnit")}</option>
-                {units.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="title" className="ap-label">
-                {t("ticketTitle")}
-              </label>
-              <input id="title" name="title" required className="ap-input" />
-            </div>
-            <div>
-              <label htmlFor="description" className="ap-label">
-                {t("description")}
-              </label>
-              <textarea id="description" name="description" rows={3} className="ap-textarea" />
-            </div>
-            <div>
-              <label htmlFor="requestedByResidentId" className="ap-label">
-                {t("requestedBy")}
-              </label>
-              <select id="requestedByResidentId" name="requestedByResidentId" className="ap-select">
-                <option value="">{t("optional")}</option>
-                {residents.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.fullName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="status" className="ap-label">
-                {t("status")}
-              </label>
-              <select id="status" name="status" defaultValue="open" className="ap-select">
-                <option value="open">open</option>
-                <option value="in_progress">in_progress</option>
-                <option value="closed">closed</option>
-              </select>
-            </div>
-          </ActionForm>
+          <MaintenanceRequestForm
+            action={createMaintenance}
+            locale={locale}
+            submitLabel={t("addSubmit")}
+            categories={categories}
+            unitChoices={units.map((u) => ({ unitId: u.id, label: u.label }))}
+            residents={residents.map((r) => ({ id: r.id, fullName: r.fullName }))}
+            requireUnitPick
+            showStatus
+            labels={{
+              unit: t("unit"),
+              pickUnit: t("pickUnit"),
+              ticketTitle: t("ticketTitle"),
+              titleOther: t("titleOther"),
+              titleOtherPlaceholder: t("titleOtherPlaceholder"),
+              description: t("description"),
+              photos: t("photos"),
+              photosHint: t("photosHint"),
+              requestedBy: t("requestedBy"),
+              optional: t("optional"),
+              status: t("status"),
+            }}
+          />
         </div>
       </SectionCard>
 
@@ -107,6 +84,7 @@ export default async function MaintenancePage({ params }: PageProps) {
                     {m.description ? (
                       <p className="mt-1 text-sm text-[var(--ap-muted)]">{m.description}</p>
                     ) : null}
+                    <MaintenanceTicketImages imageUrls={m.imageUrls} alt={t("photoAlt")} />
                     <p className="mt-2 font-mono text-xs text-[var(--ap-muted)]">{m.id}</p>
                   </div>
                   <form action={updateMaintenanceStatus} className="flex flex-wrap items-end gap-2">
@@ -128,3 +106,4 @@ export default async function MaintenancePage({ params }: PageProps) {
     </div>
   );
 }
+

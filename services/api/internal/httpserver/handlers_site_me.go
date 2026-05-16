@@ -142,9 +142,10 @@ func (s *Server) meMaintenanceList(w http.ResponseWriter, r *http.Request) {
 }
 
 type meMaintCreateBody struct {
-	UnitID      string `json:"unitId"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	UnitID      string   `json:"unitId"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	ImageURLs   []string `json:"imageUrls"`
 }
 
 func (s *Server) meMaintenanceCreate(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +171,7 @@ func (s *Server) meMaintenanceCreate(w http.ResponseWriter, r *http.Request) {
 		UnitID:      uid,
 		Title:       body.Title,
 		Description: body.Description,
+		ImageURLs:   body.ImageURLs,
 		Status:      maintenance.StatusOpen,
 	}
 	d, err := s.Maint.CreateForResident(r.Context(), *p.ResidentID, units, in)

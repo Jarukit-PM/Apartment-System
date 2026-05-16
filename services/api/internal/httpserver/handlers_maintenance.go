@@ -12,9 +12,10 @@ import (
 type maintCreateBody struct {
 	UnitID                string  `json:"unitId"`
 	RequestedByResidentID *string `json:"requestedByResidentId"`
-	Title                 string  `json:"title"`
-	Description           string  `json:"description"`
-	Status                string  `json:"status"`
+	Title                 string   `json:"title"`
+	Description           string   `json:"description"`
+	ImageURLs             []string `json:"imageUrls"`
+	Status                string   `json:"status"`
 }
 
 type maintPatchBody struct {
@@ -61,6 +62,7 @@ func (s *Server) createMaintenance(w http.ResponseWriter, r *http.Request) {
 		UnitID:      uid,
 		Title:       body.Title,
 		Description: body.Description,
+		ImageURLs:   body.ImageURLs,
 		Status:      body.Status,
 	}
 	if body.RequestedByResidentID != nil && *body.RequestedByResidentID != "" {
@@ -146,6 +148,9 @@ func maintenanceJSON(d *maintenance.Doc) map[string]any {
 	}
 	if d.RequestedByResidentID != nil {
 		m["requestedByResidentId"] = d.RequestedByResidentID.Hex()
+	}
+	if len(d.ImageURLs) > 0 {
+		m["imageUrls"] = d.ImageURLs
 	}
 	return m
 }

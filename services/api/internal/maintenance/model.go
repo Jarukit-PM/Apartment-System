@@ -20,6 +20,7 @@ type Doc struct {
 	RequestedByResidentID *primitive.ObjectID `bson:"requestedByResidentId,omitempty"`
 	Title                 string              `bson:"title"`
 	Description           string              `bson:"description"`
+	ImageURLs             []string            `bson:"imageUrls,omitempty"`
 	Status                string              `bson:"status"`
 	CreatedAt             time.Time           `bson:"createdAt"`
 	UpdatedAt             time.Time           `bson:"updatedAt"`
@@ -31,6 +32,7 @@ type CreateInput struct {
 	RequestedByResidentID *primitive.ObjectID
 	Title                 string
 	Description           string
+	ImageURLs             []string
 	Status                string
 }
 

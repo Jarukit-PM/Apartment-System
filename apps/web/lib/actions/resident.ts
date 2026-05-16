@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { apiFetchJsonAuthed } from "@/lib/api/server";
+import { apiFetchJsonAuthed, apiUploadMediaMeAuthed } from "@/lib/api/server";
 import type { ActionState } from "@/lib/actions/portal";
+import { uploadMaintenanceImagesFromForm } from "@/lib/maintenance/upload-images";
 
 export async function createMyMaintenanceRequest(
   _prev: ActionState,
@@ -15,9 +16,18 @@ export async function createMyMaintenanceRequest(
   if (!unitId || !title) {
     return { ok: false, message: "Unit and title are required" };
   }
+  const uploaded = await uploadMaintenanceImagesFromForm(formData, apiUploadMediaMeAuthed);
+  if (!Array.isArray(uploaded)) {
+    return uploaded;
+  }
   const res = await apiFetchJsonAuthed(`/v1/me/maintenance-requests`, {
     method: "POST",
-    body: JSON.stringify({ unitId, title, description }),
+    body: JSON.stringify({
+      unitId,
+      title,
+      description,
+      ...(uploaded.length > 0 ? { imageUrls: uploaded } : {}),
+    }),
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {

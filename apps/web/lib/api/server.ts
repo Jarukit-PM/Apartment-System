@@ -104,3 +104,13 @@ export async function apiUploadMediaAuthed(file: Blob, filename: string): Promis
   fd.append("file", file, filename);
   return apiFetchJsonAuthed<MediaUploadResponse>("/v1/media", { method: "POST", body: fd });
 }
+
+/** Uploads an image file to POST /v1/me/media (resident). */
+export async function apiUploadMediaMeAuthed(
+  file: Blob,
+  filename: string,
+): Promise<FetchOutcome<MediaUploadResponse>> {
+  const fd = new FormData();
+  fd.append("file", file, filename);
+  return apiFetchJsonAuthed<MediaUploadResponse>("/v1/me/media", { method: "POST", body: fd });
+}

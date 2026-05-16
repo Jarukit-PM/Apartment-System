@@ -104,6 +104,7 @@ func (s *Server) Mount(r chi.Router) {
 			r.Get("/invoices", s.meInvoices)
 			r.Get("/maintenance-requests", s.meMaintenanceList)
 			r.Post("/maintenance-requests", s.meMaintenanceCreate)
+			r.Post("/media", s.uploadMedia)
 		})
 
 		r.Group(func(r chi.Router) {

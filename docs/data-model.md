@@ -117,6 +117,7 @@ Contract linking residents to units for a period.
 | `requestedByResidentId` | ObjectId | Optional. |
 | `title` | string | |
 | `description` | string | |
+| `imageUrls` | string[] | Optional. Public paths under `/media/…` from the media upload API. |
 | `status` | string | e.g. `open`, `in_progress`, `closed`. |
 | `createdAt` | date | |
 | `updatedAt` | date | |
