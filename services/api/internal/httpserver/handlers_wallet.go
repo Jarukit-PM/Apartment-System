@@ -29,6 +29,12 @@ func ledgerDocJSON(d *wallet.LedgerDoc) map[string]any {
 	if d.PeerUserID != nil {
 		m["peerUserId"] = d.PeerUserID.Hex()
 	}
+	if d.UnitID != nil {
+		m["unitId"] = d.UnitID.Hex()
+	}
+	if d.LeaseID != nil {
+		m["leaseId"] = d.LeaseID.Hex()
+	}
 	return m
 }
 

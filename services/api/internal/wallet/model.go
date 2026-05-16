@@ -28,6 +28,12 @@ type WalletDoc struct {
 	UpdatedAt      time.Time          `bson:"updatedAt"`
 }
 
+// LedgerMeta optional links for rent-related movements.
+type LedgerMeta struct {
+	UnitID  *primitive.ObjectID
+	LeaseID *primitive.ObjectID
+}
+
 // LedgerDoc is an append-only movement on a user wallet.
 type LedgerDoc struct {
 	ID           primitive.ObjectID  `bson:"_id,omitempty"`
@@ -35,5 +41,7 @@ type LedgerDoc struct {
 	Kind         string              `bson:"kind"`
 	AmountSatang int64               `bson:"amountSatang"` // magnitude (>0); direction from kind
 	PeerUserID   *primitive.ObjectID `bson:"peerUserId,omitempty"`
+	UnitID       *primitive.ObjectID `bson:"unitId,omitempty"`
+	LeaseID      *primitive.ObjectID `bson:"leaseId,omitempty"`
 	CreatedAt    time.Time           `bson:"createdAt"`
 }

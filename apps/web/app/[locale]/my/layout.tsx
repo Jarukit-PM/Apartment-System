@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PortalNav, type PortalNavSection } from "@/components/layout/portal-nav";
 import { PortalShell } from "@/components/layout/portal-shell";
-import { PortalTopBarQuickLinks } from "@/components/layout/portal-top-bar-quick-links";
+import { PortalTopBarUserPanelSlot } from "@/components/layout/portal-top-bar-user-panel-slot";
 import { PortalTopBarWallet } from "@/components/layout/portal-top-bar-wallet";
 import { PortalTopBarWalletSkeleton } from "@/components/layout/portal-top-bar-wallet-skeleton";
 import { SidebarUserPanelSlot } from "@/components/layout/sidebar-user-panel-slot";
@@ -71,9 +71,11 @@ export default async function MyPortalLayout({ children, params }: LayoutProps) 
           <Suspense fallback={<PortalTopBarWalletSkeleton />}>
             <PortalTopBarWallet href="/my/wallet" locale={locale} label={t("topBar.wallet")} />
           </Suspense>
-          <PortalTopBarQuickLinks
-            ariaLabel={t("topBar.quickNavLabel")}
-            links={[{ href: "/my/profile", label: t("topBar.profile"), iconKey: "profile" }]}
+          <PortalTopBarUserPanelSlot
+            user={user}
+            locale={locale}
+            profileHref="/my/profile"
+            extraLinks={extraLinks}
           />
         </>
       }

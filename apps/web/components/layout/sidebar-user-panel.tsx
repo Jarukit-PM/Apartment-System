@@ -12,12 +12,20 @@ type Props = {
   locale: string;
   extraLinks?: ExtraLink[];
   profileHref?: string;
+  variant?: "sidebar" | "topbar";
 };
 
-export async function SidebarUserPanel({ user, locale, extraLinks = [], profileHref }: Props) {
+export async function SidebarUserPanel({
+  user,
+  locale,
+  extraLinks = [],
+  profileHref,
+  variant = "sidebar",
+}: Props) {
   const t = await getTranslations("Sidebar");
 
   if (!user) {
+    if (variant === "topbar") return null;
     return <p className="text-sm text-[var(--ap-muted)]">{t("notSignedIn")}</p>;
   }
 
@@ -34,6 +42,7 @@ export async function SidebarUserPanel({ user, locale, extraLinks = [], profileH
       locale={locale}
       profileHref={profileHref}
       extraLinks={extraLinks}
+      variant={variant}
       labels={{
         language: t("language"),
         signOut: t("signOut"),

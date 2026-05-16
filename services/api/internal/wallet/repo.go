@@ -94,8 +94,16 @@ func (r *Repo) TopUp(ctx context.Context, userID primitive.ObjectID, amountSatan
 	return err
 }
 
+func applyLedgerMeta(led *LedgerDoc, meta *LedgerMeta) {
+	if meta == nil {
+		return
+	}
+	led.UnitID = meta.UnitID
+	led.LeaseID = meta.LeaseID
+}
+
 // Debit decrements balance when sufficient; appends one ledger row (kind must be non-empty).
-func (r *Repo) Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error {
+func (r *Repo) Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string, meta *LedgerMeta) error {
 	if amountSatang <= 0 || amountSatang > maxSingleTopUpSatang {
 		return ErrInvalidAmount
 	}
@@ -127,12 +135,13 @@ func (r *Repo) Debit(ctx context.Context, userID primitive.ObjectID, amountSatan
 		AmountSatang: amountSatang,
 		CreatedAt:    now,
 	}
+	applyLedgerMeta(&led, meta)
 	_, err = r.ledger().InsertOne(ctx, led)
 	return err
 }
 
 // Credit increments balance and appends a ledger row (used to compensate after a failed booking step on standalone MongoDB).
-func (r *Repo) Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error {
+func (r *Repo) Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string, meta *LedgerMeta) error {
 	if amountSatang <= 0 || amountSatang > maxSingleTopUpSatang {
 		return ErrInvalidAmount
 	}
@@ -158,6 +167,7 @@ func (r *Repo) Credit(ctx context.Context, userID primitive.ObjectID, amountSata
 		AmountSatang: amountSatang,
 		CreatedAt:    now,
 	}
+	applyLedgerMeta(&led, meta)
 	_, err = r.ledger().InsertOne(ctx, led)
 	return err
 }

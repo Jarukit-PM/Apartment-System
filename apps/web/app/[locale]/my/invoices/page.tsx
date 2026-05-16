@@ -1,10 +1,15 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Receipt } from "lucide-react";
+import { History, Receipt } from "lucide-react";
+import { PaymentHistoryList } from "@/components/my/payment-history-list";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge, statusVariant } from "@/components/ui/status-badge";
 import { apiGetJsonAuthed } from "@/lib/api/server";
-import type { Invoice, ListWrapper } from "@/lib/api/types";
+import type { Invoice, ListWrapper, MeSummaryData, SingleWrapper, WalletBundle } from "@/lib/api/types";
+import { buildPaymentHistory } from "@/lib/domain/build-payment-history";
+import { paymentUnitContextFromSummary } from "@/lib/domain/resolve-payment-unit-line";
+import { paymentHistoryLabels } from "@/lib/i18n/payment-history-labels";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -13,10 +18,14 @@ export default async function MyInvoicesPage({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("MyPortal");
 
-  const res = await apiGetJsonAuthed<ListWrapper<Invoice>>("/v1/me/invoices");
+  const [invoicesRes, walletRes, summaryRes] = await Promise.all([
+    apiGetJsonAuthed<ListWrapper<Invoice>>("/v1/me/invoices"),
+    apiGetJsonAuthed<SingleWrapper<WalletBundle>>("/v1/wallet"),
+    apiGetJsonAuthed<SingleWrapper<MeSummaryData>>("/v1/me/summary"),
+  ]);
 
-  if (!res.ok) {
-    if (res.status === 403) {
+  if (!invoicesRes.ok) {
+    if (invoicesRes.status === 403) {
       return (
         <div className="mx-auto max-w-3xl">
           <PageHeader title={t("invoicesTitle")} icon={Receipt} />
@@ -32,42 +41,54 @@ export default async function MyInvoicesPage({ params }: PageProps) {
     );
   }
 
-  const rows = res.data.data;
+  const rows = invoicesRes.data.data;
+  const openRows = rows.filter((inv) => inv.status !== "paid");
+  const ledger = walletRes.ok ? walletRes.data.data.ledger : [];
+  const unitContext =
+    summaryRes.ok ? paymentUnitContextFromSummary(summaryRes.data.data) : { leases: [], leaseUnits: [] };
+  const paymentHistory = buildPaymentHistory(rows, ledger, unitContext);
+  const historyLabels = paymentHistoryLabels(t);
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader title={t("invoicesTitle")} icon={Receipt} />
+      <PageHeader title={t("invoicesTitle")} icon={Receipt} subtitle={t("invoicesSubtitle")} />
 
-      {rows.length === 0 ? (
-        <EmptyState icon={Receipt} title={t("invoicesEmpty")} />
-      ) : (
-        <div className="ap-table-wrap">
-          <table className="ap-table">
-            <thead>
-              <tr>
-                <th>{t("colDescription")}</th>
-                <th>{t("colAmount")}</th>
-                <th>{t("colDue")}</th>
-                <th>{t("colStatus")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((inv) => (
-                <tr key={inv.id}>
-                  <td>{inv.description}</td>
-                  <td className="tabular-nums">
-                    {inv.amount} {inv.currency}
-                  </td>
-                  <td className="text-[var(--ap-muted)]">{inv.dueDate.slice(0, 10)}</td>
-                  <td>
-                    <StatusBadge variant={statusVariant(inv.status)}>{inv.status}</StatusBadge>
-                  </td>
+      <SectionCard title={t("invoicesOpenTitle")} icon={Receipt} eyebrow>
+        {openRows.length === 0 ? (
+          <EmptyState icon={Receipt} title={t("invoicesOpenEmpty")} />
+        ) : (
+          <div className="ap-table-wrap">
+            <table className="ap-table">
+              <thead>
+                <tr>
+                  <th>{t("colDescription")}</th>
+                  <th>{t("colAmount")}</th>
+                  <th>{t("colDue")}</th>
+                  <th>{t("colStatus")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {openRows.map((inv) => (
+                  <tr key={inv.id}>
+                    <td>{inv.description}</td>
+                    <td className="tabular-nums">
+                      {inv.amount} {inv.currency}
+                    </td>
+                    <td className="text-[var(--ap-muted)]">{inv.dueDate.slice(0, 10)}</td>
+                    <td>
+                      <StatusBadge variant={statusVariant(inv.status)}>{inv.status}</StatusBadge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </SectionCard>
+
+      <SectionCard id="payments" title={t("paymentHistoryTitle")} icon={History} eyebrow>
+        <PaymentHistoryList locale={locale} entries={paymentHistory} labels={historyLabels} />
+      </SectionCard>
     </div>
   );
 }

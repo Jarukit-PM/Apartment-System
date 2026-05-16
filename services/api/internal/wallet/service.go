@@ -43,13 +43,13 @@ func (s *Service) TopUp(ctx context.Context, userID primitive.ObjectID, amountSa
 }
 
 // Debit debits the caller's wallet (e.g. first month rent before self-service lease).
-func (s *Service) Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error {
-	return s.repo.Debit(ctx, userID, amountSatang, kind)
+func (s *Service) Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string, meta *LedgerMeta) error {
+	return s.repo.Debit(ctx, userID, amountSatang, kind, meta)
 }
 
 // Credit credits the caller's wallet (internal compensation; e.g. self-service fallback path).
-func (s *Service) Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error {
-	return s.repo.Credit(ctx, userID, amountSatang, kind)
+func (s *Service) Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string, meta *LedgerMeta) error {
+	return s.repo.Credit(ctx, userID, amountSatang, kind, meta)
 }
 
 // Transfer sends satang to another registered user.

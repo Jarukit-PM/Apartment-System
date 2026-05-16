@@ -1,4 +1,4 @@
-import { Home, Mail, Phone, Receipt, Shield, Wallet, Wrench } from "lucide-react";
+import { History, Home, Mail, Phone, Receipt, Shield, Wallet, Wrench } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LogoutForm } from "@/components/auth/logout-form";
@@ -7,7 +7,11 @@ import { ProfileHero } from "@/components/profile/profile-hero";
 import { ProfileQuickActions, type ProfileQuickAction } from "@/components/profile/profile-quick-actions";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge, statusVariant } from "@/components/ui/status-badge";
-import type { Lease, MeSummaryData } from "@/lib/api/types";
+import { PaymentHistoryList } from "@/components/my/payment-history-list";
+import type { Invoice, Lease, MeSummaryData, WalletLedgerEntry } from "@/lib/api/types";
+import { buildPaymentHistory } from "@/lib/domain/build-payment-history";
+import { paymentUnitContextFromSummary } from "@/lib/domain/resolve-payment-unit-line";
+import { paymentHistoryLabels } from "@/lib/i18n/payment-history-labels";
 import { formatLocaleDate } from "@/lib/domain/format-date";
 import { formatThb } from "@/lib/domain/format-thb";
 
@@ -16,6 +20,8 @@ type Props = {
   me: MeSummaryData;
   walletBalanceSatang?: number | null;
   openInvoiceCount?: number;
+  invoices?: Invoice[];
+  ledger?: WalletLedgerEntry[];
 };
 
 function leaseRentLabel(lease: Lease, locale: string): string {
@@ -33,8 +39,15 @@ export async function ResidentProfilePanel({
   me,
   walletBalanceSatang,
   openInvoiceCount = 0,
+  invoices = [],
+  ledger = [],
 }: Props) {
-  const t = await getTranslations("ProfilePage");
+  const [t, tPortal] = await Promise.all([
+    getTranslations("ProfilePage"),
+    getTranslations("MyPortal"),
+  ]);
+  const paymentHistory = buildPaymentHistory(invoices, ledger, paymentUnitContextFromSummary(me));
+  const historyLabels = paymentHistoryLabels((key) => tPortal(key));
   const building = me.property?.name;
   const unitLabel = me.primaryUnit?.label;
   const active = me.activeLease;
@@ -94,7 +107,7 @@ export async function ResidentProfilePanel({
 
       <ProfileQuickActions title={t("quickActionsTitle")} actions={quickActions} />
 
-      <SectionCard title={t("contactSection")} icon={Phone} eyebrow>
+      <SectionCard id="contact" title={t("contactSection")} icon={Phone} eyebrow>
         <ProfileContactForm
           locale={locale}
           fullName={me.resident.fullName}
@@ -114,7 +127,7 @@ export async function ResidentProfilePanel({
         />
       </SectionCard>
 
-      <SectionCard title={t("homeSection")} icon={Home} eyebrow>
+      <SectionCard id="home" title={t("homeSection")} icon={Home} eyebrow>
         {building && unitLabel ? (
           <p className="text-sm font-medium text-[var(--foreground)]">
             {t("homeLine", { building, unit: unitLabel })}
@@ -164,6 +177,28 @@ export async function ResidentProfilePanel({
         {me.leases.length > 1 ? (
           <p className="mt-4 text-xs text-[var(--ap-muted)]">
             {t("leaseHistoryCount", { count: me.leases.length })}
+          </p>
+        ) : null}
+      </SectionCard>
+
+      <SectionCard id="payments" title={t("paymentsSection")} icon={History} eyebrow>
+        <PaymentHistoryList
+          locale={locale}
+          entries={paymentHistory}
+          labels={historyLabels}
+          limit={5}
+        />
+        {paymentHistory.length > 5 ? (
+          <p className="mt-4 text-sm">
+            <Link href="/my/invoices#payments" className="font-medium text-[var(--ap-accent)] hover:underline">
+              {t("paymentsViewAll")}
+            </Link>
+          </p>
+        ) : paymentHistory.length > 0 ? (
+          <p className="mt-4 text-sm">
+            <Link href="/my/invoices#payments" className="font-medium text-[var(--ap-accent)] hover:underline">
+              {t("paymentsViewInvoices")}
+            </Link>
           </p>
         ) : null}
       </SectionCard>

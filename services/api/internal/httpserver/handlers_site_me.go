@@ -3,6 +3,8 @@ package httpserver
 import (
 	"net/http"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/jarukit/apartment-system/services/api/internal/authn"
 	"github.com/jarukit/apartment-system/services/api/internal/httpx"
 	"github.com/jarukit/apartment-system/services/api/internal/invoice"
@@ -47,12 +49,31 @@ func (s *Server) meSummary(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	ls := make([]any, 0, len(leases))
+	unitSeen := make(map[primitive.ObjectID]struct{})
+	leaseUnits := make([]any, 0)
 	for i := range leases {
 		ls = append(ls, leaseJSON(&leases[i]))
+		if _, ok := unitSeen[leases[i].UnitID]; ok {
+			continue
+		}
+		unitSeen[leases[i].UnitID] = struct{}{}
+		u, err := s.Units.Get(r.Context(), leases[i].UnitID)
+		if err != nil {
+			continue
+		}
+		row := map[string]any{
+			"unitId": u.ID.Hex(),
+			"label":  u.Label,
+		}
+		if prop, err := s.Props.Get(r.Context(), u.PropertyID); err == nil {
+			row["propertyName"] = prop.Name
+		}
+		leaseUnits = append(leaseUnits, row)
 	}
 	out := map[string]any{
-		"resident": residentJSON(res),
-		"leases":   ls,
+		"resident":   residentJSON(res),
+		"leases":     ls,
+		"leaseUnits": leaseUnits,
 	}
 	if res.PrimaryUnitID != nil {
 		u, err := s.Units.Get(r.Context(), *res.PrimaryUnitID)

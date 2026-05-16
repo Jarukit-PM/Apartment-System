@@ -32,6 +32,7 @@ type Props = {
   labels: SidebarMenuLabels;
   profileHref?: string;
   extraLinks?: ExtraLink[];
+  variant?: "sidebar" | "topbar";
 };
 
 function initials(name: string, email: string): string {
@@ -64,7 +65,15 @@ function IconChevron({ open }: { open: boolean }) {
   );
 }
 
-export function SidebarProfileMenu({ user, locale, labels, profileHref, extraLinks = [] }: Props) {
+export function SidebarProfileMenu({
+  user,
+  locale,
+  labels,
+  profileHref,
+  extraLinks = [],
+  variant = "sidebar",
+}: Props) {
+  const isTopbar = variant === "topbar";
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -96,11 +105,23 @@ export function SidebarProfileMenu({ user, locale, labels, profileHref, extraLin
     setOpen(false);
   };
 
+  const menuPanelClass = isTopbar
+    ? "absolute top-full right-0 z-50 mt-2 w-72 overflow-hidden rounded-[var(--ap-radius)] border border-[var(--ap-border)] bg-[var(--ap-surface-elevated)] py-1 shadow-[var(--ap-shadow-lg)]"
+    : "absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-[var(--ap-radius)] border border-[var(--ap-border)] bg-[var(--ap-surface-elevated)] py-1 shadow-[var(--ap-shadow-lg)]";
+
+  const triggerClass = isTopbar
+    ? "group flex max-w-[min(100vw-8rem,16rem)] shrink-0 items-center gap-2 rounded-[var(--ap-radius)] bg-[var(--ap-surface-solid)] py-1.5 pl-1.5 pr-2 text-left ring-1 ring-[var(--ap-border)] transition hover:ring-[var(--ap-accent)] hover:shadow-[var(--ap-shadow)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ap-accent)]"
+    : "group flex w-full items-center gap-3 rounded-[var(--ap-radius)] bg-[var(--ap-surface-solid)] p-3 text-left ring-1 ring-[var(--ap-border)] transition hover:ring-[var(--ap-accent)] hover:shadow-[var(--ap-shadow)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ap-accent)]";
+
+  const avatarClass = isTopbar
+    ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--ap-gold-light)] to-[var(--ap-accent)] text-xs font-semibold text-[#1c1916] shadow-sm"
+    : "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--ap-gold-light)] to-[var(--ap-accent)] text-sm font-semibold text-[#1c1916] shadow-sm";
+
   return (
     <div ref={rootRef} className="relative">
       {open ? (
         <div
-          className="absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-[var(--ap-radius)] border border-[var(--ap-border)] bg-[var(--ap-surface-elevated)] py-1 shadow-[var(--ap-shadow-lg)]"
+          className={menuPanelClass}
           role="menu"
           aria-label={labels.menuLabel}
         >
@@ -169,15 +190,12 @@ export function SidebarProfileMenu({ user, locale, labels, profileHref, extraLin
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="group flex w-full items-center gap-3 rounded-[var(--ap-radius)] bg-[var(--ap-surface-solid)] p-3 text-left ring-1 ring-[var(--ap-border)] transition hover:ring-[var(--ap-accent)] hover:shadow-[var(--ap-shadow)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ap-accent)]"
+        className={triggerClass}
       >
-        <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--ap-gold-light)] to-[var(--ap-accent)] text-sm font-semibold text-[#1c1916] shadow-sm"
-          aria-hidden
-        >
+        <div className={avatarClass} aria-hidden>
           {initials(user.displayName, user.email)}
         </div>
-        <div className="min-w-0 flex-1">
+        <div className={`min-w-0 flex-1${isTopbar ? " hidden sm:block" : ""}`}>
           <p className="truncate text-sm font-semibold tracking-tight text-[var(--foreground)]">
             {user.displayName}
           </p>

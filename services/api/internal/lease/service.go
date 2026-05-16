@@ -35,8 +35,8 @@ type Service struct {
 }
 
 type walletDebiter interface {
-	Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error
-	Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string) error
+	Debit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string, meta *wallet.LedgerMeta) error
+	Credit(ctx context.Context, userID primitive.ObjectID, amountSatang int64, kind string, meta *wallet.LedgerMeta) error
 }
 
 // NewService constructs the lease service.
@@ -417,7 +417,8 @@ func (s *Service) createSelfServiceWithTxn(ctx context.Context, residentID, user
 		if s.wallet == nil {
 			return nil, errors.New("wallet not configured")
 		}
-		if err := s.wallet.Debit(sc, userID, sat, wallet.LedgerLeaseFirstMonth); err != nil {
+		unitMeta := &wallet.LedgerMeta{UnitID: &in.UnitID}
+		if err := s.wallet.Debit(sc, userID, sat, wallet.LedgerLeaseFirstMonth, unitMeta); err != nil {
 			if errors.Is(err, wallet.ErrInsufficientFunds) {
 				return nil, ErrInsufficientWalletForFirstRent
 			}
@@ -489,7 +490,8 @@ func (s *Service) createSelfServiceSequential(ctx context.Context, residentID, u
 	if s.wallet == nil {
 		return nil, errors.New("wallet not configured")
 	}
-	if err := s.wallet.Debit(ctx, userID, sat, wallet.LedgerLeaseFirstMonth); err != nil {
+	unitMeta := &wallet.LedgerMeta{UnitID: &in.UnitID}
+	if err := s.wallet.Debit(ctx, userID, sat, wallet.LedgerLeaseFirstMonth, unitMeta); err != nil {
 		if errors.Is(err, wallet.ErrInsufficientFunds) {
 			return nil, ErrInsufficientWalletForFirstRent
 		}
@@ -510,18 +512,18 @@ func (s *Service) createSelfServiceSequential(ctx context.Context, residentID, u
 		UpdatedAt:         now,
 	}
 	if err := s.repo.Insert(ctx, d); err != nil {
-		_ = s.wallet.Credit(ctx, userID, sat, wallet.LedgerLeaseBookingReversal)
+		_ = s.wallet.Credit(ctx, userID, sat, wallet.LedgerLeaseBookingReversal, unitMeta)
 		return nil, err
 	}
 	if err := s.units.SetStatus(ctx, in.UnitID, unit.StatusOccupied); err != nil {
 		_ = s.repo.Delete(ctx, d.ID)
-		_ = s.wallet.Credit(ctx, userID, sat, wallet.LedgerLeaseBookingReversal)
+		_ = s.wallet.Credit(ctx, userID, sat, wallet.LedgerLeaseBookingReversal, unitMeta)
 		return nil, err
 	}
 	if err := s.residents.SetPrimaryUnitID(ctx, residentID, in.UnitID); err != nil {
 		_ = s.units.SetStatus(ctx, in.UnitID, unit.StatusVacant)
 		_ = s.repo.Delete(ctx, d.ID)
-		_ = s.wallet.Credit(ctx, userID, sat, wallet.LedgerLeaseBookingReversal)
+		_ = s.wallet.Credit(ctx, userID, sat, wallet.LedgerLeaseBookingReversal, unitMeta)
 		return nil, err
 	}
 	return d, nil

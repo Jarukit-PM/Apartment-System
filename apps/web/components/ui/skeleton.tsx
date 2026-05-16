@@ -94,6 +94,23 @@ export function LocaleShellSkeleton() {
   );
 }
 
+/** Top bar profile trigger while `/v1/me/summary` loads. */
+export function TopbarUserSkeleton() {
+  return (
+    <div
+      className="flex max-w-[min(100vw-8rem,16rem)] shrink-0 items-center gap-2 rounded-[var(--ap-radius)] border border-[var(--ap-border)] bg-[var(--ap-surface-solid)] py-1.5 pl-1.5 pr-2"
+      aria-busy="true"
+      aria-label="Loading profile"
+    >
+      <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+      <div className="hidden min-w-0 flex-1 space-y-1.5 sm:block">
+        <Skeleton className="h-3.5 w-20" />
+        <Skeleton className="h-3 w-28 max-w-full" />
+      </div>
+    </div>
+  );
+}
+
 /** Sidebar profile block while `/v1/me/summary` loads. */
 export function SidebarUserSkeleton() {
   return (

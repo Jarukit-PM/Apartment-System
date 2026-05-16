@@ -36,9 +36,9 @@ export default async function MyProfilePage({ params }: PageProps) {
 
   const me = summaryRes.data.data;
   const walletBalanceSatang = walletRes.ok ? walletRes.data.data.wallet.balanceSatang : null;
-  const openInvoiceCount = invoicesRes.ok
-    ? invoicesRes.data.data.filter((inv) => inv.status !== "paid").length
-    : 0;
+  const invoices = invoicesRes.ok ? invoicesRes.data.data : [];
+  const ledger = walletRes.ok ? walletRes.data.data.ledger : [];
+  const openInvoiceCount = invoices.filter((inv) => inv.status !== "paid").length;
 
   return (
     <ResidentProfilePanel
@@ -46,6 +46,8 @@ export default async function MyProfilePage({ params }: PageProps) {
       me={me}
       walletBalanceSatang={walletBalanceSatang}
       openInvoiceCount={openInvoiceCount}
+      invoices={invoices}
+      ledger={ledger}
     />
   );
 }

@@ -355,6 +355,16 @@ h1.ap-headline {
   background: rgba(196, 160, 82, 0.04);
 }
 
+.ap-table-payment-history th:last-child,
+.ap-table-payment-history td:last-child {
+  padding-right: 1.25rem;
+}
+
+.ap-table-payment-history th:nth-last-child(2),
+.ap-table-payment-history td:nth-last-child(2) {
+  padding-right: 1.25rem;
+}
+
 /* —— Alerts —— */
 .ap-alert {
   border-radius: 0.75rem;

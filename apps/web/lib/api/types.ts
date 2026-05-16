@@ -109,10 +109,18 @@ export type HealthResponse = {
   mongo: string;
 };
 
+/** Unit row embedded in GET /v1/me/summary for lease-linked payments. */
+export type LeaseUnitRef = {
+  unitId: string;
+  label: string;
+  propertyName?: string;
+};
+
 /** GET /v1/me/summary */
 export type MeSummaryData = {
   resident: Resident;
   leases: Lease[];
+  leaseUnits?: LeaseUnitRef[];
   primaryUnit?: Unit;
   property?: Property;
   activeLease?: Lease;
@@ -147,6 +155,8 @@ export type WalletLedgerEntry = {
   amountSatang: number;
   createdAt: string;
   peerUserId?: string | null;
+  unitId?: string | null;
+  leaseId?: string | null;
 };
 
 export type WalletBundle = {

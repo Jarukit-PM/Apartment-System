@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PortalNav, type PortalNavSection } from "@/components/layout/portal-nav";
 import { PortalShell } from "@/components/layout/portal-shell";
-import { PortalTopBarQuickLinks } from "@/components/layout/portal-top-bar-quick-links";
+import { PortalTopBarUserPanelSlot } from "@/components/layout/portal-top-bar-user-panel-slot";
 import { PortalTopBarWallet } from "@/components/layout/portal-top-bar-wallet";
 import { PortalTopBarWalletSkeleton } from "@/components/layout/portal-top-bar-wallet-skeleton";
 import { SidebarUserPanelSlot } from "@/components/layout/sidebar-user-panel-slot";
@@ -77,15 +77,11 @@ export async function PortalChrome({
           <Suspense fallback={<PortalTopBarWalletSkeleton />}>
             <PortalTopBarWallet href="/wallet" locale={locale} label={t("topBar.wallet")} />
           </Suspense>
-          <PortalTopBarQuickLinks
-            ariaLabel={t("topBar.quickNavLabel")}
-            links={[
-              {
-                href: user?.isResident ? "/my/profile" : "/account",
-                label: t("topBar.profile"),
-                iconKey: "profile",
-              },
-            ]}
+          <PortalTopBarUserPanelSlot
+            user={user}
+            locale={locale}
+            profileHref={user ? (user.isResident ? "/my/profile" : "/account") : undefined}
+            extraLinks={[{ href: "/my", label: t("myPortal") }]}
           />
         </>
       }
