@@ -42,7 +42,12 @@ function readStoredDesktopOpen(): boolean {
 export function SidebarProvider({ children }: ProviderProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopOpen, setDesktopOpen] = useState(readStoredDesktopOpen);
+  // Fixed initial value so SSR and the first client render match; restore preference after mount.
+  const [desktopOpen, setDesktopOpen] = useState(true);
+
+  useEffect(() => {
+    setDesktopOpen(readStoredDesktopOpen());
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");

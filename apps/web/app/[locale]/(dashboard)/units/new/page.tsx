@@ -1,9 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ActionForm } from "@/components/ui/action-form";
+import { CreateUnitForm } from "@/components/units/create-unit-form";
 import { PageHeader } from "@/components/ui/page-header";
 import { PeriodOfferFields } from "@/components/units/period-offer-fields";
-import { createUnit } from "@/lib/actions/portal";
 import { apiGetJsonAuthed } from "@/lib/api/server";
 import type { ListWrapper, Property } from "@/lib/api/types";
 
@@ -47,7 +46,7 @@ export default async function NewUnitPage({ params, searchParams }: PageProps) {
             </Link>
           </p>
         ) : (
-          <ActionForm action={createUnit} locale={locale} submitLabel={t("addUnitSubmit")}>
+          <CreateUnitForm locale={locale}>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="propertyId" className="ap-label">
@@ -149,7 +148,7 @@ export default async function NewUnitPage({ params, searchParams }: PageProps) {
                 </details>
               </div>
             </div>
-          </ActionForm>
+          </CreateUnitForm>
         )}
       </section>
     </div>

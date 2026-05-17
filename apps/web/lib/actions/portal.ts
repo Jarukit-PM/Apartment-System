@@ -5,9 +5,19 @@ import { parseRentalPeriodOffersFromForm } from "@/lib/domain/rental-periods";
 import { apiFetchJsonAuthed, apiUploadMediaAuthed } from "@/lib/api/server";
 import { uploadMaintenanceImagesFromForm } from "@/lib/maintenance/upload-images";
 
-export type ActionState = { ok: boolean; message: string };
+export type CreatedUnitRef = { id: string; label: string };
 
-const ok = (): ActionState => ({ ok: true, message: "" });
+export type ActionState = {
+  ok: boolean;
+  message: string;
+  createdUnit?: CreatedUnitRef;
+};
+
+const ok = (createdUnit?: CreatedUnitRef): ActionState => ({
+  ok: true,
+  message: "",
+  ...(createdUnit ? { createdUnit } : {}),
+});
 
 function fail(msg: string): ActionState {
   return { ok: false, message: msg };
@@ -228,18 +238,20 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   if (body.listingRent != null || offers.length > 0) {
     body.selfServiceEnabled = formData.get("selfService") === "on";
   }
-  const res = await apiFetchJsonAuthed(`/v1/units`, {
+  const res = await apiFetchJsonAuthed<{ data: { id: string; label: string } }>(`/v1/units`, {
     method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) return fail(apiUserMessage(res.error?.message ?? "", "Could not create unit"));
+  const created = res.data.data;
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   revalidatePath(`/${locale}/units`, "page");
   revalidatePath(`/${locale}/units/new`, "page");
+  revalidatePath(`/${locale}/units/${created.id}`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok({ id: created.id, label: created.label });
 }
 
 export async function patchUnit(_prev: ActionState, formData: FormData): Promise<ActionState> {
