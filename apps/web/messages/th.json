@@ -256,7 +256,7 @@
     "occupancyPrevMonth": "เดือนก่อน",
     "occupancyNextMonth": "เดือนถัดไป",
     "occupancyVacancy": "ว่าง",
-    "occupancyMoreResidents": "+{count} คน",
+    "occupancyMoreResidents": "+__count__ คน",
     "occupancyOpenEnded": "ต่อเนื่อง",
     "occupancyLeaseList": "สัญญาในเดือนนี้",
     "occupancyStatusActive": "ใช้งานอยู่",

@@ -82,7 +82,7 @@ export function buildMonthGrid(year: number, month: number, leases: OccupancyLea
 export function formatResidentLabel(names: string[], moreLabel: string): string {
   if (names.length === 0) return "";
   if (names.length === 1) return names[0];
-  return `${names[0]} ${moreLabel.replace("{count}", String(names.length - 1))}`;
+  return `${names[0]} ${moreLabel.replace("__count__", String(names.length - 1))}`;
 }
 
 export function formatLeaseRange(

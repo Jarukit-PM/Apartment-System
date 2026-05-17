@@ -256,7 +256,7 @@
     "occupancyPrevMonth": "Previous month",
     "occupancyNextMonth": "Next month",
     "occupancyVacancy": "Vacant",
-    "occupancyMoreResidents": "+{count} more",
+    "occupancyMoreResidents": "+__count__ more",
     "occupancyOpenEnded": "ongoing",
     "occupancyLeaseList": "Leases this month",
     "occupancyStatusActive": "Active",

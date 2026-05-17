@@ -1,0 +1,31 @@
+# Render Blueprint — Go API only (MongoDB runs on Atlas, web on Vercel).
+# Apply once: Render Dashboard → New → Blueprint → connect this repo.
+# Set secrets in the Dashboard after apply (MONGODB_URI, JWT_SECRET, CORS_ORIGINS).
+# GitHub Actions triggers deploys via RENDER_DEPLOY_HOOK_URL (autoDeploy is off).
+
+services:
+  - type: web
+    name: apartment-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: false
+    dockerfilePath: ./deploy/docker/Dockerfile.api
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        sync: false
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        sync: false

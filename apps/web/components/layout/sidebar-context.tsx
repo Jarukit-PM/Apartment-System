@@ -28,11 +28,21 @@ type ProviderProps = {
   children: ReactNode;
 };
 
+function readStoredDesktopOpen(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const storedOpen = localStorage.getItem(STORAGE_KEY);
+    if (storedOpen !== null) return storedOpen === "true";
+  } catch {
+    /* ignore */
+  }
+  return true;
+}
+
 export function SidebarProvider({ children }: ProviderProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopOpen, setDesktopOpen] = useState(true);
-  const [hydrated, setHydrated] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState(readStoredDesktopOpen);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -44,22 +54,11 @@ export function SidebarProvider({ children }: ProviderProps) {
 
   useEffect(() => {
     try {
-      const storedOpen = localStorage.getItem(STORAGE_KEY);
-      if (storedOpen !== null) setDesktopOpen(storedOpen === "true");
-    } catch {
-      /* ignore */
-    }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
       localStorage.setItem(STORAGE_KEY, String(desktopOpen));
     } catch {
       /* ignore */
     }
-  }, [desktopOpen, hydrated]);
+  }, [desktopOpen]);
 
   const toggleMobile = useCallback(() => setMobileOpen((o) => !o), []);
   const toggleDesktop = useCallback(() => setDesktopOpen((o) => !o), []);
