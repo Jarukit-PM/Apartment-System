@@ -19,6 +19,7 @@ export default async function MaintenancePage({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("MaintenancePage");
   const tCat = await getTranslations("MaintenanceCategories");
+  const tf = await getTranslations("FormFeedback");
 
   const [listRes, unitsRes, resRes] = await Promise.all([
     apiGetJsonAuthed<ListWrapper<MaintenanceRequest>>("/v1/maintenance-requests"),
@@ -46,6 +47,11 @@ export default async function MaintenancePage({ params }: PageProps) {
             residents={residents.map((r) => ({ id: r.id, fullName: r.fullName }))}
             requireUnitPick
             showStatus
+            success={{
+              title: tf("submittedTitle"),
+              description: tf("submittedDescription"),
+              closeLabel: tf("close"),
+            }}
             labels={{
               unit: t("unit"),
               pickUnit: t("pickUnit"),

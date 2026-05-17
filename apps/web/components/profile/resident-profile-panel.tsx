@@ -121,7 +121,9 @@ export async function ResidentProfilePanel({
             memberSince: t("memberSince"),
             emailReadOnly: t("emailReadOnly"),
             save: t("saveProfile"),
-            saved: t("saveSuccess"),
+            savedTitle: t("saveSuccess"),
+            savedDescription: t("saveSuccessDescription"),
+            savedClose: t("saveSuccessClose"),
             contactHint: t("contactHint"),
           }}
         />

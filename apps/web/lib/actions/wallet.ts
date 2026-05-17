@@ -9,7 +9,7 @@ function fail(msg: string): ActionState {
 }
 
 function ok(): ActionState {
-  return { ok: true, message: "" };
+  return { ok: true, message: "", saveRevision: Date.now() };
 }
 
 /** Parses a decimal baht string into integer satang (0.01 THB). */

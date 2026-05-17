@@ -16,6 +16,7 @@ export default async function ResidentsPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("ResidentsPage");
+  const tf = await getTranslations("FormFeedback");
 
   const [resRes, unitsRes, propsRes] = await Promise.all([
     apiGetJsonAuthed<ListWrapper<Resident>>("/v1/residents"),
@@ -35,7 +36,16 @@ export default async function ResidentsPage({ params }: PageProps) {
 
       <SectionCard title={t("addTitle")} icon={Plus} eyebrow>
         <div className="mt-4 max-w-lg">
-          <ActionForm action={createResident} locale={locale} submitLabel={t("addSubmit")}>
+          <ActionForm
+            action={createResident}
+            locale={locale}
+            submitLabel={t("addSubmit")}
+            success={{
+              title: tf("createdTitle"),
+              description: tf("createdDescription"),
+              closeLabel: tf("close"),
+            }}
+          >
             <div>
               <label htmlFor="fullName" className="ap-label">
                 {t("fullName")}

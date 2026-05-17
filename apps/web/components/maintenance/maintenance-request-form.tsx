@@ -1,5 +1,7 @@
 "use client";
 
+import { SuccessDialog } from "@/components/ui/success-dialog";
+import type { ActionFormSuccessLabels } from "@/components/ui/action-form";
 import { useActionState, useMemo, useState } from "react";
 import type { ActionState } from "@/lib/actions/portal";
 import {
@@ -39,6 +41,7 @@ type Props = {
   residents?: { id: string; fullName: string }[];
   showStatus?: boolean;
   requireUnitPick?: boolean;
+  success?: ActionFormSuccessLabels;
 };
 
 export function MaintenanceRequestForm({
@@ -51,8 +54,18 @@ export function MaintenanceRequestForm({
   residents,
   showStatus = false,
   requireUnitPick = false,
+  success,
 }: Props) {
+  const [acknowledgedRevision, setAcknowledgedRevision] = useState<number | null>(null);
   const [state, formAction] = useActionState(action, initial);
+  const revision = state.saveRevision;
+  const showSuccess = Boolean(
+    success && state.ok && revision != null && revision !== acknowledgedRevision,
+  );
+
+  function dismissSuccess() {
+    if (revision != null) setAcknowledgedRevision(revision);
+  }
   const [categoryId, setCategoryId] = useState<MaintenanceCategoryId>(categories[0]?.id ?? MAINTENANCE_CATEGORY_OTHER);
   const [customTitle, setCustomTitle] = useState("");
 
@@ -66,6 +79,7 @@ export function MaintenanceRequestForm({
   const isOther = categoryId === MAINTENANCE_CATEGORY_OTHER;
 
   return (
+    <>
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="title" value={resolvedTitle} />
@@ -185,5 +199,16 @@ export function MaintenanceRequestForm({
       ) : null}
       <SubmitButton label={submitLabel} />
     </form>
+
+    {success ? (
+      <SuccessDialog
+        open={showSuccess}
+        title={success.title}
+        description={success.description}
+        onClose={dismissSuccess}
+        closeAriaLabel={success.closeLabel ?? "Close"}
+      />
+    ) : null}
+    </>
   );
 }

@@ -35,5 +35,5 @@ export async function createMyMaintenanceRequest(
   }
   revalidatePath(`/${locale}/my/maintenance`, "page");
   revalidatePath(`/${locale}/my`, "page");
-  return { ok: true, message: "" };
+  return { ok: true, message: "", saveRevision: Date.now() };
 }

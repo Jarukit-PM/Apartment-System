@@ -17,6 +17,7 @@ export default async function PropertiesPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("PropertiesPage");
+  const tf = await getTranslations("FormFeedback");
 
   const res = await apiGetJsonAuthed<ListWrapper<Property>>("/v1/properties");
   const list = res.ok ? res.data.data : [];
@@ -27,7 +28,16 @@ export default async function PropertiesPage({ params }: PageProps) {
 
       <SectionCard title={t("addTitle")} icon={Plus}>
         <div className="mt-4 max-w-md">
-          <ActionForm action={createProperty} locale={locale} submitLabel={t("addSubmit")}>
+          <ActionForm
+            action={createProperty}
+            locale={locale}
+            submitLabel={t("addSubmit")}
+            success={{
+              title: tf("createdTitle"),
+              description: tf("createdDescription"),
+              closeLabel: tf("close"),
+            }}
+          >
             <div>
               <label htmlFor="name" className="ap-label">
                 {t("nameLabel")}

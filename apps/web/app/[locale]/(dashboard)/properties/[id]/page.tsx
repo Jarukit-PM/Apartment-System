@@ -19,6 +19,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("PropertyDetailPage");
+  const tf = await getTranslations("FormFeedback");
 
   const [propRes, unitsRes] = await Promise.all([
     apiGetJsonAuthed<SingleWrapper<Property>>(`/v1/properties/${id}`),
@@ -79,6 +80,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               remove: t("imageRemove"),
               hint: t("imageHint"),
             }}
+            success={{
+              title: tf("uploadedTitle"),
+              description: tf("uploadedDescription"),
+              closeLabel: tf("close"),
+            }}
           />
         </div>
       </section>
@@ -86,7 +92,16 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       <section className="ap-card p-6 md:p-8">
         <h2 className="ap-eyebrow">{t("detailsSection")}</h2>
         <div className="mt-4">
-        <ActionForm action={updateProperty} locale={locale} submitLabel={t("saveProperty")}>
+        <ActionForm
+          action={updateProperty}
+          locale={locale}
+          submitLabel={t("saveProperty")}
+          success={{
+            title: tf("savedTitle"),
+            description: tf("savedDescription"),
+            closeLabel: tf("close"),
+          }}
+        >
           <input type="hidden" name="id" value={id} />
           <div className="space-y-5">
             <div>

@@ -13,6 +13,7 @@ import { isWalletLedgerDebit } from "@/lib/domain/wallet-ledger";
 
 export async function WalletPanel({ locale }: { locale: string }) {
   const t = await getTranslations("MyPortal");
+  const tf = await getTranslations("FormFeedback");
 
   const res = await apiGetJsonAuthed<SingleWrapper<WalletBundle>>("/v1/wallet");
 
@@ -63,7 +64,16 @@ export async function WalletPanel({ locale }: { locale: string }) {
         </SectionCard>
 
         <SectionCard title={t("walletTransferTitle")} description={t("walletTransferHint")} icon={ArrowLeftRight}>
-          <ActionForm action={walletTransfer} locale={locale} submitLabel={t("walletTransferSubmit")}>
+          <ActionForm
+            action={walletTransfer}
+            locale={locale}
+            submitLabel={t("walletTransferSubmit")}
+            success={{
+              title: tf("transferredTitle"),
+              description: tf("transferredDescription"),
+              closeLabel: tf("close"),
+            }}
+          >
             <div>
               <label htmlFor="wallet-to-user" className="ap-label">
                 {t("walletToUserLabel")}

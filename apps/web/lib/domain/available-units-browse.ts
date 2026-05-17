@@ -23,7 +23,13 @@ export const DEFAULT_RENT_UNITS_FILTERS: RentUnitsFilters = {
 export function unitListingRent(u: AvailableUnit): { amount: number; currency: string } | null {
   const rent = u.listingRent;
   if (rent != null && rent.amount > 0) return rent;
-  return null;
+  const offers = u.rentalPeriodOffers ?? [];
+  if (offers.length === 0) return null;
+  let lowest = offers[0]!;
+  for (const o of offers) {
+    if (o.amount > 0 && o.amount < lowest.amount) lowest = o;
+  }
+  return lowest.amount > 0 ? { amount: lowest.amount, currency: lowest.currency } : null;
 }
 
 function normalizeQuery(q: string): string {

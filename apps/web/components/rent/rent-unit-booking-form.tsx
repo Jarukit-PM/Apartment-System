@@ -4,28 +4,20 @@ import { ActionForm } from "@/components/ui/action-form";
 import { selfLeaseAction } from "@/lib/actions/resident-lease";
 import type { AvailableUnit } from "@/lib/api/types";
 import { useTranslations } from "next-intl";
+import type { ActionFormSuccessLabels } from "@/components/ui/action-form";
 
 type Props = {
   unit: AvailableUnit;
   locale: string;
+  success: ActionFormSuccessLabels;
 };
 
-export function RentUnitBookingForm({ unit, locale }: Props) {
+export function RentUnitBookingForm({ unit, locale, success }: Props) {
   const t = useTranslations("MyPortal.rentBook");
   const offers = unit.rentalPeriodOffers ?? [];
   const hasOffers = offers.length > 0;
-  const hasListing = unit.listingRent != null && unit.listingRent.amount > 0;
-
   return (
     <div className="space-y-4">
-      {hasListing ? (
-        <p className="text-sm font-medium text-[var(--foreground)]">
-          {t("rentLine", {
-            amount: unit.listingRent!.amount,
-            currency: unit.listingRent!.currency,
-          })}
-        </p>
-      ) : null}
       {hasOffers ? (
         <div>
           <p className="ap-eyebrow">{t("ratesByPeriod")}</p>
@@ -42,7 +34,7 @@ export function RentUnitBookingForm({ unit, locale }: Props) {
           </ul>
         </div>
       ) : null}
-      <ActionForm action={selfLeaseAction} locale={locale} submitLabel={t("bookSubmit")}>
+      <ActionForm action={selfLeaseAction} locale={locale} submitLabel={t("bookSubmit")} success={success}>
         <input type="hidden" name="unitId" value={unit.id} />
         <div className="grid gap-4 sm:grid-cols-2">
           {hasOffers ? (

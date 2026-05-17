@@ -11,12 +11,15 @@ export type ActionState = {
   ok: boolean;
   message: string;
   createdUnit?: CreatedUnitRef;
+  /** Bumped on each successful save so the client can show a one-time success dialog. */
+  saveRevision?: number;
 };
 
-const ok = (createdUnit?: CreatedUnitRef): ActionState => ({
+const ok = (createdUnit?: CreatedUnitRef, saveRevision?: number): ActionState => ({
   ok: true,
   message: "",
   ...(createdUnit ? { createdUnit } : {}),
+  ...(saveRevision != null ? { saveRevision } : {}),
 });
 
 function fail(msg: string): ActionState {
@@ -50,7 +53,7 @@ export async function createProperty(
   if (!res.ok) return fail(res.error?.message ?? "Could not create property");
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 function addressFromForm(formData: FormData) {
@@ -97,7 +100,7 @@ export async function updateProperty(
   revalidatePath(`/${locale}/properties`, "page");
   revalidatePath(`/${locale}/properties/${id}`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 async function uploadImageFromForm(formData: FormData): Promise<string | ActionState> {
@@ -134,7 +137,7 @@ export async function uploadPropertyImage(
   revalidatePath(`/${locale}/properties/${id}`, "page");
   revalidatePath(`/${locale}/units`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 export async function removePropertyImage(formData: FormData): Promise<void> {
@@ -175,7 +178,7 @@ export async function uploadUnitImage(
   if (propertyId) {
     revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   }
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 export async function removeUnitImage(formData: FormData): Promise<void> {
@@ -219,14 +222,6 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   const body: Record<string, unknown> = { propertyId, label, status };
   if (floor !== undefined && !Number.isNaN(floor)) body.floor = floor;
   if (bedrooms !== undefined && !Number.isNaN(bedrooms)) body.bedrooms = bedrooms;
-  const listAmtRaw = String(formData.get("listingAmount") ?? "").trim();
-  if (listAmtRaw) {
-    const amt = Number(listAmtRaw);
-    if (!Number.isNaN(amt) && amt > 0) {
-      const cur = String(formData.get("listingCurrency") ?? "THB").trim() || "THB";
-      body.listingRent = { amount: amt, currency: cur };
-    }
-  }
   const parsed = parseRentalPeriodOffersFromForm(formData);
   if (!parsed.ok) {
     return fail(parsed.error);
@@ -235,9 +230,7 @@ export async function createUnit(_prev: ActionState, formData: FormData): Promis
   if (offers.length > 0) {
     body.rentalPeriodOffers = offers;
   }
-  if (body.listingRent != null || offers.length > 0) {
-    body.selfServiceEnabled = formData.get("selfService") === "on";
-  }
+  body.selfServiceEnabled = formData.get("selfService") === "on";
   const res = await apiFetchJsonAuthed<{ data: { id: string; label: string } }>(`/v1/units`, {
     method: "POST",
     body: JSON.stringify(body),
@@ -260,14 +253,6 @@ export async function patchUnit(_prev: ActionState, formData: FormData): Promise
   const propertyId = String(formData.get("propertyId") ?? "").trim();
   if (!unitId) return fail("Unit is required");
   const body: Record<string, unknown> = {};
-  const listAmtRaw = String(formData.get("listingAmount") ?? "").trim();
-  if (listAmtRaw) {
-    const amt = Number(listAmtRaw);
-    if (!Number.isNaN(amt) && amt > 0) {
-      const cur = String(formData.get("listingCurrency") ?? "THB").trim() || "THB";
-      body.listingRent = { amount: amt, currency: cur };
-    }
-  }
   if (formData.get("selfServiceUpdate") === "1") {
     body.selfServiceEnabled = formData.get("selfService") === "on";
   }
@@ -277,6 +262,8 @@ export async function patchUnit(_prev: ActionState, formData: FormData): Promise
       return fail(parsed.error);
     }
     body.rentalPeriodOffers = parsed.offers;
+    // Flat listing amount is no longer configured in the UI; clear legacy values on save.
+    body.listingRent = { amount: 0, currency: "THB" };
   }
   if (Object.keys(body).length === 0) {
     return fail("Nothing to update");
@@ -294,7 +281,7 @@ export async function patchUnit(_prev: ActionState, formData: FormData): Promise
     revalidatePath(`/${locale}/properties/${propertyId}`, "page");
   }
   revalidatePath(`/${locale}/units/${unitId}`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 export async function createResident(
@@ -317,7 +304,7 @@ export async function createResident(
   if (!res.ok) return fail(res.error?.message ?? "Could not create resident");
   revalidatePath(`/${locale}/residents`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 export async function createLease(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -357,7 +344,7 @@ export async function createLease(_prev: ActionState, formData: FormData): Promi
   revalidatePath(`/${locale}/leases`, "page");
   revalidatePath(`/${locale}/units`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 export async function updateLeaseStatus(formData: FormData): Promise<void> {
@@ -399,7 +386,7 @@ export async function createMaintenance(
   if (!res.ok) return fail(res.error?.message ?? "Could not create request");
   revalidatePath(`/${locale}/maintenance`, "page");
   revalidatePath(`/${locale}/dashboard`, "page");
-  return ok();
+  return ok(undefined, Date.now());
 }
 
 export async function updateMaintenanceStatus(formData: FormData): Promise<void> {

@@ -95,31 +95,6 @@ export default async function NewUnitPage({ params, searchParams }: PageProps) {
                   <option value="maintenance">maintenance</option>
                 </select>
               </div>
-              <div>
-                <label htmlFor="listingAmount" className="ap-label">
-                  {t("listingAmount")}
-                </label>
-                <input
-                  id="listingAmount"
-                  name="listingAmount"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  placeholder={t("listingAmountPh")}
-                  className="ap-input"
-                />
-              </div>
-              <div>
-                <label htmlFor="listingCurrency" className="ap-label">
-                  {t("listingCurrency")}
-                </label>
-                <input
-                  id="listingCurrency"
-                  name="listingCurrency"
-                  defaultValue="THB"
-                  className="ap-input"
-                />
-              </div>
               <div className="sm:col-span-2 flex items-center gap-2">
                 <input
                   id="selfService"

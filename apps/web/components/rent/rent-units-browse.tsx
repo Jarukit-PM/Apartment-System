@@ -34,6 +34,12 @@ function unitMetaLine(
 
 export function RentUnitsBrowse({ units, locale }: Props) {
   const t = useTranslations("MyPortal.rentBook");
+  const tf = useTranslations("FormFeedback");
+  const bookSuccess = {
+    title: tf("bookedTitle"),
+    description: tf("bookedDescription"),
+    closeLabel: tf("close"),
+  };
   const filtersId = useId();
   const bookingRef = useRef<HTMLDivElement>(null);
   const [filters, setFilters] = useState<RentUnitsFilters>(DEFAULT_RENT_UNITS_FILTERS);
@@ -283,7 +289,12 @@ export function RentUnitsBrowse({ units, locale }: Props) {
                     </h2>
                     <p className="mt-1 text-sm text-[var(--ap-muted)]">{unitMetaLine(selected, t)}</p>
                   </header>
-                  <RentUnitBookingForm key={selected.id} unit={selected} locale={locale} />
+                  <RentUnitBookingForm
+                    key={selected.id}
+                    unit={selected}
+                    locale={locale}
+                    success={bookSuccess}
+                  />
                 </div>
               </article>
             ) : (

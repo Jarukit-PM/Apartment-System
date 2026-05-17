@@ -18,6 +18,7 @@ export default async function MyMaintenancePage({ params }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("MyPortal");
   const tCat = await getTranslations("MaintenanceCategories");
+  const tf = await getTranslations("FormFeedback");
 
   const [summaryRes, listRes] = await Promise.all([
     apiGetJsonAuthed<SingleWrapper<MeSummaryData>>("/v1/me/summary"),
@@ -69,6 +70,11 @@ export default async function MyMaintenancePage({ params }: PageProps) {
               submitLabel={t("newRequestSubmit")}
               categories={categories}
               unitChoices={unitChoices}
+              success={{
+                title: tf("submittedTitle"),
+                description: tf("submittedDescription"),
+                closeLabel: tf("close"),
+              }}
               labels={{
                 unit: t("unit"),
                 ticketTitle: t("ticketTitle"),

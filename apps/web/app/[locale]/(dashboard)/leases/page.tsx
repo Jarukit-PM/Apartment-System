@@ -16,6 +16,7 @@ export default async function LeasesPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("LeasesPage");
+  const tf = await getTranslations("FormFeedback");
 
   const [leasesRes, unitsRes, resRes] = await Promise.all([
     apiGetJsonAuthed<ListWrapper<Lease>>("/v1/leases"),
@@ -33,7 +34,16 @@ export default async function LeasesPage({ params }: PageProps) {
 
       <SectionCard title={t("addTitle")} description={t("addHint")} icon={Plus}>
         <div className="max-w-2xl">
-          <ActionForm action={createLease} locale={locale} submitLabel={t("addSubmit")}>
+          <ActionForm
+            action={createLease}
+            locale={locale}
+            submitLabel={t("addSubmit")}
+            success={{
+              title: tf("createdTitle"),
+              description: tf("createdDescription"),
+              closeLabel: tf("close"),
+            }}
+          >
             <div>
               <label htmlFor="unitId" className="ap-label">
                 {t("unit")}

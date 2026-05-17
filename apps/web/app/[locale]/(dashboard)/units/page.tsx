@@ -16,9 +16,6 @@ function unitRatesSummary(
   t: (key: string, values?: Record<string, string | number | Date>) => string,
 ): string {
   const parts: string[] = [];
-  if (u.listingRent) {
-    parts.push(`${u.listingRent.amount} ${u.listingRent.currency}`);
-  }
   const n = u.rentalPeriodOffers?.length ?? 0;
   if (n > 0) {
     parts.push(t("periodRatesCount", { count: n }));

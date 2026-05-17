@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ActionForm } from "@/components/ui/action-form";
+import { UnitRatesForm } from "@/components/units/unit-rates-form";
 import { PageHeader } from "@/components/ui/page-header";
 import { PeriodOfferFields } from "@/components/units/period-offer-fields";
 import { EntityImageUpload } from "@/components/entities/entity-image-upload";
 import { UnitImage } from "@/components/entities/entity-image";
 import { UnitOccupancyCalendar } from "@/components/occupancy/unit-occupancy-calendar";
-import { patchUnit, removeUnitImage, uploadUnitImage } from "@/lib/actions/portal";
+import { removeUnitImage, uploadUnitImage } from "@/lib/actions/portal";
 import { apiGetJsonAuthed } from "@/lib/api/server";
 import { leasesToOccupancy, residentNameMap } from "@/lib/domain/unit-occupancy";
 import type { Lease, ListWrapper, Property, Resident, SingleWrapper, Unit } from "@/lib/api/types";
@@ -18,28 +18,16 @@ function unitRatesMetaLine(
   u: Unit,
   t: (key: string, values?: Record<string, string | number | Date>) => string,
 ): string {
-  const hasFlat = u.listingRent != null && u.listingRent.amount > 0;
   const n = u.rentalPeriodOffers?.length ?? 0;
-  if (!hasFlat && n === 0) return t("noPublishedRatesMeta");
-  const parts: string[] = [];
-  if (hasFlat && u.listingRent) {
-    parts.push(
-      t("metaFlatSnippet", {
-        amount: u.listingRent.amount,
-        currency: u.listingRent.currency,
-      }),
-    );
-  }
-  if (n > 0) {
-    parts.push(t("metaPeriodsSnippet", { count: n }));
-  }
-  return parts.join(" · ");
+  if (n === 0) return t("noPublishedRatesMeta");
+  return t("metaPeriodsSnippet", { count: n });
 }
 
 export default async function UnitDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("UnitsPage");
+  const tf = await getTranslations("FormFeedback");
 
   const [unitRes, leasesRes, residentsRes] = await Promise.all([
     apiGetJsonAuthed<SingleWrapper<Unit>>(`/v1/units/${id}`),
@@ -118,15 +106,6 @@ export default async function UnitDetailPage({ params }: PageProps) {
         <p className="mt-1 font-mono text-xs text-[var(--ap-muted)]">{unit.id}</p>
       </div>
 
-      {unit.listingRent ? (
-        <p className="text-sm text-[var(--ap-muted)]">
-          {t("listingLine", {
-            amount: unit.listingRent.amount,
-            currency: unit.listingRent.currency,
-          })}
-        </p>
-      ) : null}
-
       <section className="ap-card p-6 md:p-8">
         <h2 className="ap-eyebrow">{t("imageSection")}</h2>
         <UnitImage
@@ -149,6 +128,11 @@ export default async function UnitDetailPage({ params }: PageProps) {
               submit: t("imageUpload"),
               remove: t("imageRemove"),
               hint: t("imageHint"),
+            }}
+            success={{
+              title: tf("uploadedTitle"),
+              description: tf("uploadedDescription"),
+              closeLabel: tf("close"),
             }}
           />
         </div>
@@ -194,51 +178,25 @@ export default async function UnitDetailPage({ params }: PageProps) {
             </span>
           </summary>
           <div className="border-t border-[var(--ap-border)] px-3 pb-4 pt-4">
-            <ActionForm action={patchUnit} locale={locale} submitLabel={t("saveListing")}>
-              <input type="hidden" name="unitId" value={unit.id} />
-              <input type="hidden" name="propertyId" value={unit.propertyId} />
-              <input type="hidden" name="selfServiceUpdate" value="1" />
-              <input type="hidden" name="periodOffersUpdate" value="1" />
+            <UnitRatesForm
+              locale={locale}
+              unitId={unit.id}
+              propertyId={unit.propertyId}
+              unitLabel={unit.label}
+              submitLabel={t("saveListing")}
+            >
               <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="listingAmount" className="ap-label">
-                      {t("listingAmount")}
-                    </label>
-                    <input
-                      id="listingAmount"
-                      name="listingAmount"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      placeholder={t("listingAmountPh")}
-                      defaultValue={unit.listingRent?.amount ?? ""}
-                      className="ap-input"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="listingCurrency" className="ap-label">
-                      {t("listingCurrency")}
-                    </label>
-                    <input
-                      id="listingCurrency"
-                      name="listingCurrency"
-                      defaultValue={unit.listingRent?.currency ?? "THB"}
-                      className="ap-input"
-                    />
-                  </div>
-                  <div className="sm:col-span-2 flex items-center gap-2">
-                    <input
-                      id="selfService"
-                      name="selfService"
-                      type="checkbox"
-                      defaultChecked={unit.selfServiceEnabled ?? false}
-                      className="h-4 w-4 rounded border-[var(--ap-border-strong)]"
-                    />
-                    <label htmlFor="selfService" className="text-sm text-[var(--foreground)]">
-                      {t("selfService")}
-                    </label>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="selfService"
+                    name="selfService"
+                    type="checkbox"
+                    defaultChecked={unit.selfServiceEnabled ?? false}
+                    className="h-4 w-4 rounded border-[var(--ap-border-strong)]"
+                  />
+                  <label htmlFor="selfService" className="text-sm text-[var(--foreground)]">
+                    {t("selfService")}
+                  </label>
                 </div>
                 <PeriodOfferFields
                   t={t}
@@ -246,7 +204,7 @@ export default async function UnitDetailPage({ params }: PageProps) {
                   offers={unit.rentalPeriodOffers}
                 />
               </div>
-            </ActionForm>
+            </UnitRatesForm>
           </div>
         </details>
       </section>

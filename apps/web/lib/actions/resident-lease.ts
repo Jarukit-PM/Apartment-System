@@ -6,7 +6,7 @@ import type { ActionState } from "@/lib/actions/portal";
 import { apiFetchJsonAuthed } from "@/lib/api/server";
 
 function ok(): ActionState {
-  return { ok: true, message: "" };
+  return { ok: true, message: "", saveRevision: Date.now() };
 }
 
 function fail(msg: string): ActionState {

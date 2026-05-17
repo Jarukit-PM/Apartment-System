@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { SuccessDialog } from "@/components/ui/success-dialog";
+import type { ActionFormSuccessLabels } from "@/components/ui/action-form";
+import { useActionState, useState } from "react";
 import { SubmitButton } from "@/components/ui/submit-button";
 import type { ActionState } from "@/lib/actions/portal";
 
@@ -18,6 +20,7 @@ type EntityImageUploadProps = {
   };
   hasImage: boolean;
   removeAction?: (formData: FormData) => Promise<void>;
+  success?: ActionFormSuccessLabels;
 };
 
 const initial: ActionState = { ok: true, message: "" };
@@ -31,8 +34,19 @@ export function EntityImageUpload({
   labels,
   hasImage,
   removeAction,
+  success,
 }: EntityImageUploadProps) {
+  const [acknowledgedRevision, setAcknowledgedRevision] = useState<number | null>(null);
   const [state, formAction] = useActionState(action, initial);
+
+  const revision = state.saveRevision;
+  const showSuccess = Boolean(
+    success && state.ok && revision != null && revision !== acknowledgedRevision,
+  );
+
+  function dismissSuccess() {
+    if (revision != null) setAcknowledgedRevision(revision);
+  }
 
   return (
     <div className="space-y-3">
@@ -67,6 +81,16 @@ export function EntityImageUpload({
         <p className="text-sm text-red-600" role="alert">
           {state.message}
         </p>
+      ) : null}
+
+      {success ? (
+        <SuccessDialog
+          open={showSuccess}
+          title={success.title}
+          description={success.description}
+          onClose={dismissSuccess}
+          closeAriaLabel={success.closeLabel ?? "Close"}
+        />
       ) : null}
     </div>
   );

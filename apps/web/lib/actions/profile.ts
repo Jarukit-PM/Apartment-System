@@ -37,5 +37,5 @@ export async function updateMyProfileAction(
   revalidatePath(`/${locale}/my`, "page");
   revalidatePath(`/${locale}/my`, "layout");
 
-  return { ok: true, message: "saved" };
+  return { ok: true, message: "", saveRevision: Date.now() };
 }
