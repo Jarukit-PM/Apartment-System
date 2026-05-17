@@ -54,7 +54,7 @@ func Load() Config {
 	billSec := getenvInt("BILLING_TICK_INTERVAL_SECONDS", 3600)
 	mediaDir := strings.TrimSpace(os.Getenv("MEDIA_DIR"))
 	if mediaDir == "" {
-		mediaDir = "uploads"
+		mediaDir = defaultMediaDir()
 	}
 	mediaMax := int64(getenvInt("MEDIA_MAX_BYTES", 5<<20))
 	return Config{
@@ -72,6 +72,24 @@ func Load() Config {
 		MediaDir:             mediaDir,
 		MediaMaxBytes:        mediaMax,
 	}
+}
+
+// defaultMediaDir picks a writable path in production containers (e.g. Render)
+// where the process cwd is not writable; local dev keeps ./uploads.
+func defaultMediaDir() string {
+	if inProductionEnv() {
+		return "/tmp/apartment-media"
+	}
+	return "uploads"
+}
+
+func inProductionEnv() bool {
+	for _, k := range []string{"APP_ENV", "ENVIRONMENT"} {
+		if strings.EqualFold(strings.TrimSpace(os.Getenv(k)), "production") {
+			return true
+		}
+	}
+	return false
 }
 
 func getenvInt(key string, def int) int {

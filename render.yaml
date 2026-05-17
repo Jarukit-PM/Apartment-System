@@ -17,6 +17,8 @@ services:
     envVars:
       - key: APP_ENV
         value: production
+      - key: MEDIA_DIR
+        value: /data/media
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
