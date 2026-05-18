@@ -1,0 +1,7 @@
+flowchart TB
+  HTTP[chi Router] --> MW[Middleware]
+  MW --> H[Handlers]
+  H --> S[Domain Services]
+  S --> R[Repositories]
+  R --> DB[(MongoDB)]
+  Bill[billing.Runner] --> S

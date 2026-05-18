@@ -1,0 +1,6 @@
+flowchart TB
+  P[Manual scattered ops] --> S1[Monorepo REST API]
+  S1 --> S2[Go business rules]
+  S2 --> S3[Admin and Resident UI]
+  S3 --> S4[Wallet and Billing]
+  S4 --> V[Single source of truth]

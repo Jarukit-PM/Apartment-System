@@ -1,0 +1,7 @@
+erDiagram
+  properties ||--o{ units : has
+  units ||--o{ leases : has
+  residents }o--o{ leases : signs
+  users ||--o| residents : links
+  users ||--|| wallets : owns
+  leases ||--o{ invoices : bills

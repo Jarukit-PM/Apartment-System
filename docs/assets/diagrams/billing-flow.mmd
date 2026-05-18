@@ -1,0 +1,5 @@
+flowchart LR
+  T[Ticker] --> R[billing.Runner]
+  R --> L[Active leases]
+  L --> I[Create invoice]
+  I --> N[Advance billingMonth]

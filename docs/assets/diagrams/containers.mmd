@@ -1,0 +1,4 @@
+flowchart LR
+  Browser[Web Browser] -->|HTTPS| Next[Next.js :3000]
+  Next -->|API_URL| API[Go REST API :8080]
+  API --> Mongo[(MongoDB)]

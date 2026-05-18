@@ -1,0 +1,13 @@
+sequenceDiagram
+  participant R as Resident
+  participant W as Next.js
+  participant A as Go API
+  participant D as MongoDB
+  R->>W: Login
+  W->>A: POST /v1/auth/login
+  R->>W: Top up wallet
+  W->>A: POST /v1/wallet/top-ups
+  R->>W: Book unit
+  W->>A: POST /v1/me/leases
+  A->>D: Transaction
+  A-->>W: 201 or 402
