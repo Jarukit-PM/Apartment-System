@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Post-deploy smoke tests against production API and web URLs.
-# Requires: PRODUCTION_API_URL, PRODUCTION_WEB_URL (no trailing slash).
+# Requires: PRODUCTION_API_URL, PRODUCTION_WEB_URL (canonical HTTPS URL, no trailing slash).
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=smoke-common.sh
+source "$SCRIPT_DIR/smoke-common.sh"
 
 API_URL="${PRODUCTION_API_URL:-}"
 WEB_URL="${PRODUCTION_WEB_URL:-}"
@@ -45,20 +49,21 @@ echo "Smoke: GET $API_URL/v1/site"
 site_json="$(curl -fsS "$API_URL/v1/site")"
 echo "$site_json" | jq -e '.data.buildingName != null' >/dev/null
 
-echo "Waiting for web at $WEB_URL/ ..."
+echo "Waiting for web home at $WEB_URL ..."
 web_ok=false
 for i in $(seq 1 15); do
-  code="$(curl -fsS -o /dev/null -w "%{http_code}" -L "$WEB_URL/" 2>/dev/null || echo "000")"
-  if [[ "$code" == "200" ]]; then
+  if smoke_web_home_ok "$WEB_URL"; then
     web_ok=true
     echo "Web healthy (attempt $i)"
     break
   fi
-  echo "Web not ready (attempt $i/15, HTTP $code), retrying in 10s ..."
+  echo "Web not ready (attempt $i/15), retrying in 10s ..."
   sleep 10
 done
 if [[ "$web_ok" != "true" ]]; then
-  echo "::error::Web did not return HTTP 200 within timeout"
+  smoke_web_debug_headers "$WEB_URL"
+  echo "::error::Web home did not return HTTP 2xx within timeout"
+  echo "::error::Set PRODUCTION_WEB_URL to the canonical HTTPS URL (e.g. https://your-app.vercel.app)"
   exit 1
 fi
 

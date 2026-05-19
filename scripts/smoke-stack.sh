@@ -6,8 +6,14 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=smoke-common.sh
+source "$SCRIPT_DIR/smoke-common.sh"
+
 API_URL="${API_URL:-http://localhost:8080}"
 WEB_URL="${WEB_URL:-http://localhost:3000}"
+API_URL="${API_URL%/}"
+WEB_URL="${WEB_URL%/}"
 
 echo "Smoke: API at $API_URL"
 health_json="$(curl -fsS "$API_URL/health")"
@@ -17,11 +23,10 @@ echo "Smoke: GET /v1/site"
 site_json="$(curl -fsS "$API_URL/v1/site")"
 echo "$site_json" | jq -e '.data.buildingName != null and (.data.buildingName | length) > 0' >/dev/null
 
-# App uses localePrefix "never" — /en is a legacy redirect to / (307). Probe home instead.
-echo "Smoke: Web at $WEB_URL/"
-code="$(curl -fsS -o /dev/null -w "%{http_code}" -L "$WEB_URL/")"
-if [[ "$code" != "200" ]]; then
-  echo "::error::Expected HTTP 200 from $WEB_URL/ (after redirects), got $code"
+echo "Smoke: Web home at $WEB_URL"
+if ! smoke_web_home_ok "$WEB_URL"; then
+  smoke_web_debug_headers "$WEB_URL"
+  echo "::error::Web home did not return HTTP 2xx"
   exit 1
 fi
 
