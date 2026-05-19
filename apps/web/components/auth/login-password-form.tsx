@@ -34,7 +34,6 @@ function LoginFormFields({
   locale,
   next,
   state,
-  formLabel,
   emailLabel,
   passwordLabel,
   submitLabel,
@@ -108,7 +107,6 @@ export function LoginPasswordForm({
         locale={locale}
         next={next}
         state={state}
-        formLabel={formLabel}
         emailLabel={emailLabel}
         passwordLabel={passwordLabel}
         submitLabel={submitLabel}

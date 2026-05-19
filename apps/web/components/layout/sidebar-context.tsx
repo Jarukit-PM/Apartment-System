@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 
 const STORAGE_KEY = "ap-portal-sidebar-open";
 
@@ -39,15 +48,56 @@ function readStoredDesktopOpen(): boolean {
   return true;
 }
 
+type DesktopOpenStore = {
+  open: boolean;
+  listeners: Set<() => void>;
+};
+
+let desktopOpenStore: DesktopOpenStore | null = null;
+
+function getDesktopOpenStore(): DesktopOpenStore {
+  if (!desktopOpenStore) {
+    desktopOpenStore = {
+      open: readStoredDesktopOpen(),
+      listeners: new Set(),
+    };
+  }
+  return desktopOpenStore;
+}
+
+function subscribeDesktopOpen(onStoreChange: () => void): () => void {
+  const store = getDesktopOpenStore();
+  store.listeners.add(onStoreChange);
+  return () => store.listeners.delete(onStoreChange);
+}
+
+function getDesktopOpenSnapshot(): boolean {
+  return getDesktopOpenStore().open;
+}
+
+function getDesktopOpenServerSnapshot(): boolean {
+  return true;
+}
+
+function writeDesktopOpen(open: boolean): void {
+  const store = getDesktopOpenStore();
+  store.open = open;
+  try {
+    localStorage.setItem(STORAGE_KEY, String(open));
+  } catch {
+    /* ignore */
+  }
+  store.listeners.forEach((listener) => listener());
+}
+
 export function SidebarProvider({ children }: ProviderProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // Fixed initial value so SSR and the first client render match; restore preference after mount.
-  const [desktopOpen, setDesktopOpen] = useState(true);
-
-  useEffect(() => {
-    setDesktopOpen(readStoredDesktopOpen());
-  }, []);
+  const desktopOpen = useSyncExternalStore(
+    subscribeDesktopOpen,
+    getDesktopOpenSnapshot,
+    getDesktopOpenServerSnapshot,
+  );
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -57,16 +107,9 @@ export function SidebarProvider({ children }: ProviderProps) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(desktopOpen));
-    } catch {
-      /* ignore */
-    }
-  }, [desktopOpen]);
-
+  const setDesktopOpen = useCallback((open: boolean) => writeDesktopOpen(open), []);
   const toggleMobile = useCallback(() => setMobileOpen((o) => !o), []);
-  const toggleDesktop = useCallback(() => setDesktopOpen((o) => !o), []);
+  const toggleDesktop = useCallback(() => writeDesktopOpen(!getDesktopOpenSnapshot()), []);
 
   const value = useMemo(
     () => ({
@@ -78,7 +121,7 @@ export function SidebarProvider({ children }: ProviderProps) {
       setDesktopOpen,
       toggleDesktop,
     }),
-    [isMobile, mobileOpen, toggleMobile, desktopOpen, toggleDesktop],
+    [isMobile, mobileOpen, toggleMobile, desktopOpen, setDesktopOpen, toggleDesktop],
   );
 
   return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;

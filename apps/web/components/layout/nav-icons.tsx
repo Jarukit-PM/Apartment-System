@@ -5,7 +5,6 @@ import {
   Activity,
   Building2,
   ClipboardList,
-  FileText,
   Home,
   LayoutDashboard,
   Receipt,
