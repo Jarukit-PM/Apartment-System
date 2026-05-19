@@ -45,10 +45,10 @@ echo "Smoke: GET $API_URL/v1/site"
 site_json="$(curl -fsS "$API_URL/v1/site")"
 echo "$site_json" | jq -e '.data.buildingName != null' >/dev/null
 
-echo "Waiting for web at $WEB_URL/en ..."
+echo "Waiting for web at $WEB_URL/ ..."
 web_ok=false
 for i in $(seq 1 15); do
-  code="$(curl -fsS -o /dev/null -w "%{http_code}" "$WEB_URL/en" 2>/dev/null || echo "000")"
+  code="$(curl -fsS -o /dev/null -w "%{http_code}" -L "$WEB_URL/" 2>/dev/null || echo "000")"
   if [[ "$code" == "200" ]]; then
     web_ok=true
     echo "Web healthy (attempt $i)"

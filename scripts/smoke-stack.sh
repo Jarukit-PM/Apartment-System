@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Smoke-test the local Docker Compose stack (mongo + api + web).
-# Usage: ./scripts/smoke-stack.sh
+# Used by CI "integration" job — not production URLs.
+# For production, use scripts/smoke-production.sh (PRODUCTION_API_URL, PRODUCTION_WEB_URL).
 # Env: API_URL (default http://localhost:8080), WEB_URL (default http://localhost:3000)
 
 set -euo pipefail
@@ -16,10 +17,11 @@ echo "Smoke: GET /v1/site"
 site_json="$(curl -fsS "$API_URL/v1/site")"
 echo "$site_json" | jq -e '.data.buildingName != null and (.data.buildingName | length) > 0' >/dev/null
 
-echo "Smoke: Web at $WEB_URL/en"
-code="$(curl -fsS -o /dev/null -w "%{http_code}" "$WEB_URL/en")"
+# App uses localePrefix "never" — /en is a legacy redirect to / (307). Probe home instead.
+echo "Smoke: Web at $WEB_URL/"
+code="$(curl -fsS -o /dev/null -w "%{http_code}" -L "$WEB_URL/")"
 if [[ "$code" != "200" ]]; then
-  echo "::error::Expected HTTP 200 from $WEB_URL/en, got $code"
+  echo "::error::Expected HTTP 200 from $WEB_URL/ (after redirects), got $code"
   exit 1
 fi
 
