@@ -1,0 +1,27 @@
+# CI / integration test overrides — merge with docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.ci.yml up --wait
+
+services:
+  api:
+    environment:
+      BOOTSTRAP_ADMIN_EMAIL: ci-admin@example.invalid
+      BOOTSTRAP_ADMIN_PASSWORD: ci-test-password-long-enough
+      BILLING_TICK_INTERVAL_SECONDS: "0"
+      SITE_DISPLAY_NAME: CI Test Building
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  web:
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/en"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 60s

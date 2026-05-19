@@ -94,15 +94,36 @@ cd apps/web
 npm run dev
 ```
 
+## CI and integration tests
+
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs unit tests, lint/build, Docker builds, and a **stack integration** job: Docker Compose with [`docker-compose.ci.yml`](docker-compose.ci.yml), Go tests (`go test -tags=integration`), and [`scripts/smoke-stack.sh`](scripts/smoke-stack.sh).
+
+Run the same checks locally:
+
+```bash
+cp .env.example .env
+docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build --wait
+export API_BASE_URL=http://localhost:8080
+export BOOTSTRAP_ADMIN_EMAIL=ci-admin@example.invalid
+export BOOTSTRAP_ADMIN_PASSWORD=ci-test-password-long-enough
+cd services/api && go test -tags=integration -count=1 -timeout=5m ./test/integration/...
+cd ../.. && ./scripts/smoke-stack.sh
+docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
+```
+
+Production deploys ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) run [`scripts/smoke-production.sh`](scripts/smoke-production.sh) after Render and Vercel; set GitHub secrets `PRODUCTION_API_URL` and `PRODUCTION_WEB_URL`.
+
 ## Repository layout
 
 ```
 apps/web/              Next.js application
 services/api/          Go module and cmd/server
 deploy/docker/         Dockerfiles (build context = repo root)
+scripts/               CI smoke scripts (stack and production)
 .devcontainer/         Dev Container: MongoDB + Go + Node (see README above)
 docs/                  Architecture and API documentation
 docker-compose.yml     mongo, api, web services
+docker-compose.ci.yml  CI overrides (bootstrap admin, billing off)
 ```
 
 ## License

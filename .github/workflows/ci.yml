@@ -1,5 +1,5 @@
 # CI — runs on pull requests and pushes (all branches).
-# Validates Go tests, Next.js lint/build, and API Docker image build.
+# Validates Go tests, Next.js lint/build, API Docker image build, and stack integration.
 
 name: CI
 
@@ -91,3 +91,38 @@ jobs:
           tags: apartment-api:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  integration:
+    name: Stack integration
+    runs-on: ubuntu-latest
+    env:
+      BOOTSTRAP_ADMIN_EMAIL: ci-admin@example.invalid
+      BOOTSTRAP_ADMIN_PASSWORD: ci-test-password-long-enough
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: services/api/go.mod
+          cache-dependency-path: services/api/go.sum
+
+      - name: Prepare env file
+        run: cp .env.example .env
+
+      - name: Start stack
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build --wait
+
+      - name: Go integration tests
+        working-directory: services/api
+        env:
+          API_BASE_URL: http://localhost:8080
+          BOOTSTRAP_ADMIN_EMAIL: ${{ env.BOOTSTRAP_ADMIN_EMAIL }}
+          BOOTSTRAP_ADMIN_PASSWORD: ${{ env.BOOTSTRAP_ADMIN_PASSWORD }}
+        run: go test -tags=integration -count=1 -timeout=5m ./test/integration/...
+
+      - name: Stack smoke script
+        run: ./scripts/smoke-stack.sh
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v

@@ -6,6 +6,8 @@
 #   VERCEL_ORG_ID         — Vercel project → Settings → General
 #   VERCEL_PROJECT_ID     — same page
 #   RENDER_DEPLOY_HOOK_URL — Render service → Settings → Deploy Hook
+#   PRODUCTION_API_URL      — e.g. https://<apartment-api>.onrender.com (post-deploy smoke)
+#   PRODUCTION_WEB_URL      — e.g. https://<your-app>.vercel.app (post-deploy smoke)
 #
 # One-time platform setup:
 #   1. MongoDB Atlas cluster → connection string → Render env MONGODB_URI
@@ -98,3 +100,17 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: "--prod"
+
+  smoke-production:
+    name: Production smoke tests
+    needs: [deploy-api, deploy-web]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Production smoke
+        env:
+          PRODUCTION_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          PRODUCTION_WEB_URL: ${{ secrets.PRODUCTION_WEB_URL }}
+        run: ./scripts/smoke-production.sh
