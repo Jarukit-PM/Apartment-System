@@ -23,7 +23,7 @@ type Props = {
   navigatingLabel?: string;
 };
 
-type FieldsProps = Omit<Props, "locale" | "next"> & {
+type FieldsProps = Omit<Props, "locale" | "next" | "formLabel"> & {
   locale: string;
   next?: string;
   state: LoginState;
